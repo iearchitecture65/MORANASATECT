@@ -156,19 +156,20 @@
     </div>
 
     <!-- Header & Menu -->
-    <header class="px-4 py-4 md:px-6 md:py-5 text-center text-white border-b border-white/10 relative z-50 flex-shrink-0 bg-black/30 backdrop-blur-sm">
+    <header class="px-4 py-3 md:px-6 md:py-4 text-center text-white border-b border-white/10 relative z-50 flex-shrink-0 bg-black/30 backdrop-blur-sm">
         <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center h-full z-[100]">
             <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-9 md:h-12 w-auto drop-shadow-lg cursor-pointer hover:scale-105 transition-transform active:scale-95" 
                  onclick="app.goHome()" onerror="this.style.display='none'">
         </div>
         
-        <div class="pointer-events-none relative z-10">
-            <h1 class="text-xl md:text-2xl font-extrabold tracking-wide mb-0 drop-shadow-md text-secondary">
-                นิทรรศการวิทยานิพนธ์
-            </h1>
-            <p class="text-[10px] md:text-xs font-medium tracking-[0.15em] opacity-80 uppercase text-white">
+        <!-- Header Text -->
+        <div class="pointer-events-none relative z-10 flex flex-col items-center justify-center">
+            <p class="text-[10px] md:text-xs font-bold tracking-[0.3em] opacity-80 uppercase text-white mb-0.5">
                 MORANASATECT
             </p>
+            <h1 class="text-lg md:text-xl font-extrabold tracking-wide drop-shadow-md text-secondary">
+                นิทรรศการวิทยานิพนธ์
+            </h1>
         </div>
         
         <!-- Hamburger Menu Button -->
@@ -451,6 +452,7 @@
                         const headers = parsed[0];
                         const dataRows = parsed.slice(1);
                         
+                        // เพิ่มคอลัมน์สำหรับการติดต่อ (5.1-5.4) เข้ามา
                         const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4'];
                         const headerMap = {};
                         prefixes.forEach(p => headerMap[p] = []);
@@ -651,6 +653,36 @@
                 this.closeMenu();
                 window.history.replaceState({}, document.title, `${window.location.pathname}?iframe=${idx}`);
                 this.showView('iframe_view', idx);
+            },
+
+            // ================== HELPER FUNCTIONS ==================
+            // ฟังก์ชันจัดรูปแบบชื่อผลงาน (ไทย 2 บรรทัดใหญ่, อังกฤษบรรทัดใหม่ขนาดเล็ก)
+            formatThesisTitle: function(title) {
+                if (!title) return '<span class="text-xl md:text-2xl">กำลังจัดทำวิทยานิพนธ์</span>';
+                
+                // ลองหาบรรทัดใหม่
+                let parts = title.split('\n');
+                if (parts.length > 1) {
+                    return `<span class="line-clamp-2 text-xl md:text-2xl">${parts[0]}</span><span class="block text-sm md:text-base text-gray-400 mt-1 font-medium">${parts.slice(1).join(' ')}</span>`;
+                }
+                
+                // ถ้าไม่มีบรรทัดใหม่ ลองแยกด้วยวงเล็บ (ไทย) (Eng)
+                const bracketMatch = title.match(/^(.*?)(\([^)]+\))$/);
+                if (bracketMatch) {
+                    return `<span class="line-clamp-2 text-xl md:text-2xl">${bracketMatch[1].trim()}</span><span class="block text-sm md:text-base text-gray-400 mt-1 font-medium">${bracketMatch[2].trim()}</span>`;
+                }
+
+                // หาช่วงท้ายที่เป็นภาษาอังกฤษเพียวๆ (รองรับ , - : ' & ตัวเลข)
+                const engMatch = title.match(/([a-zA-Z0-9\s\-:,'".&]+)$/);
+                if (engMatch && engMatch[1].trim().length > 3 && engMatch[1].trim() !== title.trim()) {
+                    const thaiPart = title.replace(engMatch[1], '').trim();
+                    const engPart = engMatch[1].trim();
+                    if (thaiPart) {
+                        return `<span class="line-clamp-2 text-xl md:text-2xl">${thaiPart}</span><span class="block text-sm md:text-base text-gray-400 mt-1 font-medium">${engPart}</span>`;
+                    }
+                }
+                
+                return `<span class="line-clamp-2 text-xl md:text-2xl">${title}</span>`;
             },
 
             // ================== VIEWS ==================
@@ -986,38 +1018,39 @@
                 const customText = this.studentEdits[studentId] || '';
                 const visitCount = this.visitLogs[studentId] || 0;
 
-                // ระบบประมวลผลข้อมูลติดต่อ (Facebook, Instagram, Links)
+                // ระบบแสดงช่องทางติดต่อ (Facebook, Instagram, Link)
                 let contactHtml = '';
                 if (data.facebook || data.instagram || data.otherContact) {
-                    contactHtml += `<div class="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-2 justify-center sm:justify-start">`;
+                    contactHtml += `<div class="mt-5 pt-5 border-t border-white/10 flex flex-wrap gap-2 justify-center sm:justify-start">`;
                     
                     if (data.facebook) {
                         let fb = data.facebook;
                         let fbLink = fb.includes('http') ? fb : (fb.includes('facebook.com') ? `https://${fb}` : `https://facebook.com/${fb}`);
-                        contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> Facebook</a>`;
+                        contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> Facebook</a>`;
                     }
                     if (data.instagram) {
                         let ig = data.instagram;
                         let igHandle = ig.replace('@', '');
                         let igLink = ig.includes('http') ? ig : `https://instagram.com/${igHandle}`;
-                        contactHtml += `<a href="${igLink}" target="_blank" class="bg-[#E4405F]/20 hover:bg-[#E4405F]/40 text-[#E4405F] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> Instagram</a>`;
+                        contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> Instagram</a>`;
                     }
                     if (data.otherContact) {
                         let others = data.otherContact.split('\n').filter(o => o.trim());
                         others.forEach(o => {
-                            if(o.includes('http')) {
-                                let linkMatch = o.match(/(https?:\/\/[^\s]+)/);
+                            let text = o.trim();
+                            if(text.includes('http')) {
+                                let linkMatch = text.match(/(https?:\/\/[^\s]+)/);
                                 if(linkMatch) {
                                     let url = linkMatch[1];
-                                    let label = o.replace(url, '').trim() || 'Link';
+                                    let label = text.replace(url, '').trim();
                                     label = label.replace(/^[-:]|[-:]$/g, '').trim(); // ลบเครื่องหมาย : หรือ - ท้ายชื่อ
                                     if(!label) label = 'Link';
-                                    contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/20 hover:bg-gray-600/40 text-gray-300 border border-gray-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1.5"><i class="fa-solid fa-link"></i> ${label}</a>`;
+                                    contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/20 hover:bg-gray-600/40 text-gray-300 border border-gray-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-link text-sm"></i> ${label}</a>`;
                                 } else {
-                                    contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book"></i> ${o}</span>`;
+                                    contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book text-sm"></i> ${text}</span>`;
                                 }
                             } else {
-                                contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book"></i> ${o}</span>`;
+                                contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book text-sm"></i> ${text}</span>`;
                             }
                         });
                     }
@@ -1026,7 +1059,7 @@
 
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10">
-                    <div class="flex justify-end mb-6">
+                    <div class="flex justify-end mb-4">
                         <div class="text-[10px] bg-black/60 border border-secondary/40 text-secondary px-4 py-2 rounded-full font-bold shadow-lg backdrop-blur-md flex items-center gap-2 tracking-widest">
                             <i class="fa-solid fa-eye animate-pulse"></i> ${visitCount} VIEWS
                         </div>
@@ -1043,7 +1076,9 @@
                                      class="w-full h-full object-cover">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0">
-                                <h1 class="text-2xl md:text-4xl font-black text-secondary mb-4 leading-tight drop-shadow-lg break-words">${data.title || 'กำลังจัดทำวิทยานิพนธ์'}</h1>
+                                <div class="mb-4 leading-tight drop-shadow-lg break-words">
+                                    ${this.formatThesisTitle(data.title)}
+                                </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
                                     <span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-user-pen text-gray-500"></i>ผู้ออกแบบ: ${data.name || user.name}</span>
                                     ${data.advisor ? `<span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-chalkboard-user text-gray-500"></i>อ.ที่ปรึกษา: ${data.advisor}</span>` : ''}
@@ -1153,6 +1188,14 @@
                 </div>`;
             },
 
+            saveStudentText: async function() {
+                const txt = document.getElementById('editStudentText').value.trim();
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', this.profile.uid), { text: txt }, { merge:true });
+                    this.swal.fire({ iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton:false });
+                } catch(e) { this.swal.fire('Error', 'Cannot save', 'error'); }
+            },
+
             // ================== ADMIN PAGES (Standalone) ==================
             
             // 1. Admin Settings Page
@@ -1199,6 +1242,25 @@
                         </div>
                     </div>
                 </div>`;
+            },
+
+            updateSetting: async function(key, val) {
+                try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { [key]: val }, { merge:true }); } catch(e){}
+            },
+
+            checkQuota: async function() {
+                this.swal.fire({ title: 'กำลังเช็คโควต้า...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                try {
+                    const res = await fetch(QUOTA_API_URL);
+                    const data = await res.json();
+                    this.swal.fire({
+                        title: 'โควต้า OTP',
+                        html: `
+                            <div class="text-5xl font-black text-secondary my-6 drop-shadow-lg">${data.remainingQuota}</div>
+                            <p class="text-xs text-gray-400 bg-black/30 p-3 rounded-xl inline-block border border-white/10">คงเหลือสำหรับวันนี้</p>
+                        `
+                    });
+                } catch(e) { this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลโควต้าได้', 'error'); }
             },
 
             // 2. Admin Users Page
@@ -1333,6 +1395,27 @@
                 </div>`;
             },
 
+            addEmbeddedSite: async function() {
+                const title = document.getElementById('iframeTitle').value.trim();
+                const url = document.getElementById('iframeUrl').value.trim();
+                const show = document.getElementById('iframeShow').checked;
+                
+                if(!title || !url) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+                
+                const sites = [...(this.settings.embeddedSites || []), { title, url, showToStudents: show }];
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true });
+                    document.getElementById('iframeTitle').value = '';
+                    document.getElementById('iframeUrl').value = '';
+                } catch(e){}
+            },
+
+            deleteEmbeddedSite: async function(idx) {
+                const sites = [...(this.settings.embeddedSites || [])];
+                sites.splice(idx, 1);
+                try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
+            },
+
             // 4. Admin Export Page
             renderAdminExport: function() {
                 return `
@@ -1357,6 +1440,48 @@
                         </button>
                     </div>
                 </div>`;
+            },
+
+            generateQRZip: async function() {
+                const btn = document.getElementById('btnGenZip');
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> กำลังสร้าง ZIP...';
+                btn.disabled = true;
+
+                const zip = new JSZip();
+                const container = document.getElementById('qr-generator-container');
+                const baseUrl = `${window.location.origin}${window.location.pathname}?exhibit=`;
+
+                for (let i = 0; i < predefinedUsers.length; i++) {
+                    const u = predefinedUsers[i];
+                    container.innerHTML = ''; 
+                    
+                    const url = baseUrl + u.studentId;
+                    new QRCode(container, {
+                        text: url,
+                        width: 1000, // High res for printing
+                        height: 1000,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+
+                    await new Promise(r => setTimeout(r, 100));
+                    
+                    const canvas = container.querySelector('canvas');
+                    if (canvas) {
+                        const imgData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
+                        zip.file(`${u.studentId}_${u.name.replace(/ /g, '_')}.png`, imgData, {base64: true});
+                    }
+                }
+
+                zip.generateAsync({type:"blob"}).then(function(content) {
+                    saveAs(content, "MORANASATECT_QRCodes.zip");
+                    btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i> ดาวน์โหลดสำเร็จ';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fa-solid fa-file-zipper text-lg"></i> เริ่มดาวน์โหลด';
+                        btn.disabled = false;
+                    }, 3000);
+                });
             },
 
             // ================== PAGE: IFRAME VIEW ==================
