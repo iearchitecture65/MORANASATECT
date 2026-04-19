@@ -6,8 +6,8 @@
     <title>MORANASATECT - Thesis Exhibition</title>
     
     <!-- Website Icon (Favicon) -->
-    <link rel="icon" type="image/png" href="iconLOGO MORANASATECT.png">
-    <link rel="apple-touch-icon" href="iconLOGO MORANASATECT.png">
+    <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
+    <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,27 +155,27 @@
         <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Header & Menu -->
-    <header class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center text-white border-b border-white/10 relative z-50 flex-shrink-0 bg-black/30 backdrop-blur-sm h-[60px] md:h-[72px]">
-        <div class="flex items-center h-full z-[100]">
-            <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-9 md:h-12 w-auto drop-shadow-lg cursor-pointer hover:scale-105 transition-transform active:scale-95" 
+    <!-- Header & Menu (Floating without background bar) -->
+    <header class="absolute top-0 left-0 w-full px-4 py-4 md:px-6 md:py-6 flex justify-between items-start z-50 pointer-events-none">
+        
+        <!-- Logo Left -->
+        <div class="pointer-events-auto">
+            <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-10 md:h-14 w-auto drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform active:scale-95" 
                  onclick="app.goHome()" onerror="this.style.display='none'">
         </div>
         
-        <!-- Hamburger Menu Button -->
-        <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden z-[60] transition-all duration-300 transform ml-auto">
-            <i class="fa-solid fa-bars text-3xl drop-shadow-md"></i>
-        </button>
+        <!-- Menu Right -->
+        <div class="pointer-events-auto relative flex flex-col items-end">
+            <!-- Hamburger Menu Button -->
+            <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center">
+                <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
+            </button>
 
-        <!-- Dropdown Menu (All Navigation Here) -->
-        <div id="mobileDropdown" class="hidden absolute top-[100%] right-4 md:right-6 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
-            
-            <!-- Admin Menu Section -->
-            <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
-                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
-                <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
-                </button>
+            <!-- Dropdown Menu (All Navigation Here) -->
+            <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
+                
+                <!-- Admin Menu Section -->
+                <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
                 <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                     <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
                 </button>
@@ -203,17 +203,17 @@
                 <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
                 <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
             </div>
-
-            <div class="h-px bg-white/20 my-2 mx-3"></div>
-            <button onclick="app.logout()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400 transition-colors text-left font-black text-sm">
-                <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> ออกจากระบบ
-            </button>
+                <div class="h-px bg-white/20 my-2 mx-3"></div>
+                <button onclick="app.logout()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400 transition-colors text-left font-black text-sm">
+                    <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> ออกจากระบบ
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content App -->
-    <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300">
-        <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24 pt-8">
+    <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-20 md:mt-24">
+        <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24">
             <!-- Injected via JS -->
         </div>
     </div>
