@@ -156,24 +156,14 @@
     </div>
 
     <!-- Header & Menu -->
-    <header class="px-4 py-3 md:px-6 md:py-4 text-center text-white border-b border-white/10 relative z-50 flex-shrink-0 bg-black/30 backdrop-blur-sm">
-        <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center h-full z-[100]">
+    <header class="px-4 py-3 md:px-6 md:py-4 flex justify-between items-center text-white border-b border-white/10 relative z-50 flex-shrink-0 bg-black/30 backdrop-blur-sm h-[60px] md:h-[72px]">
+        <div class="flex items-center h-full z-[100]">
             <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-9 md:h-12 w-auto drop-shadow-lg cursor-pointer hover:scale-105 transition-transform active:scale-95" 
                  onclick="app.goHome()" onerror="this.style.display='none'">
         </div>
         
-        <!-- Header Text -->
-        <div class="pointer-events-none relative z-10 flex flex-col items-center justify-center">
-            <p class="text-[10px] md:text-xs font-bold tracking-[0.3em] opacity-80 uppercase text-white mb-0.5">
-                MORANASATECT
-            </p>
-            <h1 class="text-lg md:text-xl font-extrabold tracking-wide drop-shadow-md text-secondary">
-                นิทรรศการวิทยานิพนธ์
-            </h1>
-        </div>
-        
         <!-- Hamburger Menu Button -->
-        <button id="navHamburger" onclick="app.toggleMenu()" class="absolute top-1/2 -translate-y-1/2 right-4 md:right-6 text-white hover:text-secondary hidden z-[60] transition-all duration-300 transform">
+        <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden z-[60] transition-all duration-300 transform ml-auto">
             <i class="fa-solid fa-bars text-3xl drop-shadow-md"></i>
         </button>
 
