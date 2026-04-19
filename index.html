@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MORANASATECT - Thesis Exhibition</title>
     
+    <!-- Open Graph / LINE Preview Tags -->
+    <meta property="og:title" content="MORANASATECT - Thesis Exhibition">
+    <meta property="og:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
+    <meta property="og:image" content="./PREVIEW%20MORANASATECT.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="./PREVIEW%20MORANASATECT.png">
+    <meta name="twitter:title" content="MORANASATECT - Thesis Exhibition">
+    <meta name="twitter:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
+
     <!-- Website Icon (Favicon) -->
     <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
     <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
@@ -160,6 +170,9 @@
                 <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
                 <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                     <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
+                </button>
+                <button onclick="app.showView('admin_boxes')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-square-plus w-5 text-center text-secondary"></i> จัดการกล่องข้อความ
                 </button>
                 <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                     <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
@@ -318,9 +331,11 @@
             user: null,
             profile: null, 
             settings: {
-                isSystemOpen: true,
+                isStudentLoginOpen: true,
+                isPublicGuestOpen: true,
                 allowEdit: true,
                 embeddedSites: [], 
+                customBoxes: []
             },
             thesisData: [], 
             studentEdits: {}, 
@@ -411,22 +426,57 @@
                 
                 onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), (docSnap) => {
                     if (docSnap.exists()) {
-                        this.settings = { ...this.settings, ...docSnap.data() };
+                        const data = docSnap.data();
+                        
+                        if(data.isSystemOpen !== undefined && data.isStudentLoginOpen === undefined) {
+                            data.isStudentLoginOpen = data.isSystemOpen;
+                            data.isPublicGuestOpen = data.isSystemOpen;
+                        }
+                        
+                        const oldBoxesStr = JSON.stringify(this.settings.customBoxes);
+                        this.settings = { ...this.settings, ...data };
+                        const newBoxesStr = JSON.stringify(this.settings.customBoxes);
+                        
                         this.updateMenuVisibility();
-                        this.refreshCurrentView();
+                        
+                        // Soft UI Update for Anti-Flicker
+                        if (this.view === 'login' || this.view === 'guest_register') {
+                            this.showView(this.view);
+                        } else if (this.view === 'student_dash') {
+                            if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+                            if (oldBoxesStr !== newBoxesStr) this.refreshCurrentView(); 
+                        } else if (this.view === 'public_exhibit') {
+                            if (oldBoxesStr !== newBoxesStr) this.refreshCurrentView(); 
+                        }
                     }
                 }, (error) => console.error(error));
 
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'student_edits'), (snap) => {
                     this.studentEdits = {};
-                    snap.forEach(doc => { this.studentEdits[doc.id] = doc.data().text; });
-                    if(this.view === 'public_exhibit' || this.view === 'student_dash') this.refreshCurrentView();
+                    snap.forEach(doc => { this.studentEdits[doc.id] = doc.data(); });
+                    
+                    if (this.view === 'public_exhibit') {
+                        this.refreshCurrentView();
+                    } else if (this.view === 'student_dash') {
+                        if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+                        this.refreshCurrentView();
+                    }
                 }, (error) => console.error(error));
 
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'visits'), (snap) => {
                     this.visitLogs = {};
                     snap.forEach(doc => { this.visitLogs[doc.id] = doc.data().count || 0; });
-                    this.refreshCurrentView();
+                    
+                    // Anti-Flicker Target Update
+                    const displays = document.querySelectorAll('.dynamic-visit-count');
+                    if (displays.length > 0) {
+                        displays.forEach(el => {
+                            const sid = el.getAttribute('data-sid');
+                            if (sid) el.innerText = this.visitLogs[sid] || 0;
+                        });
+                    } else if (this.view === 'admin_users') {
+                        this.refreshCurrentView();
+                    }
                 }, (error) => console.error(error));
             },
 
@@ -440,7 +490,7 @@
                         const headers = parsed[0];
                         const dataRows = parsed.slice(1);
                         
-                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1'];
+                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4'];
                         const headerMap = {};
                         prefixes.forEach(p => headerMap[p] = []);
 
@@ -468,6 +518,9 @@
                             obj.coverImg = obj['3.1'];
                             obj.portfolioImgs = obj['3.3'];
                             obj.videoUrl = obj['4.1'];
+                            obj.facebook = obj['5.1'];
+                            obj.instagram = obj['5.2'];
+                            obj.otherContact = [obj['5.3'], obj['5.4']].filter(Boolean).join('\n');
                             return obj;
                         }).filter(r => r.studentId);
                     }
@@ -750,7 +803,6 @@
                     lines.forEach(line => {
                         const lowerLine = line.toLowerCase();
                         if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
-                            // ลบ IG:, IG : , หรือขีดล่าง _ ส่วนเกินออก เพื่อไม่ให้มีเว้นวรรคและทำลิงก์ได้ถูกต้อง
                             let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
                             let cleanIgHandle = igHandle.replace(/^[_]+/, '').trim();
                             let igLink = cleanIgHandle.includes('http') ? cleanIgHandle : `https://instagram.com/${cleanIgHandle.replace(/^[@\s]+/, '')}`;
@@ -768,7 +820,8 @@
                             let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
                             if (linkMatch) {
                                 let url = linkMatch[1];
-                                let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim() || 'Link';
+                                let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim();
+                                if(!label) label = 'Link';
                                 contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
                             }
                         } else {
@@ -878,11 +931,11 @@
 
                 if (viewName === 'loading') root.innerHTML = this.renderLoading();
                 else if (viewName === 'login') root.innerHTML = this.renderLogin();
-                else if (viewName === 'otp') root.innerHTML = this.renderOTP();
                 else if (viewName === 'guest_register') root.innerHTML = this.renderGuestRegister();
                 else if (viewName === 'public_exhibit') root.innerHTML = this.renderPublicExhibit(param);
                 else if (viewName === 'student_dash') root.innerHTML = this.renderStudentDash();
                 else if (viewName === 'admin_settings') root.innerHTML = this.renderAdminSettings();
+                else if (viewName === 'admin_boxes') root.innerHTML = this.renderAdminBoxes();
                 else if (viewName === 'admin_users') root.innerHTML = this.renderAdminUsers();
                 else if (viewName === 'admin_iframe') root.innerHTML = this.renderAdminIframe();
                 else if (viewName === 'admin_export') root.innerHTML = this.renderAdminExport();
@@ -891,10 +944,8 @@
 
             refreshCurrentView: function() {
                 if(this.view === 'student_dash') document.getElementById('appRoot').innerHTML = this.renderStudentDash();
-                else if(this.view === 'admin_settings') document.getElementById('appRoot').innerHTML = this.renderAdminSettings();
                 else if(this.view === 'admin_users') document.getElementById('appRoot').innerHTML = this.renderAdminUsers();
-                else if(this.view === 'admin_iframe') document.getElementById('appRoot').innerHTML = this.renderAdminIframe();
-                else if(this.view === 'admin_export') document.getElementById('appRoot').innerHTML = this.renderAdminExport();
+                else if(this.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = this.renderPublicExhibit(this.pendingExhibitId || this.profile?.uid); // If needed
             },
 
             // ================== RENDERERS ==================
@@ -907,13 +958,13 @@
             },
 
             renderLogin: function() {
-                if (!this.settings.isSystemOpen) {
+                if (this.settings.isStudentLoginOpen === false) {
                     return `
                     <div class="max-w-md mx-auto glass-card rounded-[2rem] p-8 text-center mt-10 animate-slide-up border-t-4 border-t-red-500">
                         <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
                         <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 drop-shadow-sm">ระบบปิดให้บริการ</h2>
                         <p class="text-blue-100 text-sm font-medium mb-8 bg-black/20 p-4 rounded-xl border border-white/10 shadow-inner">
-                            ผู้ดูแลระบบได้ทำการปิดระบบการเข้าใช้งานในขณะนี้
+                            ผู้ดูแลระบบได้ทำการปิดระบบล็อกอินในขณะนี้
                         </p>
                         <button onclick="app.loginAdminDirect()" class="mt-4 text-[10px] text-gray-500 hover:text-white underline transition-colors">สำหรับผู้ดูแลระบบ</button>
                     </div>`;
@@ -940,12 +991,17 @@
                 </div>`;
             },
 
-            loginAdminDirect: async function() {
-                const { value: pass } = await this.swal.fire({
-                    title: 'รหัสผ่านผู้ดูแลระบบ',
-                    input: 'password',
-                    inputPlaceholder: 'ระบุรหัส 8 หลัก'
-                });
+            loginAdminDirect: async function(bypassPassword = null) {
+                let pass = bypassPassword;
+                if(typeof bypassPassword !== 'string') {
+                    const { value } = await this.swal.fire({
+                        title: 'รหัสผ่านผู้ดูแลระบบ',
+                        input: 'password',
+                        inputPlaceholder: 'ระบุรหัส 8 หลัก'
+                    });
+                    pass = value;
+                }
+
                 if(pass === '65030900') {
                     this.profile = { uid: pass, name: 'Admin', role: 'admin', id: 0 };
                     localStorage.setItem('moranasatect_profile', JSON.stringify(this.profile));
@@ -959,7 +1015,10 @@
 
             requestOTP: async function() {
                 const idInput = document.getElementById('loginId').value.replace(/[^0-9]/g, '');
-                if(idInput === '65030900') return this.loginAdminDirect();
+                
+                // หากกรอก 65030900 ในช่องรหัสนักศึกษา ให้สลับเข้าแอดมินทันทีโดยไม่ต้องเด้งถามอีก
+                if(idInput === '65030900') return this.loginAdminDirect('65030900');
+                
                 if(idInput.length !== 8) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษา 8 หลัก', 'warning');
                 
                 const isStudent = predefinedUsers.find(u => u.studentId === idInput);
@@ -1056,6 +1115,17 @@
             },
 
             renderGuestRegister: function() {
+                if (this.settings.isPublicGuestOpen === false) {
+                    return `
+                    <div class="max-w-md mx-auto glass-card rounded-[2rem] p-8 text-center mt-10 animate-slide-up border-t-4 border-t-red-500">
+                        <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 drop-shadow-sm">ระบบปิดให้บริการ</h2>
+                        <p class="text-blue-100 text-sm font-medium mb-8 bg-black/20 p-4 rounded-xl border border-white/10 shadow-inner">
+                            ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้
+                        </p>
+                    </div>`;
+                }
+
                 this.tempGuestRole = ''; 
                 const roleBtns = guestRoles.map(r => `
                     <button onclick="app.selectGuestRole('${r}')" id="role-btn-${r}"
@@ -1170,7 +1240,6 @@
                     if (isImg) {
                         html += `
                         <div class="relative w-full flex items-center justify-center min-h-[200px]">
-                            <!-- Loading Spinner -->
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-3xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
                                  onload="this.classList.remove('opacity-0')"
@@ -1180,12 +1249,10 @@
                     } else {
                         html += `
                         <div class="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center rounded-2xl shadow-xl border border-white/10 bg-black overflow-hidden">
-                            <!-- Loading Spinner -->
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                 <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3"></i>
                                 <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
                             </div>
-                            <!-- Iframe -->
                             <iframe src="${url}" 
                                     onload="this.classList.remove('opacity-0')"
                                     class="w-full h-full relative z-10 opacity-0 transition-opacity duration-700 border-0" 
@@ -1205,7 +1272,6 @@
                 if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
                 
                 const data = this.thesisData.find(d => d.studentId === studentId) || {};
-                const customText = this.studentEdits[studentId] || '';
                 const visitCount = this.visitLogs[studentId] || 0;
 
                 const cleanName = this.formatName(data.name || user.name);
@@ -1249,6 +1315,25 @@
                     contactHtml += `</div>`;
                 }
 
+                // Render Dynamic Custom Boxes added by Admin
+                let customBoxesHtml = '';
+                const studentCustomData = this.studentEdits[studentId] || {};
+                const activeBoxes = (this.settings.customBoxes || []).filter(b => b.isActive);
+                
+                activeBoxes.forEach(b => {
+                    let val = studentCustomData[b.id] || '';
+                    if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
+                    
+                    if (val) {
+                        customBoxesHtml += `
+                        <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-8 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed">
+                            <h4 class="text-secondary font-bold text-xs uppercase tracking-widest mb-2 opacity-80">${b.label}</h4>
+                            <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
+                            ${val}
+                        </div>`;
+                    }
+                });
+
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10">
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden mt-6">
@@ -1264,7 +1349,7 @@
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
-                            <div class="flex-1 mt-2 sm:mt-0 min-w-0">
+                            <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
                                 <div class="mb-5 leading-tight drop-shadow-lg break-words">
                                     ${this.formatThesisTitle(data.title)}
                                 </div>
@@ -1290,11 +1375,7 @@
                             </div>
                         </div>
                         
-                        ${customText ? `
-                        <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed">
-                            <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
-                            ${customText}
-                        </div>` : ''}
+                        ${customBoxesHtml}
 
                         ${data.description ? `
                         <div class="mb-12">
@@ -1320,7 +1401,7 @@
                     
                     <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
                         <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-black/30 px-4 py-2 rounded-full border border-white/5 shadow-inner">
-                            <i class="fa-solid fa-eye text-secondary"></i> เข้าชมผลงานชิ้นนี้แล้ว ${visitCount} ครั้ง
+                            <i class="fa-solid fa-eye text-secondary"></i> เข้าชมผลงานชิ้นนี้แล้ว <span class="dynamic-visit-count text-white" data-sid="${studentId}">${visitCount}</span> ครั้ง
                         </div>
                         <button onclick="app.sharePublicLink('${studentId}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                             <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าผลงานนี้
@@ -1333,7 +1414,6 @@
             renderStudentDash: function() {
                 const sid = this.profile.uid;
                 const data = this.thesisData.find(d => d.studentId === sid) || {};
-                const currentText = this.studentEdits[sid] || '';
                 const vCount = this.visitLogs[sid] || 0;
                 
                 const completeness = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0);
@@ -1341,6 +1421,40 @@
 
                 const cleanName = this.formatName(this.profile.name);
                 const abbr = this.getAbbr(cleanName);
+
+                // Render Input fields for Custom Boxes
+                let customBoxesInputHtml = '';
+                const studentCustomData = this.studentEdits[sid] || {};
+                const activeBoxes = (this.settings.customBoxes || []).filter(b => b.isActive);
+                
+                if(this.settings.allowEdit && activeBoxes.length > 0) {
+                    let fieldsHtml = '';
+                    activeBoxes.forEach(b => {
+                        let val = studentCustomData[b.id] || '';
+                        if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
+                        
+                        fieldsHtml += `
+                        <div class="mb-6">
+                            <label class="block text-[11px] text-secondary font-bold uppercase tracking-widest mb-2 pl-2"><i class="fa-solid fa-pen-nib mr-1"></i> ${b.label}</label>
+                            <textarea id="custom_box_${b.id}" class="glass-input w-full p-4 rounded-2xl min-h-[120px] text-sm placeholder:text-gray-600 transition-shadow leading-relaxed" placeholder="${b.placeholder || 'พิมพ์ข้อความที่นี่...'}">${val}</textarea>
+                        </div>`;
+                    });
+
+                    customBoxesInputHtml = `
+                    <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden border-t-4 border-t-secondary mb-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg"><i class="fa-solid fa-square-plus"></i></div>
+                            <h3 class="text-white font-bold text-lg md:text-xl">ข้อมูลเพิ่มเติมสำหรับหน้าผลงาน</h3>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-5 bg-black/40 p-4 rounded-xl border border-white/5 leading-relaxed">ข้อมูลส่วนนี้จะถูกนำไปแสดงผลเด่นอยู่ด้านบนสุดของหน้าผลงานของคุณทันที สามารถเว้นว่างไว้ได้หากไม่ต้องการแสดง</p>
+                        
+                        ${fieldsHtml}
+                        
+                        <button onclick="app.saveStudentText()" class="bg-secondary text-black font-bold px-8 py-4 rounded-xl text-sm hover:bg-yellow-500 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest w-full sm:w-auto">
+                            <i class="fa-solid fa-floppy-disk text-lg"></i> บันทึกข้อมูล
+                        </button>
+                    </div>`;
+                }
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10">
@@ -1367,7 +1481,7 @@
                         <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden group">
                             <div class="absolute right-[-10px] bottom-[-10px] text-white/5 text-7xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-eye"></i></div>
                             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2">ยอดเข้าชมผลงาน</p>
-                            <p class="text-4xl md:text-5xl font-black text-secondary drop-shadow-lg">${vCount} <span class="text-sm font-medium text-gray-500">ครั้ง</span></p>
+                            <p class="text-4xl md:text-5xl font-black text-secondary drop-shadow-lg"><span class="dynamic-visit-count" data-sid="${sid}">${vCount}</span> <span class="text-sm font-medium text-gray-500">ครั้ง</span></p>
                         </div>
                         
                         <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden">
@@ -1385,25 +1499,56 @@
                         </div>
                     </div>
 
-                    ${this.settings.allowEdit ? `
-                    <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden border-t-4 border-t-secondary">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg"><i class="fa-solid fa-pen-nib"></i></div>
-                            <h3 class="text-white font-bold text-lg md:text-xl">เพิ่มข้อความทักทาย / แนวคิด</h3>
+                    ${customBoxesInputHtml}
+
+                    <!-- Data View Section -->
+                    <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
+                        <h3 class="text-white font-bold text-lg md:text-xl mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ <span class="text-xs text-gray-400 font-normal ml-2">(ไม่อนุญาตให้แก้ไข)</span></h3>
+                        
+                        <div class="space-y-4 text-sm text-gray-300">
+                            <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                                <b class="text-gray-400 block mb-1 text-xs uppercase tracking-widest">ชื่อผลงานวิทยานิพนธ์</b>
+                                <p class="font-bold text-white text-lg">${data.title || '-'}</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                                    <b class="text-gray-400 block mb-1 text-xs uppercase tracking-widest">อาจารย์ที่ปรึกษา</b>
+                                    <p class="text-white">${data.advisor || '-'}</p>
+                                </div>
+                                <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                                    <b class="text-gray-400 block mb-1 text-xs uppercase tracking-widest">หมวดหมู่</b>
+                                    <p class="text-white">${data.category || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                                <b class="text-gray-400 block mb-2 text-xs uppercase tracking-widest">บทคัดย่อ / คำอธิบาย</b>
+                                <p class="whitespace-pre-wrap leading-relaxed">${data.description || '-'}</p>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-gray-400 mb-5 bg-black/40 p-4 rounded-xl border border-white/5 leading-relaxed">ข้อความนี้จะแสดงเด่นอยู่ด้านบนสุดของหน้าผลงานคุณ สามารถใช้อธิบายคอนเซปต์สั้นๆ หรือกล่าวขอบคุณได้</p>
-                        <textarea id="editStudentText" class="glass-input w-full p-5 rounded-2xl min-h-[150px] text-sm mb-5 placeholder:text-gray-600 transition-shadow leading-relaxed" placeholder="พิมพ์ข้อความที่นี่...">${currentText}</textarea>
-                        <button onclick="app.saveStudentText()" class="bg-secondary text-black font-bold px-8 py-4 rounded-xl text-sm hover:bg-yellow-500 transition-colors shadow-lg flex items-center gap-2 uppercase tracking-widest">
-                            <i class="fa-solid fa-floppy-disk text-lg"></i> บันทึกข้อความ
-                        </button>
-                    </div>` : ''}
+
+                        <div class="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="app.showMediaPopup('video')" class="bg-black/60 border border-secondary/50 text-secondary px-8 py-4 rounded-xl hover:bg-secondary hover:text-black font-bold transition-transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg">
+                                <i class="fa-solid fa-video text-xl"></i> พรีวิววิดีโอผลงาน
+                            </button>
+                            <button onclick="app.showMediaPopup('image')" class="bg-black/60 border border-secondary/50 text-secondary px-8 py-4 rounded-xl hover:bg-secondary hover:text-black font-bold transition-transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg">
+                                <i class="fa-solid fa-images text-xl"></i> พรีวิวรูปภาพผลงาน
+                            </button>
+                        </div>
+                    </div>
                 </div>`;
             },
 
             saveStudentText: async function() {
-                const txt = document.getElementById('editStudentText').value.trim();
+                const activeBoxes = (this.settings.customBoxes || []).filter(b => b.isActive);
+                let saveData = {};
+                
+                activeBoxes.forEach(b => {
+                    const el = document.getElementById(`custom_box_${b.id}`);
+                    if(el) saveData[b.id] = el.value.trim();
+                });
+
                 try {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', this.profile.uid), { text: txt }, { merge:true });
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', this.profile.uid), saveData, { merge:true });
                     this.swal.fire({ iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton:false });
                 } catch(e) { this.swal.fire('Error', 'Cannot save', 'error'); }
             },
@@ -1417,7 +1562,7 @@
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-gear"></i></div>
                         <div>
-                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ตั้งค่าระบบ</p>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ตั้งค่าระบบส่วนกลาง</p>
                             <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Settings</p>
                         </div>
                     </div>
@@ -1425,27 +1570,38 @@
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-8 space-y-6">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
                             <div>
-                                <p class="font-bold text-white text-sm">เปิดระบบให้เข้าชม (ผ่านลิงก์แชร์/QR)</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด จะมีเพียงแอดมินที่เข้าระบบได้ ผู้เยี่ยมชมจะไม่สามารถเห็นผลงาน</p>
+                                <p class="font-bold text-white text-sm">เปิดระบบเข้าใช้งานสำหรับนักศึกษา</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด นักศึกษา (ผู้ส่งผลงาน) จะไม่สามารถเข้าสู่ระบบ Dashboard ได้</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${this.settings.isSystemOpen ? 'checked' : ''} onchange="app.updateSetting('isSystemOpen', this.checked)" class="sr-only peer">
+                                <input type="checkbox" ${this.settings.isStudentLoginOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isStudentLoginOpen', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
                             <div>
-                                <p class="font-bold text-white text-sm">อนุญาตให้นักศึกษาแก้ไขข้อความ</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">เปิดฟอร์มแก้ไขข้อความทักทายในหน้า Dashboard ของ นศ.</p>
+                                <p class="font-bold text-white text-sm">เปิดระบบเข้าชมสำหรับผู้เยี่ยมชมทั่วไป (Guest)</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ผู้เยี่ยมชมที่เข้าผ่านลิงก์หรือคิวอาร์โค้ด จะเห็นเพียงหน้าระบบปิดให้บริการ</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${this.settings.allowEdit ? 'checked' : ''} onchange="app.updateSetting('allowEdit', this.checked)" class="sr-only peer">
+                                <input type="checkbox" ${this.settings.isPublicGuestOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isPublicGuestOpen', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
 
-                        <div class="p-8 bg-black/40 rounded-2xl border border-white/10 text-center shadow-inner">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div>
+                                <p class="font-bold text-white text-sm">อนุญาตให้นักศึกษากรอกข้อมูลเพิ่มเติม (Custom Boxes)</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ระบบจะซ่อนฟอร์มกล่องข้อความต่างๆ ในหน้า Dashboard ของนักศึกษาทั้งหมด</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${this.settings.allowEdit !== false ? 'checked' : ''} onchange="app.updateSetting('allowEdit', this.checked)" class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                        </div>
+
+                        <div class="p-8 bg-black/40 rounded-2xl border border-white/10 text-center shadow-inner mt-4">
                             <i class="fa-solid fa-envelope-circle-check text-5xl text-blue-400 mb-4 opacity-80 drop-shadow-md"></i>
                             <p class="text-white font-bold text-sm mb-5">เช็คโควต้าอีเมลสำหรับส่ง OTP (ต่อวัน)</p>
                             <button onclick="app.checkQuota()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 inline-flex items-center gap-2 uppercase tracking-widest">
@@ -1457,6 +1613,8 @@
             },
 
             updateSetting: async function(key, val) {
+                // Optimistic UI Update to prevent flickering
+                this.settings[key] = val;
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { [key]: val }, { merge:true }); } catch(e){}
             },
 
@@ -1473,6 +1631,114 @@
                         `
                     });
                 } catch(e) { this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลโควต้าได้', 'error'); }
+            },
+
+            // 1.5 Admin Custom Boxes Manager
+            renderAdminBoxes: function() {
+                const boxes = this.settings.customBoxes || [];
+                let listHtml = boxes.map((b, idx) => `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
+                        <div class="min-w-0 flex-1">
+                            <p class="font-bold text-white text-sm truncate mb-1"><i class="fa-solid fa-align-left text-secondary mr-2 text-xs"></i>${b.label}</p>
+                            <p class="text-[10px] text-gray-400 truncate font-medium">คำอธิบาย: ${b.placeholder || 'พิมพ์ข้อความที่นี่...'}</p>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <span id="boxBadge_${idx}" class="text-[9px] font-bold tracking-widest uppercase ${b.isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full">
+                                ${b.isActive ? 'เปิดใช้งาน' : 'ปิดการใช้งาน'}
+                            </span>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${b.isActive ? 'checked' : ''} onchange="app.toggleCustomBox(${idx}, this.checked)" class="sr-only peer">
+                                <div class="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                            <button onclick="app.deleteCustomBox(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
+                                <i class="fa-solid fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                if(boxes.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีกล่องข้อความเสริม</p></div>`;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-square-plus"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการฟอร์มกล่องข้อความ</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Custom Boxes Manager</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                            <div class="lg:col-span-2">
+                                <div class="bg-black/40 p-6 rounded-3xl border border-white/10 sticky top-4 shadow-inner">
+                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มกล่องข้อความใหม่</h3>
+                                    
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อหัวข้อกล่อง (แสดงผลหน้านักศึกษา)</label>
+                                    <input type="text" id="newBoxLabel" placeholder="เช่น แรงบันดาลใจ, ขอบคุณที่ปรึกษา" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
+                                    
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ข้อความแนะนำในช่อง (Placeholder)</label>
+                                    <input type="text" id="newBoxPlaceholder" placeholder="เช่น พิมพ์ข้อความของคุณที่นี่..." class="glass-input w-full p-3 rounded-xl mb-6 text-sm">
+                                    
+                                    <button onclick="app.addCustomBox()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-square-plus text-lg"></i> เพิ่มกล่อง
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-3">
+                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายการกล่องข้อความทั้งหมด</h3>
+                                <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                    ${listHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            addCustomBox: async function() {
+                const label = document.getElementById('newBoxLabel').value.trim();
+                const placeholder = document.getElementById('newBoxPlaceholder').value.trim();
+                if(!label) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อหัวข้อกล่อง', 'warning');
+                
+                const id = 'box_' + Date.now();
+                const boxes = [...(this.settings.customBoxes || []), { id, label, placeholder, isActive: true }];
+                
+                // Optimistic UI Update to prevent flickering
+                this.settings.customBoxes = boxes;
+                this.refreshCurrentView(); // Only safe because user clicked a button specifically here
+                
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true });
+                } catch(e){}
+            },
+
+            toggleCustomBox: async function(idx, isActive) {
+                const boxes = [...(this.settings.customBoxes || [])];
+                if (boxes[idx]) {
+                    boxes[idx].isActive = isActive;
+                    this.settings.customBoxes = boxes; // Optimistic update
+                    
+                    // Update DOM directly without full re-render
+                    const badge = document.getElementById(`boxBadge_${idx}`);
+                    if (badge) {
+                        badge.className = `text-[9px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full ${isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'}`;
+                        badge.innerText = isActive ? 'เปิดใช้งาน' : 'ปิดการใช้งาน';
+                    }
+
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
+                }
+            },
+
+            deleteCustomBox: async function(idx) {
+                const boxes = [...(this.settings.customBoxes || [])];
+                boxes.splice(idx, 1);
+                
+                this.settings.customBoxes = boxes;
+                this.refreshCurrentView(); // Re-render table
+
+                try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
             },
 
             // 2. Admin Users Page
@@ -1515,7 +1781,7 @@
                             </div>
                         </td>
                         <td class="p-4 text-center">
-                            <span class="inline-block bg-black/50 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-secondary">${vCount}</span>
+                            <span class="inline-block bg-black/50 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-secondary dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
                         </td>
                         <td class="p-4 text-center">
                             <button onclick="app.resetVisit('${u.studentId}')" class="text-gray-500 hover:text-red-400 bg-white/5 hover:bg-red-500/10 w-8 h-8 rounded-full transition-colors flex items-center justify-center mx-auto border border-white/10" title="ล้างยอดวิว">
@@ -1629,16 +1895,22 @@
                 if(!title || !url) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
                 
                 const sites = [...(this.settings.embeddedSites || []), { title, url, showToStudents: show }];
+                
+                this.settings.embeddedSites = sites;
+                this.refreshCurrentView();
+
                 try {
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true });
-                    document.getElementById('iframeTitle').value = '';
-                    document.getElementById('iframeUrl').value = '';
                 } catch(e){}
             },
 
             deleteEmbeddedSite: async function(idx) {
                 const sites = [...(this.settings.embeddedSites || [])];
                 sites.splice(idx, 1);
+
+                this.settings.embeddedSites = sites;
+                this.refreshCurrentView();
+
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
             },
 
