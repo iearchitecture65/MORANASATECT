@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MORANASATECT - Thesis Exhibition</title>
     
-    <!-- Open Graph / LINE Preview Tags -->
     <meta property="og:title" content="MORANASATECT - Thesis Exhibition">
     <meta property="og:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
     <meta property="og:image" content="./PREVIEW%20MORANASATECT.png">
@@ -15,16 +14,13 @@
     <meta name="twitter:title" content="MORANASATECT - Thesis Exhibition">
     <meta name="twitter:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
 
-    <!-- Website Icon (Favicon) -->
     <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
     <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" crossorigin="anonymous">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -54,7 +50,6 @@
         }
     </script>
 
-    <!-- FontAwesome, SweetAlert2, QRCode, JSZip, FileSaver -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -139,37 +134,58 @@
         /* Color Picker Reset styles */
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; }
+
+        /* Iframe Responsive Aspect Ratio */
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            pointer-events: auto;
+        }
+        
+        /* Auto scale long text */
+        .auto-scale-text {
+            font-size: clamp(0.875rem, 5vw, 1.5rem);
+            line-height: 1.2;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Background Blobs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-20 -left-20 w-[400px] h-[400px] bg-blob-1 animate-blob"></div>
         <div class="absolute top-40 -right-20 w-[300px] h-[300px] bg-blob-2 animate-blob" style="animation-delay: 2s; animation-direction: alternate-reverse;"></div>
         <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Header & Menu (Floating without background bar) -->
     <header class="absolute top-0 left-0 w-full px-4 py-4 md:px-6 md:py-6 flex justify-between items-start z-50 pointer-events-none">
         
-        <!-- Logo Left -->
         <div class="pointer-events-auto flex items-center h-[40px] md:h-[56px]">
             <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-full w-auto drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform active:scale-95" 
                  onclick="app.goHome()" onerror="this.style.display='none'">
         </div>
         
-        <!-- Menu Right -->
         <div class="pointer-events-auto relative flex flex-col items-end">
-            <!-- Hamburger Menu Button -->
             <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center">
                 <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
             </button>
 
-            <!-- Dropdown Menu -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
-                <!-- Admin Menu Section -->
                 <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
                     <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
                     <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
@@ -192,7 +208,6 @@
                     </button>
                 </div>
             
-                <!-- Student Menu Section -->
                 <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
                     <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
                     <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
@@ -203,7 +218,6 @@
                     </button>
                 </div>
 
-                <!-- Dynamic Iframe Links -->
                 <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
                     <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
                     <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
@@ -217,14 +231,15 @@
         </div>
     </header>
 
-    <!-- Main Content App -->
     <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-20 md:mt-24">
         <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24">
-            <!-- Injected via JS -->
+            <div class="flex flex-col items-center justify-center h-[60vh] text-secondary">
+                <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
+                <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
+            </div>
         </div>
     </div>
 
-    <!-- Hidden div for QR Code generation -->
     <div id="qr-generator-container" style="display:none;"></div>
 
     <script type="module">
@@ -368,13 +383,17 @@
                 customClass: {
                     popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[90%] max-w-sm sm:max-w-md',
                     title: 'text-secondary font-extrabold text-xl md:text-2xl',
-                    confirmButton: 'bg-secondary text-primary font-bold rounded-xl px-6 py-3 hover:scale-105 transition-transform w-full sm:w-auto',
-                    cancelButton: 'bg-gray-700 text-white font-bold rounded-xl px-6 py-3 hover:bg-gray-600 transition-colors w-full sm:w-auto'
+                    confirmButton: 'bg-secondary text-primary font-bold rounded-xl px-6 py-3 hover:scale-105 transition-transform w-full sm:w-auto m-1',
+                    cancelButton: 'bg-gray-700 text-white font-bold rounded-xl px-6 py-3 hover:bg-gray-600 transition-colors w-full sm:w-auto m-1',
+                    denyButton: 'bg-green-600 text-white font-bold rounded-xl px-6 py-3 hover:bg-green-500 transition-colors w-full sm:w-auto m-1'
                 },
                 buttonsStyling: false
             }),
 
             init: async function() {
+                const root = document.getElementById('appRoot');
+                if(root) root.innerHTML = this.renderLoading();
+
                 try {
                     const initAuth = async () => {
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -390,10 +409,10 @@
                     await initAuth();
                     
                     onAuthStateChanged(auth, async (user) => {
-                        this.user = user;
+                        app.user = user;
                         if (user) {
-                            this.setupRealtimeListeners();
-                            await this.fetchThesisData();
+                            app.setupRealtimeListeners();
+                            await app.fetchThesisData();
                             
                             const urlParams = new URLSearchParams(window.location.search);
                             const exhibitId = urlParams.get('exhibit');
@@ -402,39 +421,38 @@
                             const savedProfile = localStorage.getItem('moranasatect_profile');
                             if (savedProfile) {
                                 try {
-                                    this.profile = JSON.parse(savedProfile);
-                                } catch(e) { this.profile = null; }
+                                    app.profile = JSON.parse(savedProfile);
+                                } catch(e) { app.profile = null; }
                             }
 
-                            this.updateMenuVisibility();
+                            app.updateMenuVisibility();
 
                             if (iframeId) {
-                                this.showView('iframe_view', parseInt(iframeId));
+                                app.showView('iframe_view', parseInt(iframeId));
                             } else if (exhibitId) {
-                                if (this.profile) {
-                                    this.logVisit(exhibitId);
-                                    this.showView('public_exhibit', exhibitId);
+                                if (app.profile) {
+                                    app.logVisit(exhibitId);
+                                    app.showView('public_exhibit', exhibitId);
                                 } else {
-                                    this.pendingExhibitId = exhibitId;
-                                    this.showView('guest_register');
+                                    app.pendingExhibitId = exhibitId;
+                                    app.showView('guest_register');
                                 }
-                            } else if (this.profile) {
-                                this.routeBasedOnRole();
+                            } else if (app.profile) {
+                                app.routeBasedOnRole();
                             } else {
-                                this.showView('login');
+                                app.showView('login');
                             }
                         }
                     });
                 } catch (e) {
                     console.error("Auth Init Error", e);
-                    this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบได้', 'error');
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบได้', 'error');
                 }
             },
 
             setupRealtimeListeners: function() {
-                if(!this.user) return;
+                if(!app.user) return;
                 
-                // 1. Settings Listener
                 onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), (docSnap) => {
                     if (docSnap.exists()) {
                         const data = docSnap.data();
@@ -443,63 +461,59 @@
                             data.isPublicGuestOpen = data.isSystemOpen;
                         }
                         
-                        const oldBoxesStr = JSON.stringify(this.settings.customBoxes);
-                        this.settings = { ...this.settings, ...data };
-                        const newBoxesStr = JSON.stringify(this.settings.customBoxes);
+                        const oldBoxesStr = JSON.stringify(app.settings.customBoxes);
+                        app.settings = { ...app.settings, ...data };
+                        const newBoxesStr = JSON.stringify(app.settings.customBoxes);
                         
-                        this.updateMenuVisibility();
+                        app.updateMenuVisibility();
                         
-                        // Soft update to prevent flickering
-                        if (this.view === 'login' || this.view === 'guest_register') {
-                            this.showView(this.view);
-                        } else if (this.view === 'student_dash') {
+                        if (app.view === 'login' || app.view === 'guest_register') {
+                            app.showView(app.view);
+                        } else if (app.view === 'student_dash') {
                             if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-                            if (oldBoxesStr !== newBoxesStr) this.refreshCurrentView(); 
-                        } else if (this.view === 'public_exhibit') {
-                            if (oldBoxesStr !== newBoxesStr) this.refreshCurrentView(); 
+                            if (oldBoxesStr !== newBoxesStr) app.refreshCurrentView(); 
+                        } else if (app.view === 'public_exhibit') {
+                            if (oldBoxesStr !== newBoxesStr) app.refreshCurrentView(); 
                         }
                     }
                 });
 
-                // 2. Student Edits Listener
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'student_edits'), (snap) => {
-                    this.studentEdits = {};
-                    snap.forEach(doc => { this.studentEdits[doc.id] = doc.data(); });
+                    app.studentEdits = {};
+                    snap.forEach(doc => { app.studentEdits[doc.id] = doc.data(); });
                     
-                    if (this.view === 'public_exhibit') {
-                        this.refreshCurrentView();
-                    } else if (this.view === 'student_dash') {
+                    if (app.view === 'public_exhibit') {
+                        app.refreshCurrentView();
+                    } else if (app.view === 'student_dash') {
                         if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-                        this.refreshCurrentView();
+                        app.refreshCurrentView();
                     }
                 });
 
-                // 3. Visits Log Listener
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'visits'), (snap) => {
-                    this.visitLogs = {};
-                    snap.forEach(doc => { this.visitLogs[doc.id] = doc.data().count || 0; });
+                    app.visitLogs = {};
+                    snap.forEach(doc => { app.visitLogs[doc.id] = doc.data().count || 0; });
                     
                     const displays = document.querySelectorAll('.dynamic-visit-count');
                     if (displays.length > 0) {
                         displays.forEach(el => {
                             const sid = el.getAttribute('data-sid');
-                            if (sid) el.innerText = this.visitLogs[sid] || 0;
+                            if (sid) el.innerText = app.visitLogs[sid] || 0;
                         });
                     }
-                    if (this.view === 'admin_users') {
-                        this.renderAdminUsersListOnly();
+                    if (app.view === 'admin_users') {
+                        app.renderAdminUsersListOnly();
                     }
                 });
 
-                // 4. Access Logs Listener (For Visitors History)
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), (snap) => {
                     let logs = [];
                     snap.forEach(doc => { logs.push({ id: doc.id, ...doc.data() }); });
-                    logs.sort((a, b) => b.timestamp - a.timestamp); // Sort Newest First
-                    this.accessLogs = logs;
+                    logs.sort((a, b) => b.timestamp - a.timestamp);
+                    app.accessLogs = logs;
                     
-                    if (this.view === 'admin_logs') {
-                        this.refreshCurrentView();
+                    if (app.view === 'admin_logs') {
+                        app.refreshCurrentView();
                     }
                 });
             },
@@ -508,7 +522,7 @@
                 try {
                     const res = await fetch(SHEET_CSV_URL + "&t=" + Date.now());
                     const csvText = await res.text();
-                    const parsed = this.parseCSV(csvText);
+                    const parsed = app.parseCSV(csvText);
                     
                     if (parsed.length > 1) {
                         const headers = parsed[0];
@@ -525,13 +539,13 @@
                             });
                         });
                         
-                        this.thesisData = dataRows.map(row => {
+                        app.thesisData = dataRows.map(row => {
                             let obj = {};
                             prefixes.forEach(p => {
                                 let values = headerMap[p].map(idx => row[idx] ? row[idx].trim() : '').filter(v => v !== '');
                                 obj[p] = values.join('\n\n'); 
                             });
-                            // Mapping for detailed view and backwards compatibility
+                            
                             obj.studentId = obj['1.1'];
                             obj.name = obj['1.2'];
                             obj.personalInfo = obj['1.3'];
@@ -546,7 +560,6 @@
                             obj.instagram = obj['5.2'];
                             obj.otherContact = [obj['5.3'], obj['5.4']].filter(Boolean).join('\n');
                             
-                            // Map Raw Strings for "All Data" display
                             obj.raw = {
                                 '1.1': obj['1.1'], '1.2': obj['1.2'], '1.3': obj['1.3'],
                                 '2.1': obj['2.1'], '2.2': obj['2.2'], '2.3': obj['2.3'], '2.4': obj['2.4'],
@@ -581,7 +594,7 @@
             },
 
             logVisit: async function(studentId) {
-                if(!this.user || !this.profile) return;
+                if(!app.user || !app.profile) return;
                 try {
                     const ref = doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId);
                     const snap = await getDoc(ref);
@@ -591,18 +604,18 @@
                         await setDoc(ref, { count: 1 });
                     }
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
-                        uid: this.profile.uid,
-                        name: this.profile.name,
-                        role: this.profile.role,
+                        uid: app.profile.uid,
+                        name: app.profile.name,
+                        role: app.profile.role,
                         action: 'view_exhibit',
                         target: studentId,
                         timestamp: Date.now()
                     });
-                } catch(e) { console.error(e); }
+                } catch(e) {}
             },
             
             logSystemAccess: async function(role, id) {
-                if(!this.user) return;
+                if(!app.user) return;
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
                         uid: id,
@@ -614,38 +627,38 @@
             },
 
             goHome: function() {
-                try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e){}
-                if (this.profile) {
-                    this.routeBasedOnRole();
+                try { window.history.replaceState(null, '', window.location.pathname); } catch(e){}
+                if (app.profile) {
+                    app.routeBasedOnRole();
                 } else {
-                    this.showView('login');
+                    app.showView('login');
                 }
             },
 
             routeBasedOnRole: function() {
-                if (this.profile.role === 'admin') this.showView('admin_settings');
-                else if (this.profile.role === 'student') this.showView('student_dash');
+                if (app.profile.role === 'admin') app.showView('admin_settings');
+                else if (app.profile.role === 'student') app.showView('student_dash');
                 else {
-                    this.swal.fire('ยินดีต้อนรับ', 'กรุณาสแกนคิวอาร์โค้ด หรือคลิกลิงก์ผลงานที่นักศึกษาแชร์เพื่อเข้าชมผลงาน', 'info');
-                    this.showView('guest_register'); 
+                    app.swal.fire('ยินดีต้อนรับ', 'กรุณาสแกนคิวอาร์โค้ด หรือคลิกลิงก์ผลงานที่นักศึกษาแชร์เพื่อเข้าชมผลงาน', 'info');
+                    app.showView('guest_register'); 
                 }
             },
 
             logout: function() {
-                this.profile = null;
+                app.profile = null;
                 localStorage.removeItem('moranasatect_profile');
-                this.closeMenu();
-                this.updateMenuVisibility();
-                this.goHome();
+                app.closeMenu();
+                app.updateMenuVisibility();
+                app.goHome();
             },
 
             toggleMenu: function() {
-                this.isMenuOpen = !this.isMenuOpen;
+                app.isMenuOpen = !app.isMenuOpen;
                 const menu = document.getElementById('mobileDropdown');
                 const icon = document.querySelector('#navHamburger i');
                 const wrapper = document.getElementById('mainContentWrapper');
 
-                if (this.isMenuOpen) {
+                if (app.isMenuOpen) {
                     menu.classList.remove('hidden');
                     menu.classList.add('flex');
                     icon.classList.remove('fa-bars');
@@ -661,7 +674,7 @@
             },
 
             closeMenu: function() {
-                this.isMenuOpen = false;
+                app.isMenuOpen = false;
                 const menu = document.getElementById('mobileDropdown');
                 const icon = document.querySelector('#navHamburger i');
                 const wrapper = document.getElementById('mainContentWrapper');
@@ -686,18 +699,18 @@
                 
                 if (!hamBtn) return;
 
-                if (this.profile) {
+                if (app.profile) {
                     hamBtn.classList.remove('hidden');
                     
-                    if (secAdmin) secAdmin.classList.toggle('hidden', this.profile.role !== 'admin');
-                    if (secStudent) secStudent.classList.toggle('hidden', this.profile.role !== 'student');
+                    if (secAdmin) secAdmin.classList.toggle('hidden', app.profile.role !== 'admin');
+                    if (secStudent) secStudent.classList.toggle('hidden', app.profile.role !== 'student');
                     
                     if (iframeContainer) {
                         iframeContainer.innerHTML = '';
-                        const sites = this.settings.embeddedSites || [];
+                        const sites = app.settings.embeddedSites || [];
                         let iframeCount = 0;
                         sites.forEach((site, idx) => {
-                            if (this.profile.role === 'admin' || (this.profile.role === 'student' && site.showToStudents)) {
+                            if (app.profile.role === 'admin' || (app.profile.role === 'student' && site.showToStudents)) {
                                 iframeContainer.innerHTML += `
                                     <button onclick="app.loadIframeUrl(${idx})" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                                         <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center text-secondary"></i> ${site.title}
@@ -712,14 +725,14 @@
                     }
                 } else {
                     hamBtn.classList.add('hidden');
-                    this.closeMenu();
+                    app.closeMenu();
                 }
             },
 
             loadIframeUrl: function(idx) {
-                this.closeMenu();
-                try { window.history.replaceState({}, document.title, `${window.location.pathname}?iframe=${idx}`); } catch(e){}
-                this.showView('iframe_view', idx);
+                app.closeMenu();
+                try { window.history.replaceState(null, '', `${window.location.pathname}?iframe=${idx}`); } catch(e){}
+                app.showView('iframe_view', idx);
             },
 
             formatName: function(name) {
@@ -729,7 +742,7 @@
             
             getAbbr: function(name) {
                 if (!name) return '';
-                const formatted = this.formatName(name);
+                const formatted = app.formatName(name);
                 const consonants = formatted.replace(/[^ก-ฮ]/g, '');
                 if (consonants.length >= 2) return consonants.substring(0, 2);
                 if (consonants.length === 1) return consonants;
@@ -762,7 +775,7 @@
                 const link = `${baseUrl}?exhibit=${studentId}`;
                 
                 const showFallbackCopy = () => {
-                    this.swal.fire({
+                    app.swal.fire({
                         title: 'แชร์ลิงก์ผลงาน',
                         html: `
                             <input type="text" value="${link}" class="w-full p-4 rounded-xl text-center text-sm text-primary font-bold bg-white outline-none border-2 border-secondary" readonly id="copyLinkInput">
@@ -776,7 +789,7 @@
                             if(input) {
                                 input.select();
                                 document.execCommand('copy');
-                                this.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
+                                app.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
                             }
                         }
                     });
@@ -792,7 +805,7 @@
                     try {
                         if (navigator.clipboard && navigator.clipboard.writeText) {
                             await navigator.clipboard.writeText(link);
-                            this.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } else {
                             throw new Error("Clipboard API not available");
                         }
@@ -804,7 +817,7 @@
                             textArea.select();
                             document.execCommand('copy');
                             document.body.removeChild(textArea);
-                            this.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } catch (err2) { showFallbackCopy(); }
                     }
                 }
@@ -813,9 +826,9 @@
             // --- Popup Functions ---
             showDesignerInfo: function(studentId) {
                 const user = predefinedUsers.find(u => u.studentId === studentId);
-                const data = this.thesisData.find(d => d.studentId === studentId) || {};
-                const cleanName = this.formatName(data.name || user.name);
-                const abbr = this.getAbbr(cleanName);
+                const data = app.thesisData.find(d => d.studentId === studentId) || {};
+                const cleanName = app.formatName(data.name || user.name);
+                const abbr = app.getAbbr(cleanName);
                 
                 let rawContactInfo = data.personalInfo || '';
                 let contactHtml = '';
@@ -828,19 +841,14 @@
                     lines.forEach(line => {
                         const lowerLine = line.toLowerCase();
                         if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
+                            // Don't replace _ or prefix spaces for the actual link value
                             let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
-                            let cleanIgHandle = igHandle.replace(/^[_]+/, '').trim();
-                            let igLink = cleanIgHandle.includes('http') ? cleanIgHandle : `https://instagram.com/${cleanIgHandle.replace(/^[@\s]+/, '')}`;
-                            
+                            let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
                             contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> ${igHandle}</a>`;
-                            
                         } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
                             let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
-                            let cleanFbHandle = fbHandle.replace(/^[_]+/, '').trim();
-                            let fbLink = cleanFbHandle.includes('http') ? cleanFbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(cleanFbHandle)}`;
-                            
+                            let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
                             contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> ${fbHandle}</a>`;
-                            
                         } else if (line.includes('http')) {
                             let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
                             if (linkMatch) {
@@ -864,10 +872,10 @@
                     </div>`;
                 }
 
-                this.swal.fire({
+                app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] border-secondary ring-2 ring-white/50 overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl z-0 hidden">${abbr}</span>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.classList.remove('opacity-0');"
@@ -892,17 +900,22 @@
 
             showAdvisorInfo: function(advisorName) {
                 const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
-                const cleanAdvisorName = advisor ? advisor.name.split('.').pop().trim() : advisorName;
-                
+                const cleanAdvisorNameForAbbr = advisor ? advisor.name.split('.').pop().trim() : advisorName.split('.').pop().trim();
+                const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
+
                 if (advisor) {
-                    this.swal.fire({
+                    app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-32 h-32 rounded-full border-4 border-white/20 overflow-hidden mb-5 bg-black shadow-2xl">
-                                     <img src="./MORANASATECT01/${advisor.id}.png" onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorName)}&background=333&color=fff'; }" class="w-full h-full object-cover">
+                                <div class="w-32 h-32 rounded-full border-[3px] border-white/20 ring-2 ring-white/50 overflow-hidden mb-5 bg-black shadow-2xl relative flex items-center justify-center">
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-white text-4xl z-0 hidden">${abbr}</span>
+                                    <img src="./MORANASATECT01/${advisor.id}.png" 
+                                         onload="this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                         class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 class="text-xl md:text-2xl font-black text-white mb-6 drop-shadow-md whitespace-nowrap overflow-hidden text-ellipsis w-full text-center px-2">${cleanAdvisorName}</h3>
+                                <h3 class="text-xl md:text-2xl font-black text-white mb-6 drop-shadow-md whitespace-nowrap overflow-hidden text-ellipsis w-full text-center px-2">${advisor.name}</h3>
                                 <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
                                     อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
@@ -916,13 +929,13 @@
                         }
                     });
                 } else {
-                    this.swal.fire({ title: 'อาจารย์ที่ปรึกษา', text: advisorName, icon: 'info', showConfirmButton: false, showCloseButton: true });
+                    app.swal.fire({ title: 'อาจารย์ที่ปรึกษา', text: advisorName, icon: 'info', showConfirmButton: false, showCloseButton: true });
                 }
             },
 
             // --- Reset All Visits (Admin) ---
             resetAllVisits: async function() {
-                const result = await this.swal.fire({
+                const result = await app.swal.fire({
                     title: 'ยืนยันล้างยอดวิวทั้งหมด?',
                     html: '<p class="text-sm text-gray-300">ยอดวิวผลงานของนักศึกษาทุกคนจะถูกรีเซ็ตเป็น <b class="text-red-500">0</b></p>',
                     icon: 'warning',
@@ -933,21 +946,21 @@
                 });
 
                 if(result.isConfirmed) {
-                    this.swal.fire({title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                    app.swal.fire({title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
                         for(let u of predefinedUsers) {
                             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
                         }
-                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างยอดเข้าชมทั้งหมดแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างยอดเข้าชมทั้งหมดแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
                     } catch(e) {
-                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้', 'error');
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้', 'error');
                     }
                 }
             },
 
             // --- Reset Single Visit ---
             resetVisit: async function(studentId) {
-                const result = await this.swal.fire({
+                const result = await app.swal.fire({
                     title: 'ยืนยันการล้างค่า?',
                     html: `<p class="text-sm text-gray-300">ยอดวิวของรหัส <b class="text-secondary">${studentId}</b> จะกลับเป็น 0</p>`,
                     icon: 'warning',
@@ -960,16 +973,16 @@
                 if (result.isConfirmed) {
                     try {
                         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId), { count: 0 });
-                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
                     } catch(e) {
-                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
                     }
                 }
             },
 
             // --- Clear Access Logs ---
             clearAllLogs: async function() {
-                const result = await this.swal.fire({
+                const result = await app.swal.fire({
                     title: 'ยืนยันล้างประวัติการเข้าชมทั้งหมด?',
                     text: 'ข้อมูลบันทึกการเข้าชมจะไม่สามารถกู้คืนได้',
                     icon: 'warning',
@@ -980,44 +993,46 @@
                 });
 
                 if(result.isConfirmed) {
-                    this.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
-                        for(let log of this.accessLogs) {
-                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
+                        for(let log of app.accessLogs) {
+                            if (log.action === 'view_exhibit') {
+                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
+                            }
                         }
-                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติการเข้าชมแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
                     } catch(e) {
-                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้', 'error');
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
                     }
                 }
             },
 
             // ================== VIEWS ==================
             showView: function(viewName, param = null) {
-                this.view = viewName;
-                this.closeMenu();
+                app.view = viewName;
+                app.closeMenu();
                 const root = document.getElementById('appRoot');
                 window.scrollTo(0,0);
 
-                if (viewName === 'loading') root.innerHTML = this.renderLoading();
-                else if (viewName === 'login') root.innerHTML = this.renderLogin();
-                else if (viewName === 'guest_register') root.innerHTML = this.renderGuestRegister();
-                else if (viewName === 'public_exhibit') root.innerHTML = this.renderPublicExhibit(param);
-                else if (viewName === 'student_dash') root.innerHTML = this.renderStudentDash();
-                else if (viewName === 'admin_settings') root.innerHTML = this.renderAdminSettings();
-                else if (viewName === 'admin_boxes') root.innerHTML = this.renderAdminBoxes();
-                else if (viewName === 'admin_users') root.innerHTML = this.renderAdminUsers();
-                else if (viewName === 'admin_logs') root.innerHTML = this.renderAdminLogs();
-                else if (viewName === 'admin_iframe') root.innerHTML = this.renderAdminIframe();
-                else if (viewName === 'admin_export') root.innerHTML = this.renderAdminExport();
-                else if (viewName === 'iframe_view') root.innerHTML = this.renderIframeView(param);
+                if (viewName === 'loading') root.innerHTML = app.renderLoading();
+                else if (viewName === 'login') root.innerHTML = app.renderLogin();
+                else if (viewName === 'guest_register') root.innerHTML = app.renderGuestRegister();
+                else if (viewName === 'public_exhibit') root.innerHTML = app.renderPublicExhibit(param);
+                else if (viewName === 'student_dash') root.innerHTML = app.renderStudentDash();
+                else if (viewName === 'admin_settings') root.innerHTML = app.renderAdminSettings();
+                else if (viewName === 'admin_boxes') root.innerHTML = app.renderAdminBoxes();
+                else if (viewName === 'admin_users') root.innerHTML = app.renderAdminUsers();
+                else if (viewName === 'admin_logs') root.innerHTML = app.renderAdminLogs();
+                else if (viewName === 'admin_iframe') root.innerHTML = app.renderAdminIframe();
+                else if (viewName === 'admin_export') root.innerHTML = app.renderAdminExport();
+                else if (viewName === 'iframe_view') root.innerHTML = app.renderIframeView(param);
             },
 
             refreshCurrentView: function() {
-                if(this.view === 'student_dash') document.getElementById('appRoot').innerHTML = this.renderStudentDash();
-                else if(this.view === 'admin_users') document.getElementById('appRoot').innerHTML = this.renderAdminUsers();
-                else if(this.view === 'admin_logs') document.getElementById('appRoot').innerHTML = this.renderAdminLogs();
-                else if(this.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = this.renderPublicExhibit(this.pendingExhibitId || this.profile?.uid); 
+                if(app.view === 'student_dash') document.getElementById('appRoot').innerHTML = app.renderStudentDash();
+                else if(app.view === 'admin_users') document.getElementById('appRoot').innerHTML = app.renderAdminUsers();
+                else if(app.view === 'admin_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLogs();
+                else if(app.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = app.renderPublicExhibit(app.pendingExhibitId || app.profile?.uid); 
             },
 
             // ================== RENDERERS ==================
@@ -1030,7 +1045,7 @@
             },
 
             renderLogin: function() {
-                if (this.settings.isStudentLoginOpen === false) {
+                if (app.settings.isStudentLoginOpen === false) {
                     return `
                     <div class="max-w-md mx-auto glass-card rounded-[2rem] p-8 text-center mt-10 animate-slide-up border-t-4 border-t-red-500">
                         <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
@@ -1063,37 +1078,74 @@
                 </div>`;
             },
 
+            loginAdminDirect: async function(bypassPassword = null) {
+                let pass = bypassPassword;
+                if(typeof bypassPassword !== 'string') {
+                    const { value } = await app.swal.fire({
+                        title: 'รหัสผ่านผู้ดูแลระบบ',
+                        input: 'password',
+                        inputPlaceholder: 'ระบุรหัส 8 หลัก'
+                    });
+                    pass = value;
+                }
+
+                if(pass === '65030900') {
+                    app.profile = { uid: pass, name: 'Admin', role: 'admin', id: 0 };
+                    localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
+                    app.logSystemAccess('admin', pass);
+                    app.updateMenuVisibility();
+                    app.routeBasedOnRole();
+                } else if (pass) {
+                    app.swal.fire('ผิดพลาด', 'รหัสผ่านไม่ถูกต้อง', 'error');
+                }
+            },
+
             requestOTP: async function() {
                 const idInput = document.getElementById('loginId').value.replace(/[^0-9]/g, '');
                 
-                if(idInput === '65030900') return this.loginAdminDirect('65030900');
-                if(idInput.length !== 8) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษา 8 หลัก', 'warning');
+                if(idInput === '65030900') return app.loginAdminDirect('65030900');
+                if(idInput.length !== 8) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษา 8 หลัก', 'warning');
                 
                 const isStudent = predefinedUsers.find(u => u.studentId === idInput);
-                if(!isStudent) return this.swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสนักศึกษานี้ในระบบ', 'error');
+                if(!isStudent) return app.swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสนักศึกษานี้ในระบบ', 'error');
 
                 const btn = document.getElementById('btnReqOTP');
                 btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> กำลังส่ง...';
                 btn.disabled = true;
 
-                this.tempId = idInput;
+                app.tempId = idInput;
                 const otp = Math.floor(100000 + Math.random() * 900000).toString();
                 const ref = Math.random().toString(36).substring(2, 6).toUpperCase();
                 
-                // Show OTP View immediately for smoother UX, the fetch runs in background
-                this.serverOtp = otp;
-                this.refCode = ref;
-                this.showView('otp');
-
                 try {
-                    await fetch(OTP_API_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ studentId: idInput, otpCode: otp, refCode: ref })
-                    });
+                    let result;
+                    try {
+                        const response = await fetch(OTP_API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ studentId: idInput, otpCode: otp, refCode: ref })
+                        });
+                        result = await response.json();
+                    } catch(e) {
+                        const response = await fetch(`${OTP_API_URL}?studentId=${idInput}&otpCode=${otp}&refCode=${ref}`);
+                        result = await response.json();
+                    }
+                    
+                    if (result && (result.status === 'success' || result.success || result.result === 'success')) {
+                        app.serverOtp = otp;
+                        app.refCode = ref;
+                        app.showView('otp');
+                    } else {
+                        const errMsg = (result && result.message) ? result.message : 'เกิดข้อผิดพลาดในการส่งอีเมล (โควต้าอาจเต็ม)';
+                        app.swal.fire('ข้อผิดพลาด', errMsg, 'error');
+                        btn.innerHTML = 'รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>';
+                        btn.disabled = false;
+                    }
                 } catch (e) {
                     console.error("OTP Send error", e);
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบส่งอีเมลได้ โปรดลองอีกครั้ง', 'error');
+                    btn.innerHTML = 'รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>';
+                    btn.disabled = false;
                 }
             },
 
@@ -1113,9 +1165,9 @@
                     <div class="p-6 md:p-8 space-y-6">
                         <div class="text-center">
                             <p class="text-xs text-gray-400 font-medium">ส่งรหัสไปยังอีเมลสถาบันแล้ว</p>
-                            <p class="font-extrabold text-lg text-white mt-1 tracking-wide drop-shadow-md">${this.tempId}@kmitl.ac.th</p>
+                            <p class="font-extrabold text-lg text-white mt-1 tracking-wide drop-shadow-md">${app.tempId}@kmitl.ac.th</p>
                             <div class="mt-3 bg-white/10 border border-white/20 text-secondary px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm inline-block">
-                                Ref: ${this.refCode}
+                                Ref: ${app.refCode}
                             </div>
                         </div>
                         <div class="flex justify-center gap-2">${inputs}</div>
@@ -1132,7 +1184,7 @@
             handleOtpInput: function(el, idx) {
                 el.value = el.value.replace(/[^0-9]/g, '');
                 if(el.value && idx < 6) document.getElementById(`otp-${idx+1}`).focus();
-                if(idx === 6 && el.value) this.verifyOTP();
+                if(idx === 6 && el.value) app.verifyOTP();
             },
             handleOtpKeydown: function(e, idx) {
                 if(e.key === 'Backspace' && !e.target.value && idx > 1) {
@@ -1143,26 +1195,26 @@
             verifyOTP: function() {
                 let code = '';
                 for(let i=1; i<=6; i++) code += document.getElementById(`otp-${i}`).value;
-                if(code === this.serverOtp) {
-                    const student = predefinedUsers.find(u => u.studentId === this.tempId);
-                    this.profile = { uid: student.studentId, name: student.name, role: 'student', id: student.id };
-                    localStorage.setItem('moranasatect_profile', JSON.stringify(this.profile));
-                    this.logSystemAccess('student', student.studentId);
-                    this.updateMenuVisibility();
-                    this.swal.fire({ 
+                if(code === app.serverOtp) {
+                    const student = predefinedUsers.find(u => u.studentId === app.tempId);
+                    app.profile = { uid: student.studentId, name: student.name, role: 'student', id: student.id };
+                    localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
+                    app.logSystemAccess('student', student.studentId);
+                    app.updateMenuVisibility();
+                    app.swal.fire({ 
                         iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', 
                         title: 'เข้าสู่ระบบสำเร็จ', 
                         timer: 1500, 
                         showConfirmButton: false 
                     });
-                    this.routeBasedOnRole();
+                    app.routeBasedOnRole();
                 } else {
-                    this.swal.fire('ข้อผิดพลาด', 'รหัส OTP ไม่ถูกต้อง', 'error');
+                    app.swal.fire('ข้อผิดพลาด', 'รหัส OTP ไม่ถูกต้อง', 'error');
                 }
             },
 
             renderGuestRegister: function() {
-                if (this.settings.isPublicGuestOpen === false) {
+                if (app.settings.isPublicGuestOpen === false) {
                     return `
                     <div class="max-w-md mx-auto glass-card rounded-[2rem] p-8 text-center mt-10 animate-slide-up border-t-4 border-t-red-500">
                         <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
@@ -1173,7 +1225,7 @@
                     </div>`;
                 }
 
-                this.tempGuestRole = ''; 
+                app.tempGuestRole = ''; 
                 const roleBtns = guestRoles.map(r => `
                     <button onclick="app.selectGuestRole('${r}')" id="role-btn-${r}"
                         class="role-btn flex-1 py-3 px-1 rounded-xl text-[10px] sm:text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-all truncate">
@@ -1214,7 +1266,7 @@
             },
 
             selectGuestRole: function(role) {
-                this.tempGuestRole = role;
+                app.tempGuestRole = role;
                 const btns = document.querySelectorAll('.role-btn');
                 btns.forEach(b => {
                     b.classList.remove('bg-secondary', 'text-black', 'border-secondary', 'scale-105');
@@ -1229,33 +1281,33 @@
 
             registerGuest: function() {
                 const name = document.getElementById('inputGuestName').value.trim();
-                const role = this.tempGuestRole;
-                if(!name) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อของคุณ', 'warning');
-                if(!role) return this.swal.fire('แจ้งเตือน', 'กรุณาเลือกประเภทผู้เยี่ยมชม', 'warning');
+                const role = app.tempGuestRole;
+                if(!name) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อของคุณ', 'warning');
+                if(!role) return app.swal.fire('แจ้งเตือน', 'กรุณาเลือกประเภทผู้เยี่ยมชม', 'warning');
                 
                 const finalName = `${name} (${role})`;
                 const gid = 'G_' + Math.random().toString(36).substr(2, 6);
                 
-                this.profile = { uid: gid, name: finalName, role: 'guest', id: 0 };
-                localStorage.setItem('moranasatect_profile', JSON.stringify(this.profile));
+                app.profile = { uid: gid, name: finalName, role: 'guest', id: 0 };
+                localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                 
-                this.logSystemAccess('guest', finalName);
+                app.logSystemAccess('guest', finalName);
                 
-                if (this.pendingExhibitId) {
-                    this.logVisit(this.pendingExhibitId);
-                    this.showView('public_exhibit', this.pendingExhibitId);
-                    this.pendingExhibitId = null;
+                if (app.pendingExhibitId) {
+                    app.logVisit(app.pendingExhibitId);
+                    app.showView('public_exhibit', app.pendingExhibitId);
+                    app.pendingExhibitId = null;
                 } else {
-                    this.routeBasedOnRole();
+                    app.routeBasedOnRole();
                 }
             },
 
-            // --- ส่วน Render Iframe ภาพและวิดีโอ (Full width / No extra outer card) ---
+            // --- ส่วน Render Iframe ภาพและวิดีโอ ---
             renderMediaFrames: function(urlsStr, typeStr) {
                 if (!urlsStr) return '';
                 
                 const lines = urlsStr.split('\n').map(u => u.trim()).filter(u => u);
-                let html = '<div class="flex flex-col gap-10">';
+                let html = '<div class="flex flex-col gap-10 overflow-hidden px-1">';
                 
                 lines.forEach((line, index) => {
                     const match = line.match(/^(.*?)(https?:\/\/[^\s]+)(.*)$/);
@@ -1288,29 +1340,25 @@
                     `;
                     
                     if (isImg) {
-                        // รูปภาพ ไม่มีกรอบ iframe ครอบ
                         html += `
                         <div class="relative w-full flex items-center justify-center min-h-[250px] bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group">
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
                                  onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0')"
-                                 class="w-full h-auto object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]" 
+                                 class="w-full h-auto max-h-[80vh] object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]" 
                                  onerror="this.style.display='none'">
                         </div>`;
                     } else {
-                        // วิดีโอ โครงสร้างใหม่ ไม่กินพื้นที่และใช้อัตราส่วน 16:9 + Iframe Wrapper ป้องกันทัชดูด
                         html += `
-                        <div class="iframe-wrapper shadow-2xl border border-white/10 aspect-video bg-black flex items-center justify-center group relative rounded-[1.5rem]">
+                        <div class="relative w-full aspect-video rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden flex items-center justify-center pointer-events-auto">
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                 <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                                 <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
                             </div>
                             <iframe src="${url}" 
                                     onload="this.classList.remove('opacity-0')"
-                                    class="absolute inset-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0 pointer-events-auto" 
+                                    class="absolute inset-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0 rounded-3xl" 
                                     allow="autoplay" allowfullscreen></iframe>
-                            <!-- Overlay transparent div to help mobile scrolling over iframe -->
-                            <div class="absolute inset-0 z-20 pointer-events-none group-hover:pointer-events-none group-active:pointer-events-none"></div>
                         </div>`;
                     }
                     html += `</div>`;
@@ -1325,38 +1373,39 @@
                 const user = predefinedUsers.find(u => u.studentId === studentId);
                 if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
                 
-                const data = this.thesisData.find(d => d.studentId === studentId) || {};
-                const visitCount = this.visitLogs[studentId] || 0;
+                const data = app.thesisData.find(d => d.studentId === studentId) || {};
+                const visitCount = app.visitLogs[studentId] || 0;
 
-                const cleanName = this.formatName(data.name || user.name);
-                const abbr = this.getAbbr(cleanName);
+                const cleanName = app.formatName(data.name || user.name);
+                const abbr = app.getAbbr(cleanName);
 
-                // Render Dynamic Custom Boxes added by Admin (Exclude label as requested)
+                // Render Dynamic Custom Boxes if allowEdit is true
                 let customBoxesHtml = '';
-                const studentCustomData = this.studentEdits[studentId] || {};
-                const activeBoxes = (this.settings.customBoxes || []).filter(b => b.isActive);
-                
-                activeBoxes.forEach(b => {
-                    let val = studentCustomData[b.id] || '';
-                    if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
+                if (app.settings.allowEdit) {
+                    const studentCustomData = app.studentEdits[studentId] || {};
+                    const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                     
-                    if (val) {
-                        customBoxesHtml += `
-                        <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed">
-                            <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
-                            ${val}
-                        </div>`;
-                    }
-                });
+                    activeBoxes.forEach(b => {
+                        let val = studentCustomData[b.id] || '';
+                        if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
+                        
+                        if (val) {
+                            customBoxesHtml += `
+                            <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed">
+                                <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
+                                ${val}
+                            </div>`;
+                        }
+                    });
+                }
 
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
 
-                        <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] border-secondary ring-2 ring-white/50 overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
@@ -1366,18 +1415,16 @@
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
                                 <div class="mb-5 leading-tight drop-shadow-lg break-words">
-                                    ${this.formatThesisTitle(data.title)}
+                                    ${app.formatThesisTitle(data.title)}
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
                                     
-                                    <!-- ปุ่มผู้ออกแบบ (กดแล้วขึ้น Popup) -->
                                     <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm group">
                                         <i class="fa-solid fa-user-pen text-secondary group-hover:scale-110 transition-transform"></i>
                                         ผู้ออกแบบ: ${cleanName}
                                         <i class="fa-solid fa-circle-info text-[10px] text-gray-500 ml-1"></i>
                                     </div>
                                     
-                                    <!-- ปุ่มอาจารย์ (กดแล้วขึ้น Popup) -->
                                     ${data.advisor ? `
                                     <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm group">
                                         <i class="fa-solid fa-chalkboard-user text-secondary group-hover:scale-110 transition-transform"></i>
@@ -1400,15 +1447,14 @@
                         </div>` : ''}
 
                         <div class="space-y-12">
-                            <!-- เอา Video ขึ้นมาก่อน Image ตามที่กำหนด -->
                             ${data.videoUrl ? `
                             <div class="animate-slide-up">
-                                ${this.renderMediaFrames(data.videoUrl, 'video')}
+                                ${app.renderMediaFrames(data.videoUrl, 'video')}
                             </div>` : ''}
 
                             ${data.coverImg || data.portfolioImgs ? `
                             <div class="animate-slide-up" style="animation-delay: 0.15s">
-                                ${this.renderMediaFrames(data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs, 'image')}
+                                ${app.renderMediaFrames(data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs, 'image')}
                             </div>` : ''}
                         </div>
                     </div>
@@ -1425,7 +1471,6 @@
             },
 
             // ================== PAGE: STUDENT DASHBOARD ==================
-            // Format Detailed Text Box
             renderDetailBox: function(label, value) {
                 if(!value) return '';
                 let formattedValue = value.split('\n').map(v => `<p class="mb-1">${v}</p>`).join('');
@@ -1437,22 +1482,22 @@
             },
 
             renderStudentDash: function() {
-                const sid = this.profile.uid;
-                const data = this.thesisData.find(d => d.studentId === sid) || {};
-                const vCount = this.visitLogs[sid] || 0;
+                const sid = app.profile.uid;
+                const data = app.thesisData.find(d => d.studentId === sid) || {};
+                const vCount = app.visitLogs[sid] || 0;
                 
                 const completeness = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0);
                 const isComplete = completeness >= 2;
 
-                const cleanName = this.formatName(this.profile.name);
-                const abbr = this.getAbbr(cleanName);
+                const cleanName = app.formatName(app.profile.name);
+                const abbr = app.getAbbr(cleanName);
 
                 // Render Input fields for Custom Boxes
                 let customBoxesInputHtml = '';
-                const studentCustomData = this.studentEdits[sid] || {};
-                const activeBoxes = (this.settings.customBoxes || []).filter(b => b.isActive);
+                const studentCustomData = app.studentEdits[sid] || {};
+                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 
-                if(this.settings.allowEdit && activeBoxes.length > 0) {
+                if(app.settings.allowEdit && activeBoxes.length > 0) {
                     let fieldsHtml = '';
                     activeBoxes.forEach(b => {
                         let val = studentCustomData[b.id] || '';
@@ -1481,7 +1526,6 @@
                     </div>`;
                 }
 
-                // Detail View loop
                 let allDetailsHtml = '';
                 const labels = {
                     '1.1': '1.1 รหัสนักศึกษา', '1.2': '1.2 ชื่อ-นามสกุล', '1.3': '1.3 ข้อมูลติดต่อ',
@@ -1491,7 +1535,7 @@
                 };
                 if(data.raw) {
                     Object.keys(labels).forEach(k => {
-                        if(data.raw[k]) allDetailsHtml += this.renderDetailBox(labels[k], data.raw[k]);
+                        if(data.raw[k]) allDetailsHtml += app.renderDetailBox(labels[k], data.raw[k]);
                     });
                 }
 
@@ -1501,12 +1545,12 @@
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-secondary ring-2 ring-white/50 overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
-                                <img src="./MORANASATECT/${this.profile.id}.png" 
+                                <img src="./MORANASATECT/${app.profile.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div>
@@ -1517,7 +1561,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div onclick="app.showMyViewCount('${vCount}')" class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden group cursor-pointer hover:bg-white/10 transition-colors border-secondary/30 shadow-[0_0_15px_rgba(253,223,49,0.1)]">
+                        <div onclick="app.showMyViewCount('${sid}', '${vCount}')" class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden group cursor-pointer hover:bg-white/10 transition-colors border-secondary/30 shadow-[0_0_15px_rgba(253,223,49,0.1)]">
                             <div class="absolute right-[-10px] bottom-[-10px] text-white/5 text-7xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-eye"></i></div>
                             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2 z-10 relative">ยอดเข้าชม (คลิกเพื่อดู)</p>
                             <p class="text-4xl md:text-5xl font-black text-secondary drop-shadow-lg z-10 relative"><span class="dynamic-visit-count" data-sid="${sid}">${vCount}</span> <span class="text-sm font-medium text-gray-500">ครั้ง</span></p>
@@ -1540,7 +1584,6 @@
 
                     ${customBoxesInputHtml}
 
-                    <!-- Data View Section -->
                     <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
                         <h3 class="text-white font-bold text-lg md:text-xl mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ <span class="text-xs text-gray-400 font-normal ml-2">(ไม่อนุญาตให้แก้ไข)</span></h3>
                         
@@ -1560,42 +1603,44 @@
                 </div>`;
             },
 
-            showMyViewCount: function(count) {
-                 this.swal.fire({
+            showMyViewCount: function(studentId, count) {
+                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const cleanName = user ? app.formatName(user.name) : 'ไม่ทราบชื่อ';
+                app.swal.fire({
                     iconHtml: '<i class="fa-solid fa-eye text-secondary text-5xl"></i>',
                     title: 'ยอดเข้าชมผลงาน',
-                    html: `มีผู้เข้าเยี่ยมชมหน้าผลงานของคุณทั้งหมด <br><br><span class="text-4xl font-black text-secondary drop-shadow-md">${count}</span> <span class="text-sm text-gray-400 font-bold">ครั้ง</span>`,
-                    confirmButtonText: 'รับทราบ',
+                    html: `<div class="mb-4"><span class="text-white font-bold text-lg">${cleanName}</span></div>มีผู้เข้าเยี่ยมชมหน้าผลงานของคุณทั้งหมด <br><br><span class="text-5xl font-black text-secondary drop-shadow-md">${count}</span> <span class="text-sm text-gray-400 font-bold">ครั้ง</span>`,
+                    confirmButtonText: 'ปิดหน้าต่าง',
                     customClass: {
-                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[90%] max-w-sm bg-black/90',
+                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[85%] max-w-sm bg-black/90',
                         title: 'text-white font-extrabold text-xl',
-                        confirmButton: 'bg-white/20 text-white font-bold rounded-xl px-6 py-2 transition hover:bg-white/30'
+                        confirmButton: 'bg-white/20 text-white font-bold rounded-xl px-8 py-3 transition hover:bg-white/30 w-full sm:w-auto mt-2'
                     }
                 });
             },
 
             showMediaPopup: function(type) {
-                const sid = this.profile.uid;
-                const data = this.thesisData.find(d => d.studentId === sid) || {};
+                const sid = app.profile.uid;
+                const data = app.thesisData.find(d => d.studentId === sid) || {};
                 let html = '';
                 
                 if (type === 'video') {
-                    if(!data.videoUrl) return this.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีข้อมูลวิดีโอผลงานของคุณในระบบ', 'info');
-                    html = this.renderMediaFrames(data.videoUrl, 'video');
+                    if(!data.videoUrl) return app.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีข้อมูลวิดีโอผลงานของคุณในระบบ', 'info');
+                    html = app.renderMediaFrames(data.videoUrl, 'video');
                 } else if (type === 'image') {
                     const imgs = data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs;
-                    if(!imgs) return this.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีข้อมูลรูปภาพผลงานของคุณในระบบ', 'info');
-                    html = this.renderMediaFrames(imgs, 'image');
+                    if(!imgs) return app.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีข้อมูลรูปภาพผลงานของคุณในระบบ', 'info');
+                    html = app.renderMediaFrames(imgs, 'image');
                 }
                 
-                this.swal.fire({
+                app.swal.fire({
                     title: type === 'video' ? 'วิดีโอผลงาน' : 'รูปภาพผลงาน',
-                    html: `<div class="mt-4 text-left max-h-[75vh] overflow-y-auto custom-scrollbar pr-1 sm:pr-2">${html}</div>`,
+                    html: `<div class="mt-4 text-left max-h-[65vh] overflow-y-auto custom-scrollbar px-1 sm:px-2">${html}</div>`,
                     showCloseButton: true,
                     showConfirmButton: false,
-                    width: '95%',
+                    width: '85vw', 
                     customClass: {
-                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] backdrop-blur-xl',
+                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] backdrop-blur-xl w-[85vw] max-w-4xl mx-auto',
                         title: 'text-secondary font-bold text-xl md:text-2xl border-b border-white/10 pb-4',
                         closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
                     }
@@ -1603,7 +1648,7 @@
             },
 
             saveStudentText: async function() {
-                const activeBoxes = (this.settings.customBoxes || []).filter(b => b.isActive);
+                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 let saveData = {};
                 
                 activeBoxes.forEach(b => {
@@ -1612,14 +1657,12 @@
                 });
 
                 try {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', this.profile.uid), saveData, { merge:true });
-                    this.swal.fire({ iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton:false });
-                } catch(e) { this.swal.fire('Error', 'Cannot save', 'error'); }
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', app.profile.uid), saveData, { merge:true });
+                    app.swal.fire({ iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton:false });
+                } catch(e) { app.swal.fire('Error', 'Cannot save', 'error'); }
             },
 
-            // ================== ADMIN PAGES (Standalone) ==================
-            
-            // 1. Admin Settings Page
+            // ================== ADMIN PAGES ==================
             renderAdminSettings: function() {
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
@@ -1638,7 +1681,7 @@
                                 <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด นักศึกษา (ผู้ส่งผลงาน) จะไม่สามารถเข้าสู่ระบบ Dashboard ได้</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${this.settings.isStudentLoginOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isStudentLoginOpen', this.checked)" class="sr-only peer">
+                                <input type="checkbox" ${app.settings.isStudentLoginOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isStudentLoginOpen', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
@@ -1649,7 +1692,7 @@
                                 <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ผู้เยี่ยมชมที่เข้าผ่านลิงก์หรือคิวอาร์โค้ด จะเห็นเพียงหน้าระบบปิดให้บริการ</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${this.settings.isPublicGuestOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isPublicGuestOpen', this.checked)" class="sr-only peer">
+                                <input type="checkbox" ${app.settings.isPublicGuestOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isPublicGuestOpen', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
@@ -1657,10 +1700,10 @@
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
                             <div>
                                 <p class="font-bold text-white text-sm">อนุญาตให้นักศึกษากรอกข้อมูลเพิ่มเติม (Custom Boxes)</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ระบบจะซ่อนฟอร์มกล่องข้อความต่างๆ ในหน้า Dashboard ของนักศึกษาทั้งหมด</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ระบบจะซ่อนฟอร์มกล่องข้อความต่างๆ ในหน้า Dashboard ของนักศึกษาทั้งหมด (ผลงานที่เคยกรอกก็จะถูกซ่อนด้วย)</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${this.settings.allowEdit !== false ? 'checked' : ''} onchange="app.updateSetting('allowEdit', this.checked)" class="sr-only peer">
+                                <input type="checkbox" ${app.settings.allowEdit !== false ? 'checked' : ''} onchange="app.updateSetting('allowEdit', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
@@ -1677,28 +1720,27 @@
             },
 
             updateSetting: async function(key, val) {
-                this.settings[key] = val; // Optimistic update
+                app.settings[key] = val; 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { [key]: val }, { merge:true }); } catch(e){}
             },
 
             checkQuota: async function() {
-                this.swal.fire({ title: 'กำลังเช็คโควต้า...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                app.swal.fire({ title: 'กำลังเช็คโควต้า...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 try {
                     const res = await fetch(QUOTA_API_URL);
                     const data = await res.json();
-                    this.swal.fire({
+                    app.swal.fire({
                         title: 'โควต้า OTP',
                         html: `
                             <div class="text-5xl font-black text-secondary my-6 drop-shadow-lg">${data.remainingQuota}</div>
                             <p class="text-xs text-gray-400 bg-black/30 p-3 rounded-xl inline-block border border-white/10">คงเหลือสำหรับวันนี้</p>
                         `
                     });
-                } catch(e) { this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลโควต้าได้', 'error'); }
+                } catch(e) { app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลโควต้าได้', 'error'); }
             },
 
-            // 1.5 Admin Custom Boxes Manager
             renderAdminBoxes: function() {
-                const boxes = this.settings.customBoxes || [];
+                const boxes = app.settings.customBoxes || [];
                 let listHtml = boxes.map((b, idx) => `
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
                         <div class="min-w-0 flex-1">
@@ -1763,22 +1805,22 @@
             addCustomBox: async function() {
                 const label = document.getElementById('newBoxLabel').value.trim();
                 const placeholder = document.getElementById('newBoxPlaceholder').value.trim();
-                if(!label) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อหัวข้อกล่อง', 'warning');
+                if(!label) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อหัวข้อกล่อง', 'warning');
                 
                 const id = 'box_' + Date.now();
-                const boxes = [...(this.settings.customBoxes || []), { id, label, placeholder, isActive: true }];
+                const boxes = [...(app.settings.customBoxes || []), { id, label, placeholder, isActive: true }];
                 
-                this.settings.customBoxes = boxes;
-                this.refreshCurrentView(); // Re-render to show new box instantly
+                app.settings.customBoxes = boxes;
+                app.refreshCurrentView(); 
                 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
             },
 
             toggleCustomBox: async function(idx, isActive) {
-                const boxes = [...(this.settings.customBoxes || [])];
+                const boxes = [...(app.settings.customBoxes || [])];
                 if (boxes[idx]) {
                     boxes[idx].isActive = isActive;
-                    this.settings.customBoxes = boxes; 
+                    app.settings.customBoxes = boxes; 
                     
                     const badge = document.getElementById(`boxBadge_${idx}`);
                     if (badge) {
@@ -1791,16 +1833,15 @@
             },
 
             deleteCustomBox: async function(idx) {
-                const boxes = [...(this.settings.customBoxes || [])];
+                const boxes = [...(app.settings.customBoxes || [])];
                 boxes.splice(idx, 1);
                 
-                this.settings.customBoxes = boxes;
-                this.refreshCurrentView(); 
+                app.settings.customBoxes = boxes;
+                app.refreshCurrentView(); 
 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
             },
 
-            // 2. Admin Users Page
             renderAdminUsers: function() {
                 return `
                 <div class="animate-fade-in max-w-6xl mx-auto pb-10 mt-6 px-2 sm:px-0">
@@ -1821,31 +1862,31 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-sm"></i>
                         <input type="text" placeholder="ค้นหาชื่อ หรือรหัส..." 
                             class="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-white/10 border border-white/20 outline-none transition-all text-sm font-medium text-white placeholder:text-white/50 shadow-inner focus:bg-white/20 focus:border-secondary"
-                            onkeyup="app.setAdminUserSearch(this.value)" value="${this.adminUserSearchQuery || ''}">
+                            onkeyup="app.setAdminUserSearch(this.value)" value="${app.adminUserSearchQuery || ''}">
                     </div>
 
                     <div class="glass-card rounded-[2.5rem] p-4 sm:p-8" id="adminUserListContainer">
-                        ${this.generateAdminUsersListHtml()}
+                        ${app.generateAdminUsersListHtml()}
                     </div>
                 </div>`;
             },
 
             setAdminUserSearch: function(val) {
-                this.adminUserSearchQuery = val;
-                this.renderAdminUsersListOnly();
+                app.adminUserSearchQuery = val;
+                app.renderAdminUsersListOnly();
             },
 
             renderAdminUsersListOnly: function() {
                 const container = document.getElementById('adminUserListContainer');
                 if (container) {
-                    container.innerHTML = this.generateAdminUsersListHtml();
+                    container.innerHTML = app.generateAdminUsersListHtml();
                 }
             },
 
             generateAdminUsersListHtml: function() {
                 let displayUsers = predefinedUsers;
-                if (this.adminUserSearchQuery && this.adminUserSearchQuery.trim() !== '') {
-                    const q = this.adminUserSearchQuery.toLowerCase().trim();
+                if (app.adminUserSearchQuery && app.adminUserSearchQuery.trim() !== '') {
+                    const q = app.adminUserSearchQuery.toLowerCase().trim();
                     displayUsers = predefinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.studentId.includes(q));
                 }
 
@@ -1853,33 +1894,29 @@
                     return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบรายชื่อที่ค้นหา</p></div>`;
                 }
 
-                // Grid View (Mobile)
                 let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-5">';
-                
-                // Table View (Desktop)
                 let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
                             <th class="p-4 rounded-tl-xl">ลำดับ/รหัส/ชื่อ</th>
                             <th class="p-4 text-center">ยอดวิว</th>
                             <th class="p-4 text-center">รีเซ็ตวิว</th>
-                            <th class="p-4 text-center">สถานะ</th>
+                            <th class="p-4 text-center">จัดการ</th>
                             <th class="p-4 text-center rounded-tr-xl">ดูผลงาน</th>
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
 
                 displayUsers.forEach(u => {
-                    const vCount = this.visitLogs[u.studentId] || 0;
-                    const data = this.thesisData.find(d => d.studentId === u.studentId) || {};
+                    const vCount = app.visitLogs[u.studentId] || 0;
+                    const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
                     const isComplete = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
                     
-                    const cleanName = this.formatName(u.name);
-                    const abbr = this.getAbbr(cleanName);
+                    const cleanName = app.formatName(u.name);
+                    const abbr = app.getAbbr(cleanName);
 
-                    // --- Grid Item ---
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                        <div class="w-20 h-20 rounded-full border-2 border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
+                        <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-2 ring-white/50 bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
                             <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl z-0 hidden">${abbr}</span>
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="this.classList.remove('opacity-0')"
@@ -1896,20 +1933,19 @@
                         
                         <div class="flex gap-2 w-full mt-4">
                             <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 py-3 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
+                                <i class="fa-solid fa-rotate-left"></i> ล้างวิว
                             </button>
-                            <button onclick="app.showView('public_exhibit', '${u.studentId}')" class="flex-1 py-3 bg-secondary text-primary rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-eye"></i> ดูผลงาน
+                            <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 py-3 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-pen-to-square"></i> จัดการ
                             </button>
                         </div>
                     </div>`;
 
-                    // --- Table Row ---
                     tableHtml += `
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border-2 border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-full border-[2px] border-secondary ring-2 ring-white/50 bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
@@ -1932,9 +1968,9 @@
                             </button>
                         </td>
                         <td class="p-4 text-center">
-                            ${isComplete ? 
-                                '<span class="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
-                                '<span class="text-[10px] bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>'}
+                            <button onclick="app.manageUserData('${u.studentId}')" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
+                                จัดการข้อมูล
+                            </button>
                         </td>
                         <td class="p-4 text-center">
                             <button onclick="app.showView('public_exhibit', '${u.studentId}')" class="bg-white/10 w-9 h-9 rounded-full text-sm hover:bg-secondary hover:text-black transition-colors shadow-sm mx-auto flex items-center justify-center" title="ดูผลงาน">
@@ -1950,7 +1986,94 @@
                 return gridHtml + tableHtml;
             },
 
-            // 2.5 Admin Logs Page
+            // จัดการข้อมูลเสริมแต่ละคน + โหลด Excel
+            manageUserData: function(studentId) {
+                const data = app.studentEdits[studentId] || {};
+                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const cleanName = app.formatName(user.name);
+                
+                let content = '<div class="text-left space-y-3 mt-4 max-h-[50vh] overflow-y-auto custom-scrollbar">';
+                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
+                let hasData = false;
+                
+                activeBoxes.forEach(b => {
+                    let val = data[b.id] || '';
+                    if (b.id === 'default_text' && !val && data.text) val = data.text; 
+                    if (val) {
+                        hasData = true;
+                        content += `<div class="bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
+                            <p class="text-secondary text-[10px] font-bold mb-2 tracking-widest uppercase">${b.label}</p>
+                            <p class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">${val}</p>
+                        </div>`;
+                    }
+                });
+                
+                if (!hasData) content += '<p class="text-center text-gray-500 py-6 font-bold bg-white/5 rounded-xl border border-white/10">นักศึกษายังไม่ได้กรอกข้อมูลเพิ่มเติม</p>';
+                content += '</div>';
+
+                app.swal.fire({
+                    title: 'ข้อมูลที่กรอกเพิ่มเติม',
+                    html: `<p class="text-sm text-gray-400 mb-2 border-b border-white/10 pb-4">${studentId} - ${cleanName}</p>` + content,
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: 'ปิดหน้าต่าง',
+                    cancelButtonText: 'ลบข้อมูล',
+                    denyButtonText: 'โหลด Excel',
+                    customClass: {
+                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] w-[90%] max-w-lg',
+                        title: 'text-white font-bold',
+                        confirmButton: 'bg-gray-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-gray-500 w-full sm:w-auto m-1',
+                        cancelButton: 'bg-red-500/20 text-red-500 border border-red-500/50 font-bold rounded-xl px-4 py-2 hover:bg-red-500 hover:text-white w-full sm:w-auto m-1',
+                        denyButton: 'bg-green-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-green-500 w-full sm:w-auto m-1'
+                    }
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.cancel) {
+                        app.swal.fire({
+                            title: 'ยืนยันลบข้อมูล?',
+                            text: "ข้อความทั้งหมดที่นักศึกษาคนนี้พิมพ์ไว้จะหายไปทันที",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'ลบทิ้ง',
+                            cancelButtonText: 'ยกเลิก',
+                            confirmButtonColor: '#ef4444'
+                        }).then(async (res) => {
+                            if (res.isConfirmed) {
+                                try {
+                                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', studentId));
+                                    app.swal.fire({title: 'ลบสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false});
+                                } catch(e) {}
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.deny) {
+                        app.exportAllDataCSV();
+                    }
+                });
+            },
+
+            exportAllDataCSV: function() {
+                let csvContent = "\uFEFF"; // BOM for Excel Thai support
+                csvContent += "ลำดับ,รหัสนักศึกษา,ชื่อ-นามสกุล,ยอดเข้าชม,";
+                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
+                activeBoxes.forEach(b => csvContent += `"${b.label.replace(/"/g, '""')}",`);
+                csvContent += "\n";
+
+                predefinedUsers.forEach(u => {
+                    const vCount = app.visitLogs[u.studentId] || 0;
+                    const edits = app.studentEdits[u.studentId] || {};
+                    
+                    let row = `"${u.id}","${u.studentId}","${u.name}",${vCount},`;
+                    activeBoxes.forEach(b => {
+                        let val = edits[b.id] || '';
+                        if (b.id === 'default_text' && !val && edits.text) val = edits.text;
+                        row += `"${val.replace(/"/g, '""').replace(/\n/g, ' ')}",`;
+                    });
+                    csvContent += row + "\n";
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                saveAs(blob, "MORANASATECT_Student_Data.csv");
+            },
+
             renderAdminLogs: function() {
                 let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
@@ -1961,8 +2084,8 @@
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
                 
-                if (this.accessLogs && this.accessLogs.length > 0) {
-                    this.accessLogs.forEach(log => {
+                if (app.accessLogs && app.accessLogs.length > 0) {
+                    app.accessLogs.forEach(log => {
                         if (log.action === 'view_exhibit') {
                             const date = new Date(log.timestamp).toLocaleString('th-TH');
                             html += `
@@ -2000,7 +2123,7 @@
             },
 
             clearAllLogs: async function() {
-                const result = await this.swal.fire({
+                const result = await app.swal.fire({
                     title: 'ยืนยันล้างประวัติทั้งหมด?',
                     text: 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้',
                     icon: 'warning',
@@ -2011,23 +2134,22 @@
                 });
 
                 if(result.isConfirmed) {
-                    this.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
-                        for(let log of this.accessLogs) {
+                        for(let log of app.accessLogs) {
                             if (log.action === 'view_exhibit') {
                                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
                             }
                         }
-                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
                     } catch(e) {
-                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
                     }
                 }
             },
 
-            // 3. Admin Iframe Page
             renderAdminIframe: function() {
-                const sites = this.settings.embeddedSites || [];
+                const sites = app.settings.embeddedSites || [];
                 let siteList = sites.map((s, idx) => `
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
                         <div class="min-w-0 flex-1">
@@ -2099,12 +2221,12 @@
                 const url = document.getElementById('iframeUrl').value.trim();
                 const show = document.getElementById('iframeShow').checked;
                 
-                if(!title || !url) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+                if(!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
                 
-                const sites = [...(this.settings.embeddedSites || []), { title, url, showToStudents: show }];
+                const sites = [...(app.settings.embeddedSites || []), { title, url, showToStudents: show }];
                 
-                this.settings.embeddedSites = sites;
-                this.refreshCurrentView();
+                app.settings.embeddedSites = sites;
+                app.refreshCurrentView();
 
                 try {
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true });
@@ -2114,16 +2236,15 @@
             },
 
             deleteEmbeddedSite: async function(idx) {
-                const sites = [...(this.settings.embeddedSites || [])];
+                const sites = [...(app.settings.embeddedSites || [])];
                 sites.splice(idx, 1);
 
-                this.settings.embeddedSites = sites;
-                this.refreshCurrentView();
+                app.settings.embeddedSites = sites;
+                app.refreshCurrentView();
 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
             },
 
-            // 4. Admin Export Page
             renderAdminExport: function() {
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
@@ -2170,7 +2291,6 @@
                 const colorLightInput = document.getElementById('qrColorLight').value;
                 const isTransparent = document.getElementById('qrTransparent').checked;
                 
-                // qrcode.js needs a color, so we use white if transparent, then clear it via canvas context later
                 const colorLight = isTransparent ? "#ffffff" : colorLightInput;
 
                 const zip = new JSZip();
@@ -2191,7 +2311,7 @@
                         correctLevel: QRCode.CorrectLevel.H
                     });
 
-                    await new Promise(r => setTimeout(r, 150)); // let it render
+                    await new Promise(r => setTimeout(r, 150)); 
                     
                     const canvas = container.querySelector('canvas');
                     if (canvas) {
@@ -2200,15 +2320,14 @@
                             const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                             const data = imgData.data;
                             for(let j=0; j<data.length; j+=4) {
-                                // If white pixel, make transparent
                                 if(data[j]===255 && data[j+1]===255 && data[j+2]===255) {
-                                    data[j+3] = 0; // alpha to 0
+                                    data[j+3] = 0; 
                                 }
                             }
                             ctx.putImageData(imgData, 0, 0);
                         }
                         const imgDataURL = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
-                        zip.file(`${u.studentId}_${u.name.replace(/ /g, '_')}.png`, imgDataURL, {base64: true});
+                        zip.file(`${u.id}.png`, imgDataURL, {base64: true});
                     }
                 }
 
@@ -2225,7 +2344,7 @@
             // ================== PAGE: IFRAME VIEW ==================
             renderIframeView: function(idxStr) {
                 const idx = parseInt(idxStr);
-                const sites = this.settings.embeddedSites || [];
+                const sites = app.settings.embeddedSites || [];
                 const site = sites[idx];
 
                 if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto"><i class="fa-solid fa-link-slash text-4xl mb-3"></i><br>ไม่พบหน้าเว็บนี้</div>`;
@@ -2237,12 +2356,12 @@
                             <h2 class="text-white font-bold text-sm sm:text-base truncate"><i class="fa-solid fa-arrow-up-right-from-square text-secondary mr-2"></i>${site.title}</h2>
                         </div>
                     </div>
-                    <div class="flex-1 bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative flex items-center justify-center">
+                    <div class="flex-1 bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative flex items-center justify-center pointer-events-auto">
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
                             <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                             <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
                         </div>
-                        <iframe src="${site.url}" onload="this.classList.remove('opacity-0')" class="w-full h-full relative z-10 border-0 opacity-0 transition-opacity duration-700" allowfullscreen></iframe>
+                        <iframe src="${site.url}" onload="this.classList.remove('opacity-0')" class="w-full h-full relative z-10 border-0 opacity-0 transition-opacity duration-700 rounded-3xl" allowfullscreen></iframe>
                     </div>
                 </div>`;
             }
