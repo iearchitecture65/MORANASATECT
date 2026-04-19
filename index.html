@@ -690,6 +690,74 @@
                 return `<span class="line-clamp-2 text-xl md:text-2xl">${title}</span>`;
             },
 
+            // ฟังก์ชันแชร์ลิงก์
+            sharePublicLink: async function(studentId) {
+                // สร้างลิงก์ที่ตัดพารามิเตอร์เก่าออกเพื่อไม่ให้ซ้อนกัน
+                const baseUrl = window.location.href.split('?')[0];
+                const link = `${baseUrl}?exhibit=${studentId}`;
+                
+                // ฟังก์ชันสำหรับแสดง UI คัดลอกแบบ Manual (กรณีแชร์/ก๊อปปี้อัตโนมัติล้มเหลว)
+                const showFallbackCopy = () => {
+                    this.swal.fire({
+                        title: 'แชร์ลิงก์ผลงาน',
+                        html: `
+                            <input type="text" value="${link}" class="w-full p-4 rounded-xl text-center text-sm text-primary font-bold bg-white outline-none border-2 border-secondary" readonly id="copyLinkInput">
+                            <p class="text-xs text-gray-400 mt-3">คัดลอกลิงก์ด้านบนเพื่อแชร์ให้เพื่อนๆ</p>`,
+                        confirmButtonText: 'คัดลอกลิงก์',
+                        showCancelButton: true,
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const input = document.getElementById('copyLinkInput');
+                            if(input) {
+                                input.select();
+                                document.execCommand('copy');
+                                this.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
+                            }
+                        }
+                    });
+                };
+
+                if (navigator.share) {
+                    try { 
+                        // ลองเรียก Web Share API ก่อน (สำหรับมือถือจะเด้งเมนูแชร์ของเครื่อง)
+                        await navigator.share({ 
+                            title: 'MORANASATECT Thesis Exhibition', 
+                            text: 'ชมนิทรรศการผลงานวิทยานิพนธ์',
+                            url: link 
+                        }); 
+                    } catch(e) {
+                        // ถ้า User ยกเลิก หรือแชร์ไม่ได้ ให้เรียก Fallback คัดลอกลิงก์
+                        if (e.name !== 'AbortError') showFallbackCopy();
+                    }
+                } else {
+                    // สำหรับคอมพิวเตอร์ที่ไม่มี Web Share API
+                    try {
+                        // ลองใช้ API ใหม่ล่าสุดก่อน (อาจติดเรื่อง HTTPS / iFrame)
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(link);
+                            this.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                        } else {
+                            throw new Error("Clipboard API not available");
+                        }
+                    } catch (err) {
+                        // ถ้าใช้ไม่ได้ ให้ลองวิธีคลาสสิก (สร้าง textarea แล้วก็อปปี้)
+                        try {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = link;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            this.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                        } catch (err2) {
+                            // ไม้ตายสุดท้าย: เด้งกล่องข้อความให้ผู้ใช้กดก็อปปี้เอง 100%
+                            showFallbackCopy();
+                        }
+                    }
+                }
+            },
+
             // ================== VIEWS ==================
             showView: function(viewName, param = null) {
                 this.view = viewName;
@@ -1131,6 +1199,12 @@
                                 ${this.renderMediaFrames(data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs, 'image')}
                             </div>` : ''}
                         </div>
+                    </div>
+                    
+                    <div class="text-center mt-8 mb-4">
+                        <button onclick="app.sharePublicLink('${studentId}')" class="bg-secondary text-primary font-black px-8 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                            <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าผลงานนี้
+                        </button>
                     </div>
                 </div>`;
             },
