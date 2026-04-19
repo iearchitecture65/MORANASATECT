@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MORANASATECT - Thesis Exhibition</title>
     
+    <!-- Open Graph / LINE Preview Tags -->
     <meta property="og:title" content="MORANASATECT - Thesis Exhibition">
     <meta property="og:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
     <meta property="og:image" content="./PREVIEW%20MORANASATECT.png">
@@ -14,13 +15,16 @@
     <meta name="twitter:title" content="MORANASATECT - Thesis Exhibition">
     <meta name="twitter:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
 
+    <!-- Website Icon (Favicon) -->
     <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
     <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
     
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" crossorigin="anonymous">
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -50,6 +54,7 @@
         }
     </script>
 
+    <!-- FontAwesome, SweetAlert2, QRCode, JSZip, FileSaver -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -134,58 +139,37 @@
         /* Color Picker Reset styles */
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; }
-
-        /* Iframe Responsive Aspect Ratio */
-        .video-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            pointer-events: auto;
-        }
-        
-        /* Auto scale long text */
-        .auto-scale-text {
-            font-size: clamp(0.875rem, 5vw, 1.5rem);
-            line-height: 1.2;
-            word-break: break-word;
-        }
     </style>
 </head>
 <body class="antialiased">
 
+    <!-- Background Blobs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-20 -left-20 w-[400px] h-[400px] bg-blob-1 animate-blob"></div>
         <div class="absolute top-40 -right-20 w-[300px] h-[300px] bg-blob-2 animate-blob" style="animation-delay: 2s; animation-direction: alternate-reverse;"></div>
         <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
+    <!-- Header & Menu (Floating without background bar) -->
     <header class="absolute top-0 left-0 w-full px-4 py-4 md:px-6 md:py-6 flex justify-between items-start z-50 pointer-events-none">
         
+        <!-- Logo Left -->
         <div class="pointer-events-auto flex items-center h-[40px] md:h-[56px]">
             <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-full w-auto drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform active:scale-95" 
                  onclick="app.goHome()" onerror="this.style.display='none'">
         </div>
         
+        <!-- Menu Right -->
         <div class="pointer-events-auto relative flex flex-col items-end">
+            <!-- Hamburger Menu Button -->
             <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center">
                 <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
             </button>
 
+            <!-- Dropdown Menu -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
+                <!-- Admin Menu Section -->
                 <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
                     <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
                     <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
@@ -196,6 +180,9 @@
                     </button>
                     <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
+                    </button>
+                    <button onclick="app.showView('admin_login_logs')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-right-to-bracket w-5 text-center text-secondary"></i> ประวัติการเข้าสู่ระบบ
                     </button>
                     <button onclick="app.showView('admin_logs')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-list-check w-5 text-center text-secondary"></i> ประวัติเข้าชมผลงาน
@@ -208,6 +195,7 @@
                     </button>
                 </div>
             
+                <!-- Student Menu Section -->
                 <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
                     <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
                     <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
@@ -218,6 +206,7 @@
                     </button>
                 </div>
 
+                <!-- Dynamic Iframe Links -->
                 <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
                     <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
                     <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
@@ -231,8 +220,10 @@
         </div>
     </header>
 
+    <!-- Main Content App -->
     <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-20 md:mt-24">
         <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24">
+            <!-- Loading Indicator shown by default before JS kicks in -->
             <div class="flex flex-col items-center justify-center h-[60vh] text-secondary">
                 <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
                 <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
@@ -240,6 +231,7 @@
         </div>
     </div>
 
+    <!-- Hidden div for QR Code generation -->
     <div id="qr-generator-container" style="display:none;"></div>
 
     <script type="module">
@@ -512,7 +504,7 @@
                     logs.sort((a, b) => b.timestamp - a.timestamp);
                     app.accessLogs = logs;
                     
-                    if (app.view === 'admin_logs') {
+                    if (app.view === 'admin_login_logs' || app.view === 'admin_logs') {
                         app.refreshCurrentView();
                     }
                 });
@@ -619,6 +611,7 @@
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
                         uid: id,
+                        name: app.profile ? app.profile.name : id,
                         role: role,
                         action: 'login',
                         timestamp: Date.now()
@@ -841,7 +834,6 @@
                     lines.forEach(line => {
                         const lowerLine = line.toLowerCase();
                         if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
-                            // Don't replace _ or prefix spaces for the actual link value
                             let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
                             let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
                             contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> ${igHandle}</a>`;
@@ -849,6 +841,10 @@
                             let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
                             let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
                             contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> ${fbHandle}</a>`;
+                        } else if (lowerLine.startsWith('gmail') || lowerLine.startsWith('email') || lowerLine.includes('@gmail.com')) {
+                            let emailHandle = line.replace(/^(gmail|email)[\s:\-\.]*/i, '').trim();
+                            let emailLink = `mailto:${emailHandle}`;
+                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-envelope text-base"></i> ${emailHandle}</a>`;
                         } else if (line.includes('http')) {
                             let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
                             if (linkMatch) {
@@ -875,14 +871,14 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] border-secondary ring-2 ring-white/50 overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] border-secondary ring-[3px] ring-white/30 overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl z-0 hidden">${abbr}</span>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
-                            <h3 class="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-md">${cleanName}</h3>
+                            <h3 class="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-md break-words text-center px-2 leading-tight">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
                             
                             ${personalInfoHtml}
@@ -907,15 +903,14 @@
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-32 h-32 rounded-full border-[3px] border-white/20 ring-2 ring-white/50 overflow-hidden mb-5 bg-black shadow-2xl relative flex items-center justify-center">
+                                <div class="w-32 h-32 rounded-full border-[3px] border-white/20 ring-[3px] ring-white/30 overflow-hidden mb-5 bg-black shadow-2xl relative flex items-center justify-center">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-white text-4xl z-0 hidden">${abbr}</span>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=333&color=fff'; }" class="w-full h-full object-cover">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 class="text-xl md:text-2xl font-black text-white mb-6 drop-shadow-md whitespace-nowrap overflow-hidden text-ellipsis w-full text-center px-2">${advisor.name}</h3>
+                                <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
                                 <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
                                     อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
@@ -1023,6 +1018,7 @@
                 else if (viewName === 'admin_boxes') root.innerHTML = app.renderAdminBoxes();
                 else if (viewName === 'admin_users') root.innerHTML = app.renderAdminUsers();
                 else if (viewName === 'admin_logs') root.innerHTML = app.renderAdminLogs();
+                else if (viewName === 'admin_login_logs') root.innerHTML = app.renderAdminLoginLogs();
                 else if (viewName === 'admin_iframe') root.innerHTML = app.renderAdminIframe();
                 else if (viewName === 'admin_export') root.innerHTML = app.renderAdminExport();
                 else if (viewName === 'iframe_view') root.innerHTML = app.renderIframeView(param);
@@ -1032,6 +1028,7 @@
                 if(app.view === 'student_dash') document.getElementById('appRoot').innerHTML = app.renderStudentDash();
                 else if(app.view === 'admin_users') document.getElementById('appRoot').innerHTML = app.renderAdminUsers();
                 else if(app.view === 'admin_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLogs();
+                else if(app.view === 'admin_login_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLoginLogs();
                 else if(app.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = app.renderPublicExhibit(app.pendingExhibitId || app.profile?.uid); 
             },
 
@@ -1341,7 +1338,7 @@
                     
                     if (isImg) {
                         html += `
-                        <div class="relative w-full flex items-center justify-center min-h-[250px] bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group">
+                        <div class="relative w-full flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group">
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
                                  onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0')"
@@ -1350,7 +1347,7 @@
                         </div>`;
                     } else {
                         html += `
-                        <div class="relative w-full aspect-video rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden flex items-center justify-center pointer-events-auto">
+                        <div class="relative w-full h-[65vh] md:h-[80vh] rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden flex items-center justify-center pointer-events-auto">
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                 <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                                 <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
@@ -1404,8 +1401,9 @@
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
 
+                        <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] border-secondary ring-2 ring-white/50 overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] border-secondary ring-[3px] ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
@@ -1414,22 +1412,24 @@
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
-                                <div class="mb-5 leading-tight drop-shadow-lg break-words">
+                                <div class="mb-5 leading-tight drop-shadow-lg break-words whitespace-normal">
                                     ${app.formatThesisTitle(data.title)}
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
                                     
-                                    <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm group">
-                                        <i class="fa-solid fa-user-pen text-secondary group-hover:scale-110 transition-transform"></i>
-                                        ผู้ออกแบบ: ${cleanName}
-                                        <i class="fa-solid fa-circle-info text-[10px] text-gray-500 ml-1"></i>
+                                    <!-- ปุ่มผู้ออกแบบ (กดแล้วขึ้น Popup) -->
+                                    <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left">
+                                        <i class="fa-solid fa-user-pen text-secondary group-hover:scale-110 transition-transform shrink-0"></i>
+                                        <span class="break-words leading-tight">ผู้ออกแบบ: ${cleanName}</span>
+                                        <i class="fa-solid fa-circle-info text-[10px] text-gray-500 shrink-0"></i>
                                     </div>
                                     
+                                    <!-- ปุ่มอาจารย์ (กดแล้วขึ้น Popup) -->
                                     ${data.advisor ? `
-                                    <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm group">
-                                        <i class="fa-solid fa-chalkboard-user text-secondary group-hover:scale-110 transition-transform"></i>
-                                        อ.ที่ปรึกษา: ${data.advisor.split('.').pop().trim()}
-                                        <i class="fa-solid fa-circle-info text-[10px] text-gray-500 ml-1"></i>
+                                    <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left">
+                                        <i class="fa-solid fa-chalkboard-user text-secondary group-hover:scale-110 transition-transform shrink-0"></i>
+                                        <span class="break-words leading-tight">อ.ที่ปรึกษา: ${data.advisor}</span>
+                                        <i class="fa-solid fa-circle-info text-[10px] text-gray-500 shrink-0"></i>
                                     </div>` : ''}
 
                                 </div>
@@ -1447,6 +1447,7 @@
                         </div>` : ''}
 
                         <div class="space-y-12">
+                            <!-- เอา Video ขึ้นมาก่อน Image ตามที่กำหนด -->
                             ${data.videoUrl ? `
                             <div class="animate-slide-up">
                                 ${app.renderMediaFrames(data.videoUrl, 'video')}
@@ -1545,12 +1546,12 @@
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-secondary ring-2 ring-white/50 overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-secondary ring-[3px] ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div>
@@ -1584,6 +1585,7 @@
 
                     ${customBoxesInputHtml}
 
+                    <!-- Data View Section -->
                     <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
                         <h3 class="text-white font-bold text-lg md:text-xl mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ <span class="text-xs text-gray-400 font-normal ml-2">(ไม่อนุญาตให้แก้ไข)</span></h3>
                         
@@ -1640,7 +1642,7 @@
                     showConfirmButton: false,
                     width: '85vw', 
                     customClass: {
-                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] backdrop-blur-xl w-[85vw] max-w-4xl mx-auto',
+                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] backdrop-blur-xl w-[85vw] md:w-[75%] lg:w-[60%] max-w-4xl mx-auto',
                         title: 'text-secondary font-bold text-xl md:text-2xl border-b border-white/10 pb-4',
                         closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
                     }
@@ -1916,8 +1918,9 @@
 
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                        <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-2 ring-white/50 bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
+                        <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-[3px] ring-white/30 bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
                             <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl z-0 hidden">${abbr}</span>
+                            <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="this.classList.remove('opacity-0')"
                                  onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
@@ -1945,7 +1948,7 @@
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border-[2px] border-secondary ring-2 ring-white/50 bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-full border-[2px] border-secondary ring-[3px] ring-white/30 bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
@@ -2084,9 +2087,11 @@
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
                 
+                let viewLogs = [];
                 if (app.accessLogs && app.accessLogs.length > 0) {
                     app.accessLogs.forEach(log => {
                         if (log.action === 'view_exhibit') {
+                            viewLogs.push(log);
                             const date = new Date(log.timestamp).toLocaleString('th-TH');
                             html += `
                             <tr class="hover:bg-white/5 transition-colors group">
@@ -2096,7 +2101,9 @@
                             </tr>`;
                         }
                     });
-                } else {
+                }
+                
+                if (viewLogs.length === 0) {
                     html += `<tr><td colspan="3" class="text-center p-10 text-gray-500 font-bold">ยังไม่มีประวัติการเข้าชมผลงาน</td></tr>`;
                 }
                 html += `</tbody></table></div>`;
@@ -2111,7 +2118,7 @@
                                 <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visitor Logs</p>
                             </div>
                         </div>
-                        <button onclick="app.clearAllLogs()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
+                        <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
                             <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
                         </button>
                     </div>
@@ -2122,10 +2129,62 @@
                 </div>`;
             },
 
-            clearAllLogs: async function() {
+            renderAdminLoginLogs: function() {
+                let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                            <th class="p-4 rounded-tl-xl">ผู้เข้าสู่ระบบ</th>
+                            <th class="p-4">รหัสประจำตัว</th>
+                            <th class="p-4 text-center rounded-tr-xl">เวลา</th>
+                        </tr>
+                    </thead><tbody class="divide-y divide-white/5">`;
+                
+                let loginLogs = [];
+                if (app.accessLogs && app.accessLogs.length > 0) {
+                    app.accessLogs.forEach(log => {
+                        if (log.action === 'login') {
+                            loginLogs.push(log);
+                            const date = new Date(log.timestamp).toLocaleString('th-TH');
+                            html += `
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'student'})</span></td>
+                                <td class="p-4 text-sm text-secondary font-bold">${log.uid || '-'}</td>
+                                <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
+                            </tr>`;
+                        }
+                    });
+                }
+                
+                if (loginLogs.length === 0) {
+                    html += `<tr><td colspan="3" class="text-center p-10 text-gray-500 font-bold">ยังไม่มีประวัติการเข้าสู่ระบบ</td></tr>`;
+                }
+                html += `</tbody></table></div>`;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
+                            <div>
+                                <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติการเข้าสู่ระบบ</p>
+                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Login Logs</p>
+                            </div>
+                        </div>
+                        <button onclick="app.clearAllLogs('login')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
+                            <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
+                        ${html}
+                    </div>
+                </div>`;
+            },
+
+            clearAllLogs: async function(actionType) {
                 const result = await app.swal.fire({
                     title: 'ยืนยันล้างประวัติทั้งหมด?',
-                    text: 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้',
+                    text: 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#ef4444',
@@ -2137,7 +2196,7 @@
                     app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
                         for(let log of app.accessLogs) {
-                            if (log.action === 'view_exhibit') {
+                            if (log.action === actionType) {
                                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
                             }
                         }
