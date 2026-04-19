@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MORANASATECT - Thesis Exhibition</title>
+    
+    <!-- Website Icon (Favicon) -->
+    <link rel="icon" type="image/png" href="./iconLOGO MORANASATECT.png">
+    <link rel="apple-touch-icon" href="./iconLOGO MORANASATECT.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: { 
+                        primary: '#000000',      // Black
+                        secondary: '#fddf31',    // Yellow
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite alternate',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '100%': { transform: 'translate(30px, -50px) scale(1.1)' }
+                        },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome, SweetAlert2, QRCode, JSZip, FileSaver -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body { 
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .glass-card {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 1px solid rgba(253, 223, 49, 0.15);
+        }
+        
+        .glass-input {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fddf31;
+        }
+        .glass-input:focus {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #fddf31;
+            box-shadow: 0 0 15px rgba(253, 223, 49, 0.2);
+        }
+
+        .otp-box {
+            width: 45px;
+            height: 55px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            background: rgba(0,0,0,0.8);
+            color: #fddf31;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .otp-box:focus {
+            border-color: #fddf31;
+            box-shadow: 0 0 10px rgba(253, 223, 49, 0.3);
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(253, 223, 49, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(253, 223, 49, 0.8); }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(253, 223, 49, 0.4); border-radius: 10px; }
+
+        .bg-blob-1 { background: radial-gradient(circle, rgba(253,223,49,0.15) 0%, rgba(0,0,0,0) 70%); }
+        .bg-blob-2 { background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); }
+        .bg-blob-3 { background: radial-gradient(circle, rgba(253,223,49,0.08) 0%, rgba(0,0,0,0) 70%); }
+
+        .swal2-popup {
+            background: rgba(20, 20, 20, 0.95) !important;
+            border: 1px solid rgba(253, 223, 49, 0.3) !important;
+            color: white !important;
+            border-radius: 2rem !important;
+            backdrop-filter: blur(10px);
+        }
+        .swal2-title { color: #fddf31 !important; }
+        .swal2-html-container { color: #ccc !important; }
+
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #111;
+        }
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        
+        .menu-open-blur {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Background Blobs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-20 -left-20 w-[400px] h-[400px] bg-blob-1 animate-blob"></div>
+        <div class="absolute top-40 -right-20 w-[300px] h-[300px] bg-blob-2 animate-blob" style="animation-delay: 2s; animation-direction: alternate-reverse;"></div>
+        <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
+    </div>
+
+    <!-- Header & Menu -->
+    <header class="px-4 py-4 md:px-6 md:py-5 text-center text-white border-b border-white/10 relative z-50 flex-shrink-0 bg-black/30 backdrop-blur-sm">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center h-full z-[100]">
+            <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-9 md:h-12 w-auto drop-shadow-lg cursor-pointer hover:scale-105 transition-transform active:scale-95" 
+                 onclick="app.goHome()" onerror="this.style.display='none'">
+        </div>
+        
+        <div class="pointer-events-none relative z-10">
+            <h1 class="text-xl md:text-2xl font-extrabold tracking-wide mb-0 drop-shadow-md text-secondary">
+                นิทรรศการวิทยานิพนธ์
+            </h1>
+            <p class="text-[10px] md:text-xs font-medium tracking-[0.15em] opacity-80 uppercase text-white">
+                MORANASATECT
+            </p>
+        </div>
+        
+        <!-- Hamburger Menu Button -->
+        <button id="navHamburger" onclick="app.toggleMenu()" class="absolute top-1/2 -translate-y-1/2 right-4 md:right-6 text-white hover:text-secondary hidden z-[60] transition-all duration-300 transform">
+            <i class="fa-solid fa-bars text-3xl drop-shadow-md"></i>
+        </button>
+
+        <!-- Dropdown Menu (All Navigation Here) -->
+        <div id="mobileDropdown" class="hidden absolute top-[100%] right-4 md:right-6 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
+            
+            <!-- Admin Menu Section -->
+            <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
+                <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
+                </button>
+                <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
+                </button>
+                <button onclick="app.showView('admin_iframe')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-link w-5 text-center text-secondary"></i> จัดการเมนูเว็บฝัง
+                </button>
+                <button onclick="app.showView('admin_export')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-qrcode w-5 text-center text-secondary"></i> สร้าง QR Code
+                </button>
+            </div>
+            
+            <!-- Student Menu Section -->
+            <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
+                <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-sliders w-5 text-center text-secondary"></i> หน้าจัดการของฉัน
+                </button>
+                <button onclick="app.showView('public_exhibit', app.profile?.uid)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-display w-5 text-center text-secondary"></i> ดูผลงานของฉัน
+                </button>
+            </div>
+
+            <!-- Dynamic Iframe Links -->
+            <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
+                <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
+            </div>
+
+            <div class="h-px bg-white/20 my-2 mx-3"></div>
+            <button onclick="app.logout()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400 transition-colors text-left font-black text-sm">
+                <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> ออกจากระบบ
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content App -->
+    <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300">
+        <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24 pt-8">
+            <!-- Injected via JS -->
+        </div>
+    </div>
+
+    <!-- Hidden div for QR Code generation -->
+    <div id="qr-generator-container" style="display:none;"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, setDoc, getDoc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config 
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1z-AufMcsNqnbm3uUjoniuhdmDksYHMY",
+            authDomain: "moranasatect.firebaseapp.com",
+            projectId: "moranasatect",
+            storageBucket: "moranasatect.firebasestorage.app",
+            messagingSenderId: "592676930184",
+            appId: "1:592676930184:web:2c75d8ecdf806535f5153d",
+            measurementId: "G-WCWM8NCBJL"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(firebaseApp);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+        const appId = 'moranasatect_app';
+
+        // APIs
+        const OTP_API_URL = "https://script.google.com/macros/s/AKfycbwiwh09ssDzXk_XBA_UtVq-JqsaZt6rEGh3sCmfLaHCB_GZTy0umsf9vribur54EpaW/exec";
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRyI-a9eEarynPfuWWbpTqHvz-vDHBGnE1UnvqvDOGIAA9nWybOkfS2jlI3xJRrpFAuR5nmWup9169/pub?gid=1223023440&single=true&output=csv";
+        const QUOTA_API_URL = "https://script.google.com/macros/s/AKfycbxyIsym0jDtFwIzwpuuaqzre3UGF2Ws0S67aFf74EqaOY7VgKPJTyVCzL_NO7PZa4AD/exec";
+
+        // 57 Students Data
+        const predefinedUsers = [
+            { id: 1, studentId: "63030127", name: "นางสาวทัศน์ชากร ศรีสุวรรณ์" },
+            { id: 2, studentId: "64030020", name: "นางสาวขวัญชนก เป็งสุนา" },
+            { id: 3, studentId: "64030042", name: "นายฐานิต นพเทา" },
+            { id: 4, studentId: "64030052", name: "นางสาวณัฐณิชา ทองดี" },
+            { id: 5, studentId: "64030078", name: "นางสาวธันยธรณ์ เศรษฐีธร" },
+            { id: 6, studentId: "64030082", name: "นางสาวนฏกร ชัยชัชนันท์" },
+            { id: 7, studentId: "64030089", name: "นางสาวนัสรีน วงษ์สมาน" },
+            { id: 8, studentId: "64030118", name: "นางสาวปิ่นมุกข์ ศรีคง" },
+            { id: 9, studentId: "64030135", name: "นางสาวพิรญาณ์ แซ่อึ้ง" },
+            { id: 10, studentId: "64030159", name: "นางสาวยุพเรศ คำนาแซง" },
+            { id: 11, studentId: "64030163", name: "นางสาวรวิวรรณ มีเพียร" },
+            { id: 12, studentId: "64030171", name: "นางสาววชิรญาณ์ อารีเอื้อ" },
+            { id: 13, studentId: "64030179", name: "นางสาววริษฐา อานันท์วัชรานนท์" },
+            { id: 14, studentId: "64030239", name: "นายเจษฎาภรณ์ สิรุจฐนน" },
+            { id: 15, studentId: "64030287", name: "นางสาวพรนภา ปั่น" },
+            { id: 16, studentId: "64030325", name: "นางสาวอริสา พืมขุนทด" },
+            { id: 17, studentId: "65030001", name: "นางสาวกชกร ทรัพย์โคกสูง" },
+            { id: 18, studentId: "65030004", name: "นางสาวกนกวรรณ จันทร์มาเมือง" },
+            { id: 19, studentId: "65030008", name: "นางสาวกมลเนตร ชัยชนะ" },
+            { id: 20, studentId: "65030009", name: "นางสาวกมลฤทัย สว่างแจ้ง" },
+            { id: 21, studentId: "65030022", name: "นางสาวกุลภัสสร์ ธีระเพ็ญแสง" },
+            { id: 22, studentId: "65030030", name: "นางสาวจันทรัตน์ อ่อนละมูล" },
+            { id: 23, studentId: "65030036", name: "นายเฉลิมพร วันเพ็ญ" },
+            { id: 24, studentId: "65030038", name: "นางสาวชญาสินี วงศ์รักษา" },
+            { id: 25, studentId: "65030040", name: "นางสาวชนาภา ท้วมเกร็ด" },
+            { id: 26, studentId: "65030043", name: "นายชยาวุธ ภวคุณกร" },
+            { id: 27, studentId: "65030045", name: "นางสาวชยุตรา เสนากูล" },
+            { id: 28, studentId: "65030048", name: "นางสาวชวพร ประสงค์ผล" },
+            { id: 29, studentId: "65030054", name: "นางสาวโชติกา อายุวรรณกร" },
+            { id: 30, studentId: "65030057", name: "นายฐิติกานต์ ปุระเตนนท์" },
+            { id: 31, studentId: "65030063", name: "นางสาวณัชชา อภิเดช" },
+            { id: 32, studentId: "65030070", name: "นายณัฐนันท์ เตชัย" },
+            { id: 33, studentId: "65030093", name: "นายธนภัทร ไชยเมือง" },
+            { id: 34, studentId: "65030095", name: "นายธนภัทร พ้องเสียง" },
+            { id: 35, studentId: "65030115", name: "นายนนทวัฒน์ ชีพอุบัติ" },
+            { id: 36, studentId: "65030123", name: "นางสาวนันกานต์ ชูจันทร์" },
+            { id: 37, studentId: "65030138", name: "นายปฏิภาณ บำเรอจิต" },
+            { id: 38, studentId: "65030140", name: "นางสาวปณิตา พงษ์เรือง" },
+            { id: 39, studentId: "65030145", name: "นางสาวปรียากร สายสิม" },
+            { id: 40, studentId: "65030173", name: "นางสาวพุธิตา ปันฟอง" },
+            { id: 41, studentId: "65030193", name: "นายภูวิศ ชินทองเปลว" },
+            { id: 42, studentId: "65030215", name: "นางสาววนิชยา ทองสุข" },
+            { id: 43, studentId: "65030216", name: "นางสาววนิดา วามะขัน" },
+            { id: 44, studentId: "65030221", name: "นางสาววรัญญา ประสิทธิ์พิชิต" },
+            { id: 45, studentId: "65030225", name: "นางสาววริษา วิบูลพันธ์" },
+            { id: 46, studentId: "65030231", name: "นายวุฒิชัย อุ่นวิเศษ" },
+            { id: 47, studentId: "65030234", name: "นางสาวศศิกานต์ เจริญพันธุ์" },
+            { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน" },
+            { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา" },
+            { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว" },
+            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ" },
+            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา" },
+            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง" },
+            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห" },
+            { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด" },
+            { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง" },
+            { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล" }
+        ];
+
+        const guestRoles = ['ปี 1', 'ปี 2', 'ปี 3', 'ปี 4', 'ปี 5', 'ศิษย์เก่า', 'อาจารย์', 'เจ้าหน้าที่', 'บุคลากร', 'ผู้ปกครอง', 'บุคคลภายนอก'];
+
+        // Global App State
+        window.app = {
+            view: 'loading',
+            user: null,
+            profile: null, 
+            settings: {
+                isSystemOpen: true,
+                allowEdit: true,
+                embeddedSites: [], 
+            },
+            thesisData: [], 
+            studentEdits: {}, 
+            visitLogs: {}, 
+            
+            // OTP Temp
+            tempId: '',
+            serverOtp: '',
+            refCode: '',
+            
+            // View State
+            pendingExhibitId: null,
+            isMenuOpen: false,
+            tempGuestRole: '',
+            
+            // SweetAlert Theme (Dark/Yellow)
+            swal: Swal.mixin({
+                background: 'rgba(20, 20, 20, 0.95)',
+                color: '#fff',
+                customClass: {
+                    popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[90%] max-w-sm sm:max-w-md',
+                    title: 'text-secondary font-extrabold text-xl md:text-2xl',
+                    confirmButton: 'bg-secondary text-primary font-bold rounded-xl px-6 py-3 hover:scale-105 transition-transform w-full sm:w-auto',
+                    cancelButton: 'bg-gray-700 text-white font-bold rounded-xl px-6 py-3 hover:bg-gray-600 transition-colors w-full sm:w-auto'
+                },
+                buttonsStyling: false
+            }),
+
+            init: async function() {
+                try {
+                    const initAuth = async () => {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            try {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                            } catch(e) {
+                                await signInAnonymously(auth);
+                            }
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    };
+                    await initAuth();
+                    
+                    onAuthStateChanged(auth, async (user) => {
+                        this.user = user;
+                        if (user) {
+                            this.setupRealtimeListeners();
+                            await this.fetchThesisData();
+                            
+                            // Check URL parameters
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const exhibitId = urlParams.get('exhibit');
+                            const iframeId = urlParams.get('iframe');
+                            
+                            // Restore Session
+                            const savedProfile = localStorage.getItem('moranasatect_profile');
+                            if (savedProfile) {
+                                try {
+                                    this.profile = JSON.parse(savedProfile);
+                                } catch(e) { this.profile = null; }
+                            }
+
+                            this.updateMenuVisibility();
+
+                            if (iframeId) {
+                                this.showView('iframe_view', parseInt(iframeId));
+                            } else if (exhibitId) {
+                                if (this.profile) {
+                                    this.logVisit(exhibitId);
+                                    this.showView('public_exhibit', exhibitId);
+                                } else {
+                                    this.pendingExhibitId = exhibitId;
+                                    this.showView('guest_register');
+                                }
+                            } else if (this.profile) {
+                                this.routeBasedOnRole();
+                            } else {
+                                this.showView('login');
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Auth Init Error", e);
+                    this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบได้', 'error');
+                }
+            },
+
+            setupRealtimeListeners: function() {
+                if(!this.user) return;
+                
+                onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), (docSnap) => {
+                    if (docSnap.exists()) {
+                        this.settings = { ...this.settings, ...docSnap.data() };
+                        this.updateMenuVisibility();
+                        this.refreshCurrentView();
+                    }
+                }, (error) => console.error(error));
+
+                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'student_edits'), (snap) => {
+                    this.studentEdits = {};
+                    snap.forEach(doc => { this.studentEdits[doc.id] = doc.data().text; });
+                    if(this.view === 'public_exhibit' || this.view === 'student_dash') this.refreshCurrentView();
+                }, (error) => console.error(error));
+
+                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'visits'), (snap) => {
+                    this.visitLogs = {};
+                    snap.forEach(doc => { this.visitLogs[doc.id] = doc.data().count || 0; });
+                    this.refreshCurrentView();
+                }, (error) => console.error(error));
+            },
+
+            fetchThesisData: async function() {
+                try {
+                    const res = await fetch(SHEET_CSV_URL + "&t=" + Date.now());
+                    const csvText = await res.text();
+                    const parsed = this.parseCSV(csvText);
+                    
+                    if (parsed.length > 1) {
+                        const headers = parsed[0];
+                        const dataRows = parsed.slice(1);
+                        
+                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4'];
+                        const headerMap = {};
+                        prefixes.forEach(p => headerMap[p] = []);
+
+                        headers.forEach((header, index) => {
+                            prefixes.forEach(p => { 
+                                const regex = new RegExp(`(^|\\s)${p}(\\s|:|\\.|$)`);
+                                if (regex.test(header)) headerMap[p].push(index); 
+                            });
+                        });
+                        
+                        this.thesisData = dataRows.map(row => {
+                            let obj = {};
+                            prefixes.forEach(p => {
+                                let values = headerMap[p].map(idx => row[idx] ? row[idx].trim() : '').filter(v => v !== '');
+                                obj[p] = values.join('\n\n'); 
+                            });
+                            // Map for easier access
+                            obj.studentId = obj['1.1'];
+                            obj.name = obj['1.2'];
+                            obj.title = obj['2.1'];
+                            obj.advisor = obj['2.2'];
+                            obj.category = obj['2.3'];
+                            obj.description = obj['2.4'];
+                            obj.coverImg = obj['3.1'];
+                            obj.portfolioImgs = obj['3.3'];
+                            obj.videoUrl = obj['4.1'];
+                            obj.facebook = obj['5.1'];
+                            obj.instagram = obj['5.2'];
+                            obj.otherContact = [obj['5.3'], obj['5.4']].filter(Boolean).join('\n');
+                            return obj;
+                        }).filter(r => r.studentId);
+                    }
+                } catch (e) {
+                    console.error("CSV Fetch Error", e);
+                }
+            },
+
+            parseCSV: function(str) {
+                const arr = [];
+                let quote = false;
+                let row = 0, col = 0;
+                for (let c = 0; c < str.length; c++) {
+                    let cc = str[c], nc = str[c+1];
+                    arr[row] = arr[row] || [];
+                    arr[row][col] = arr[row][col] || '';
+                    if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+                    if (cc == '"') { quote = !quote; continue; }
+                    if (cc == ',' && !quote) { ++col; continue; }
+                    if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+                    if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+                    if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+                    arr[row][col] += cc;
+                }
+                return arr;
+            },
+
+            logVisit: async function(studentId) {
+                if(!this.user || !this.profile) return;
+                try {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId);
+                    const snap = await getDoc(ref);
+                    if (snap.exists()) {
+                        await updateDoc(ref, { count: (snap.data().count || 0) + 1 });
+                    } else {
+                        await setDoc(ref, { count: 1 });
+                    }
+                    // Log to access_logs for detail tracking
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
+                        uid: this.profile.uid,
+                        name: this.profile.name,
+                        role: this.profile.role,
+                        action: 'view_exhibit',
+                        target: studentId,
+                        timestamp: Date.now()
+                    });
+                } catch(e) { console.error(e); }
+            },
+            
+            logSystemAccess: async function(role, id) {
+                if(!this.user) return;
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
+                        uid: id,
+                        role: role,
+                        action: 'login',
+                        timestamp: Date.now()
+                    });
+                } catch(e) {}
+            },
+
+            goHome: function() {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                if (this.profile) {
+                    this.routeBasedOnRole();
+                } else {
+                    this.showView('login');
+                }
+            },
+
+            routeBasedOnRole: function() {
+                if (this.profile.role === 'admin') this.showView('admin_settings');
+                else if (this.profile.role === 'student') this.showView('student_dash');
+                else {
+                    this.swal.fire('ยินดีต้อนรับ', 'กรุณาสแกนคิวอาร์โค้ด หรือคลิกลิงก์ผลงานที่นักศึกษาแชร์เพื่อเข้าชมผลงาน', 'info');
+                    this.showView('guest_register'); 
+                }
+            },
+
+            logout: function() {
+                this.profile = null;
+                localStorage.removeItem('moranasatect_profile');
+                this.closeMenu();
+                this.updateMenuVisibility();
+                this.goHome();
+            },
+
+            // ================== MENU LOGIC ==================
+            toggleMenu: function() {
+                this.isMenuOpen = !this.isMenuOpen;
+                const menu = document.getElementById('mobileDropdown');
+                const icon = document.querySelector('#navHamburger i');
+                const wrapper = document.getElementById('mainContentWrapper');
+
+                if (this.isMenuOpen) {
+                    menu.classList.remove('hidden');
+                    menu.classList.add('flex');
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                    if(wrapper) wrapper.classList.add('menu-open-blur');
+                } else {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                    if(wrapper) wrapper.classList.remove('menu-open-blur');
+                }
+            },
+
+            closeMenu: function() {
+                this.isMenuOpen = false;
+                const menu = document.getElementById('mobileDropdown');
+                const icon = document.querySelector('#navHamburger i');
+                const wrapper = document.getElementById('mainContentWrapper');
+                
+                if(menu) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }
+                if(icon) {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+                if(wrapper) wrapper.classList.remove('menu-open-blur');
+            },
+
+            updateMenuVisibility: function() {
+                const hamBtn = document.getElementById('navHamburger');
+                const secAdmin = document.getElementById('menuAdminSection');
+                const secStudent = document.getElementById('menuStudentSection');
+                const secIframe = document.getElementById('menuIframeSection');
+                const iframeContainer = document.getElementById('menuIframeLinks');
+                
+                if (!hamBtn) return;
+
+                if (this.profile) {
+                    hamBtn.classList.remove('hidden');
+                    
+                    if (secAdmin) secAdmin.classList.toggle('hidden', this.profile.role !== 'admin');
+                    if (secStudent) secStudent.classList.toggle('hidden', this.profile.role !== 'student');
+                    
+                    // Render Iframe Links dynamically
+                    if (iframeContainer) {
+                        iframeContainer.innerHTML = '';
+                        const sites = this.settings.embeddedSites || [];
+                        let iframeCount = 0;
+                        sites.forEach((site, idx) => {
+                            if (this.profile.role === 'admin' || (this.profile.role === 'student' && site.showToStudents)) {
+                                iframeContainer.innerHTML += `
+                                    <button onclick="app.loadIframeUrl(${idx})" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                                        <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center text-secondary"></i> ${site.title}
+                                    </button>
+                                `;
+                                iframeCount++;
+                            }
+                        });
+                        if (secIframe) {
+                            secIframe.classList.toggle('hidden', iframeCount === 0);
+                        }
+                    }
+                } else {
+                    hamBtn.classList.add('hidden');
+                    this.closeMenu();
+                }
+            },
+
+            loadIframeUrl: function(idx) {
+                this.closeMenu();
+                window.history.replaceState({}, document.title, `${window.location.pathname}?iframe=${idx}`);
+                this.showView('iframe_view', idx);
+            },
+
+            // ================== VIEWS ==================
+            showView: function(viewName, param = null) {
+                this.view = viewName;
+                this.closeMenu();
+                const root = document.getElementById('appRoot');
+                window.scrollTo(0,0);
+
+                if (viewName === 'loading') root.innerHTML = this.renderLoading();
+                else if (viewName === 'login') root.innerHTML = this.renderLogin();
+                else if (viewName === 'otp') root.innerHTML = this.renderOTP();
+                else if (viewName === 'guest_register') root.innerHTML = this.renderGuestRegister();
+                else if (viewName === 'public_exhibit') root.innerHTML = this.renderPublicExhibit(param);
+                else if (viewName === 'student_dash') root.innerHTML = this.renderStudentDash();
+                else if (viewName === 'admin_settings') root.innerHTML = this.renderAdminSettings();
+                else if (viewName === 'admin_users') root.innerHTML = this.renderAdminUsers();
+                else if (viewName === 'admin_iframe') root.innerHTML = this.renderAdminIframe();
+                else if (viewName === 'admin_export') root.innerHTML = this.renderAdminExport();
+                else if (viewName === 'iframe_view') root.innerHTML = this.renderIframeView(param);
+            },
+
+            refreshCurrentView: function() {
+                if(this.view === 'student_dash') document.getElementById('appRoot').innerHTML = this.renderStudentDash();
+                else if(this.view === 'admin_settings') document.getElementById('appRoot').innerHTML = this.renderAdminSettings();
+                else if(this.view === 'admin_users') document.getElementById('appRoot').innerHTML = this.renderAdminUsers();
+                else if(this.view === 'admin_iframe') document.getElementById('appRoot').innerHTML = this.renderAdminIframe();
+                else if(this.view === 'admin_export') document.getElementById('appRoot').innerHTML = this.renderAdminExport();
+            },
+
+            // ================== RENDERERS ==================
+            renderLoading: function() {
+                return `
+                <div class="flex flex-col items-center justify-center h-[60vh] text-secondary">
+                    <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
+                    <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
+                </div>`;
+            },
+
+            renderLogin: function() {
+                if (!this.settings.isSystemOpen) {
+                    return `
+                    <div class="max-w-md mx-auto glass-card rounded-[2rem] p-8 text-center mt-10 animate-slide-up border-t-4 border-t-red-500">
+                        <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 drop-shadow-sm">ระบบปิดให้บริการ</h2>
+                        <p class="text-blue-100 text-sm font-medium mb-8 bg-black/20 p-4 rounded-xl border border-white/10 shadow-inner">
+                            ผู้ดูแลระบบได้ทำการปิดระบบการเข้าใช้งานในขณะนี้
+                        </p>
+                        <button onclick="app.loginAdminDirect()" class="mt-4 text-[10px] text-gray-500 hover:text-white underline transition-colors">สำหรับผู้ดูแลระบบ</button>
+                    </div>`;
+                }
+
+                return `
+                <div class="max-w-md mx-auto glass-card rounded-[2rem] overflow-hidden mt-10 mb-20 animate-slide-up border border-white/10 shadow-2xl relative">
+                    <div class="p-6 md:p-8 text-center bg-white/5 border-b border-white/10">
+                        <i class="fa-solid fa-id-badge text-secondary text-4xl mb-3 opacity-90 drop-shadow-md"></i>
+                        <h2 class="text-2xl font-extrabold text-white drop-shadow-sm">เข้าสู่ระบบ</h2>
+                        <p class="text-gray-400 text-xs mt-1 font-medium">สำหรับนักศึกษา 57 คน</p>
+                    </div>
+                    <div class="p-6 md:p-8 space-y-5">
+                        <div>
+                            <input type="tel" id="loginId" placeholder="รหัสนักศึกษา 8 หลัก" maxlength="8" inputmode="numeric"
+                                class="glass-input w-full px-4 py-4 rounded-xl transition-all outline-none text-center font-bold text-lg shadow-inner"
+                                onkeypress="if(event.key === 'Enter') app.requestOTP()">
+                        </div>
+                        <button onclick="app.requestOTP()" id="btnReqOTP"
+                            class="w-full py-4 rounded-xl font-bold text-black bg-secondary hover:bg-yellow-500 shadow-lg transition-transform transform hover:-translate-y-1 text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                            รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>`;
+            },
+
+            loginAdminDirect: async function() {
+                const { value: pass } = await this.swal.fire({
+                    title: 'รหัสผ่านผู้ดูแลระบบ',
+                    input: 'password',
+                    inputPlaceholder: 'ระบุรหัส 8 หลัก'
+                });
+                if(pass === '65030900') {
+                    this.profile = { uid: pass, name: 'Admin', role: 'admin', id: 0 };
+                    localStorage.setItem('moranasatect_profile', JSON.stringify(this.profile));
+                    this.logSystemAccess('admin', pass);
+                    this.updateMenuVisibility();
+                    this.routeBasedOnRole();
+                } else if (pass) {
+                    this.swal.fire('ผิดพลาด', 'รหัสผ่านไม่ถูกต้อง', 'error');
+                }
+            },
+
+            requestOTP: async function() {
+                const idInput = document.getElementById('loginId').value.replace(/[^0-9]/g, '');
+                if(idInput === '65030900') return this.loginAdminDirect();
+                if(idInput.length !== 8) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษา 8 หลัก', 'warning');
+                
+                const isStudent = predefinedUsers.find(u => u.studentId === idInput);
+                if(!isStudent) return this.swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสนักศึกษานี้ในระบบ', 'error');
+
+                const btn = document.getElementById('btnReqOTP');
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> กำลังส่ง...';
+                btn.disabled = true;
+
+                this.tempId = idInput;
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                const ref = Math.random().toString(36).substring(2, 6).toUpperCase();
+
+                try {
+                    await fetch(OTP_API_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ studentId: idInput, otpCode: otp, refCode: ref })
+                    });
+                    
+                    this.serverOtp = otp;
+                    this.refCode = ref;
+                    this.showView('otp');
+                } catch (e) {
+                    this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถส่งอีเมลได้', 'error');
+                    btn.innerHTML = 'รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>';
+                    btn.disabled = false;
+                }
+            },
+
+            renderOTP: function() {
+                let inputs = '';
+                for(let i=1; i<=6; i++) {
+                    inputs += `<input type="tel" id="otp-${i}" maxlength="1" inputmode="numeric"
+                        oninput="app.handleOtpInput(this, ${i})" onkeydown="app.handleOtpKeydown(event, ${i})"
+                        class="otp-box w-12 h-14 sm:w-14 sm:h-16 text-xl sm:text-2xl font-bold rounded-xl outline-none p-0" />`;
+                }
+                return `
+                <div class="max-w-md mx-auto glass-card rounded-[2rem] overflow-hidden mt-10 animate-slide-up border border-white/10 shadow-2xl">
+                    <div class="p-6 md:p-8 text-center bg-white/5 border-b border-white/10">
+                        <i class="fa-solid fa-shield-halved text-secondary text-3xl mb-3 drop-shadow-md"></i>
+                        <h2 class="text-2xl font-extrabold text-white">ยืนยันรหัส</h2>
+                    </div>
+                    <div class="p-6 md:p-8 space-y-6">
+                        <div class="text-center">
+                            <p class="text-xs text-gray-400 font-medium">ส่งรหัสไปยังอีเมลสถาบันแล้ว</p>
+                            <p class="font-extrabold text-lg text-white mt-1 tracking-wide drop-shadow-md">${this.tempId}@kmitl.ac.th</p>
+                            <div class="mt-3 bg-white/10 border border-white/20 text-secondary px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm inline-block">
+                                Ref: ${this.refCode}
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-2">${inputs}</div>
+                        <button onclick="app.verifyOTP()" class="w-full py-4 bg-secondary text-black font-bold rounded-xl shadow-lg hover:bg-yellow-500 mt-4 text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-transform transform active:scale-95">
+                            ยืนยัน <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button onclick="app.showView('login')" class="w-full py-2 text-xs font-bold text-gray-400 hover:text-white transition-colors flex items-center justify-center underline mt-2">
+                            <i class="fa-solid fa-rotate-left mr-2"></i> กลับไปแก้ไขรหัส
+                        </button>
+                    </div>
+                </div>`;
+            },
+
+            handleOtpInput: function(el, idx) {
+                el.value = el.value.replace(/[^0-9]/g, '');
+                if(el.value && idx < 6) document.getElementById(`otp-${idx+1}`).focus();
+                if(idx === 6 && el.value) this.verifyOTP();
+            },
+            handleOtpKeydown: function(e, idx) {
+                if(e.key === 'Backspace' && !e.target.value && idx > 1) {
+                    document.getElementById(`otp-${idx-1}`).focus();
+                }
+            },
+
+            verifyOTP: function() {
+                let code = '';
+                for(let i=1; i<=6; i++) code += document.getElementById(`otp-${i}`).value;
+                if(code === this.serverOtp) {
+                    const student = predefinedUsers.find(u => u.studentId === this.tempId);
+                    this.profile = { uid: student.studentId, name: student.name, role: 'student', id: student.id };
+                    localStorage.setItem('moranasatect_profile', JSON.stringify(this.profile));
+                    this.logSystemAccess('student', student.studentId);
+                    this.updateMenuVisibility();
+                    this.swal.fire({ 
+                        iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', 
+                        title: 'เข้าสู่ระบบสำเร็จ', 
+                        timer: 1500, 
+                        showConfirmButton: false 
+                    });
+                    this.routeBasedOnRole();
+                } else {
+                    this.swal.fire('ข้อผิดพลาด', 'รหัส OTP ไม่ถูกต้อง', 'error');
+                }
+            },
+
+            renderGuestRegister: function() {
+                this.tempGuestRole = ''; 
+                const roleBtns = guestRoles.map(r => `
+                    <button onclick="app.selectGuestRole('${r}')" id="role-btn-${r}"
+                        class="role-btn flex-1 py-3 px-1 rounded-xl text-[10px] sm:text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-all truncate">
+                        ${r}
+                    </button>
+                `).join('');
+
+                return `
+                <div class="max-w-md mx-auto glass-card rounded-[2rem] overflow-hidden mt-10 mb-20 animate-slide-up border border-white/10 shadow-2xl relative">
+                    <div class="p-6 md:p-8 text-center bg-white/5 border-b border-white/10">
+                        <i class="fa-solid fa-user-tag text-secondary text-4xl mb-3 drop-shadow-md"></i>
+                        <h2 class="text-2xl font-extrabold text-white drop-shadow-sm">สร้างโปรไฟล์ผู้เยี่ยมชม</h2>
+                    </div>
+                    <div class="p-6 md:p-8 space-y-6">
+                        <div class="bg-white/5 p-4 rounded-2xl text-xs sm:text-sm text-center border border-white/10 shadow-inner">
+                            <i class="fa-solid fa-face-smile-wink text-3xl block mb-2 text-secondary animate-bounce"></i>
+                            <span class="text-gray-300 font-medium">กรุณาแนะนำตัวก่อนเข้าชมผลงานครับ!</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 mb-1 ml-2 uppercase tracking-widest">ชื่อเรียกของคุณ</label>
+                                <input type="text" id="inputGuestName" placeholder="ชื่อเล่น หรือ นามปากกา..." 
+                                    class="glass-input w-full px-4 py-4 rounded-xl transition-all outline-none text-center font-bold text-white shadow-inner text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 mb-2 ml-2 uppercase tracking-widest">ประเภทผู้เยี่ยมชม</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    ${roleBtns}
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="app.registerGuest()" 
+                            class="w-full py-4 bg-secondary hover:bg-yellow-500 text-black rounded-xl font-extrabold text-sm shadow-lg transition-transform transform hover:-translate-y-1 flex justify-center items-center gap-2 uppercase tracking-widest">
+                            เข้าชมนิทรรศการ <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>`;
+            },
+
+            selectGuestRole: function(role) {
+                this.tempGuestRole = role;
+                const btns = document.querySelectorAll('.role-btn');
+                btns.forEach(b => {
+                    b.classList.remove('bg-secondary', 'text-black', 'border-secondary', 'scale-105');
+                    b.classList.add('border-white/20', 'text-white');
+                });
+                const active = document.getElementById(`role-btn-${role}`);
+                if (active) {
+                    active.classList.remove('border-white/20', 'text-white');
+                    active.classList.add('bg-secondary', 'text-black', 'border-secondary', 'scale-105');
+                }
+            },
+
+            registerGuest: function() {
+                const name = document.getElementById('inputGuestName').value.trim();
+                const role = this.tempGuestRole;
+                if(!name) return this.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อของคุณ', 'warning');
+                if(!role) return this.swal.fire('แจ้งเตือน', 'กรุณาเลือกประเภทผู้เยี่ยมชม', 'warning');
+                
+                const finalName = `${name} (${role})`;
+                const gid = 'G_' + Math.random().toString(36).substr(2, 6);
+                
+                this.profile = { uid: gid, name: finalName, role: 'guest', id: 0 };
+                localStorage.setItem('moranasatect_profile', JSON.stringify(this.profile));
+                
+                this.logSystemAccess('guest', finalName);
+                
+                if (this.pendingExhibitId) {
+                    this.logVisit(this.pendingExhibitId);
+                    this.showView('public_exhibit', this.pendingExhibitId);
+                    this.pendingExhibitId = null;
+                } else {
+                    this.routeBasedOnRole();
+                }
+            },
+
+            renderMediaFrames: function(urlsStr, typeStr) {
+                if (!urlsStr) return '<div class="text-gray-500 italic text-sm p-6 bg-black/40 rounded-2xl text-center border border-white/5 shadow-inner">ไม่มีข้อมูลในส่วนนี้</div>';
+                
+                const lines = urlsStr.split('\n').map(u => u.trim()).filter(u => u);
+                let html = '<div class="grid grid-cols-1 gap-10">';
+                
+                lines.forEach((line, index) => {
+                    const match = line.match(/^(.*?)(https?:\/\/[^\s]+)(.*)$/);
+                    if (!match) return; 
+                    
+                    let prefix = match[1].trim();
+                    let url = match[2];
+                    let originalUrl = url;
+                    
+                    let label = prefix;
+                    if (label.endsWith(':')) label = label.substring(0, label.length - 1).trim();
+                    if (!label) label = `${typeStr === 'video' ? 'วิดีโอนำเสนอผลงาน' : 'ภาพผลงานชิ้นที่'} ${index + 1}`;
+
+                    if (url.includes('drive.google.com/file/d/')) {
+                        const idMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                        if (idMatch) url = `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+                    } else if (url.includes('drive.google.com/uc?') || url.includes('drive.google.com/open?')) {
+                        try { url = `https://drive.google.com/file/d/${new URL(url).searchParams.get('id')}/preview`; } catch(e){}
+                    }
+
+                    const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
+                    
+                    html += `
+                    <div class="flex flex-col gap-4 bg-black/20 p-5 md:p-6 rounded-[2rem] border border-white/5">
+                        <h4 class="text-secondary font-extrabold text-base md:text-lg flex items-center gap-2 border-l-4 border-secondary pl-3 uppercase tracking-wider drop-shadow-md">
+                            ${label}
+                        </h4>
+                    `;
+                    
+                    if (isImg) {
+                        html += `
+                        <div class="relative group rounded-2xl overflow-hidden border border-white/10 bg-black/50 flex justify-center shadow-lg">
+                            <img src="${url}" alt="${label}" class="max-w-full max-h-[80vh] object-contain transition-transform duration-500 group-hover:scale-[1.02]" onerror="this.style.display='none'">
+                        </div>`;
+                    } else {
+                        html += `
+                        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black">
+                            <div class="iframe-container shadow-inner">
+                                <iframe src="${url}" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+                            </div>
+                            <div class="bg-white/5 p-3 flex justify-between items-center gap-2">
+                                <span class="text-[10px] text-gray-500 truncate max-w-[60%] font-mono">${originalUrl}</span>
+                                <a href="${originalUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] bg-secondary text-black font-bold transition-transform hover:scale-105 px-4 py-2 rounded-lg shrink-0">
+                                    <i class="fa-solid fa-external-link"></i> เปิดลิงก์นี้
+                                </a>
+                            </div>
+                        </div>`;
+                    }
+                    html += `</div>`;
+                });
+                
+                html += '</div>';
+                return html;
+            },
+
+            // ================== PAGE: PUBLIC EXHIBIT ==================
+            renderPublicExhibit: function(studentId) {
+                const user = predefinedUsers.find(u => u.studentId === studentId);
+                if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
+                
+                const data = this.thesisData.find(d => d.studentId === studentId) || {};
+                const customText = this.studentEdits[studentId] || '';
+                const visitCount = this.visitLogs[studentId] || 0;
+
+                // ระบบประมวลผลข้อมูลติดต่อ (Facebook, Instagram, Links)
+                let contactHtml = '';
+                if (data.facebook || data.instagram || data.otherContact) {
+                    contactHtml += `<div class="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-2 justify-center sm:justify-start">`;
+                    
+                    if (data.facebook) {
+                        let fb = data.facebook;
+                        let fbLink = fb.includes('http') ? fb : (fb.includes('facebook.com') ? `https://${fb}` : `https://facebook.com/${fb}`);
+                        contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> Facebook</a>`;
+                    }
+                    if (data.instagram) {
+                        let ig = data.instagram;
+                        let igHandle = ig.replace('@', '');
+                        let igLink = ig.includes('http') ? ig : `https://instagram.com/${igHandle}`;
+                        contactHtml += `<a href="${igLink}" target="_blank" class="bg-[#E4405F]/20 hover:bg-[#E4405F]/40 text-[#E4405F] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> Instagram</a>`;
+                    }
+                    if (data.otherContact) {
+                        let others = data.otherContact.split('\n').filter(o => o.trim());
+                        others.forEach(o => {
+                            if(o.includes('http')) {
+                                let linkMatch = o.match(/(https?:\/\/[^\s]+)/);
+                                if(linkMatch) {
+                                    let url = linkMatch[1];
+                                    let label = o.replace(url, '').trim() || 'Link';
+                                    label = label.replace(/^[-:]|[-:]$/g, '').trim(); // ลบเครื่องหมาย : หรือ - ท้ายชื่อ
+                                    if(!label) label = 'Link';
+                                    contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/20 hover:bg-gray-600/40 text-gray-300 border border-gray-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1.5"><i class="fa-solid fa-link"></i> ${label}</a>`;
+                                } else {
+                                    contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book"></i> ${o}</span>`;
+                                }
+                            } else {
+                                contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book"></i> ${o}</span>`;
+                            }
+                        });
+                    }
+                    contactHtml += `</div>`;
+                }
+
+                return `
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10">
+                    <div class="flex justify-end mb-6">
+                        <div class="text-[10px] bg-black/60 border border-secondary/40 text-secondary px-4 py-2 rounded-full font-bold shadow-lg backdrop-blur-md flex items-center gap-2 tracking-widest">
+                            <i class="fa-solid fa-eye animate-pulse"></i> ${visitCount} VIEWS
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
+
+                        <!-- User Profile Information -->
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-black">
+                                <img src="./MORANASATECT/${user.id}/Profile.png" 
+                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}/Profile.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || user.name)}&background=fddf31&color=000'; }" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 mt-2 sm:mt-0 min-w-0">
+                                <h1 class="text-2xl md:text-4xl font-black text-secondary mb-4 leading-tight drop-shadow-lg break-words">${data.title || 'กำลังจัดทำวิทยานิพนธ์'}</h1>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
+                                    <span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-user-pen text-gray-500"></i>ผู้ออกแบบ: ${data.name || user.name}</span>
+                                    ${data.advisor ? `<span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-chalkboard-user text-gray-500"></i>อ.ที่ปรึกษา: ${data.advisor}</span>` : ''}
+                                </div>
+                                ${contactHtml}
+                            </div>
+                        </div>
+                        
+                        ${customText ? `
+                        <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed">
+                            <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
+                            ${customText}
+                        </div>` : ''}
+
+                        ${data.description ? `
+                        <div class="mb-12">
+                            <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner">
+                                <i class="fa-solid fa-align-left text-secondary mr-2 text-lg"></i> บทคัดย่อ / คำอธิบาย
+                            </h3>
+                            <p class="text-gray-300 text-sm whitespace-pre-wrap bg-white/5 p-6 rounded-2xl leading-relaxed border border-white/10 shadow-lg">${data.description}</p>
+                        </div>` : ''}
+
+                        <div class="space-y-12">
+                            <!-- เอา Video ขึ้นมาก่อน Image ตามที่กำหนด -->
+                            ${data.videoUrl ? `
+                            <div class="animate-slide-up">
+                                <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner w-full sm:w-auto">
+                                    <i class="fa-solid fa-video text-secondary mr-2 text-lg"></i> วิดีโอ / แอนิเมชัน
+                                </h3>
+                                ${this.renderMediaFrames(data.videoUrl, 'video')}
+                            </div>` : ''}
+
+                            ${data.coverImg || data.portfolioImgs ? `
+                            <div class="animate-slide-up" style="animation-delay: 0.15s">
+                                <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner w-full sm:w-auto">
+                                    <i class="fa-solid fa-images text-secondary mr-2 text-lg"></i> ภาพผลงาน
+                                </h3>
+                                ${this.renderMediaFrames(data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs, 'image')}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            // ================== PAGE: STUDENT DASHBOARD ==================
+            renderStudentDash: function() {
+                const sid = this.profile.uid;
+                const data = this.thesisData.find(d => d.studentId === sid) || {};
+                const currentText = this.studentEdits[sid] || '';
+                const vCount = this.visitLogs[sid] || 0;
+                
+                const completeness = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0);
+                const isComplete = completeness >= 2;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
+                        
+                        <div class="relative z-10 flex items-center gap-4 sm:gap-6">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-black">
+                                <img src="./MORANASATECT/${this.profile.id}/Profile.png" 
+                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}/Profile.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(this.profile.name)}&background=fddf31&color=000'; }" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${this.profile.name}</p>
+                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase"><i class="fa-solid fa-user-graduate mr-1 text-gray-500"></i> STUDENT DASHBOARD</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden group">
+                            <div class="absolute right-[-10px] bottom-[-10px] text-white/5 text-7xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-eye"></i></div>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2">ยอดเข้าชมผลงาน</p>
+                            <p class="text-4xl md:text-5xl font-black text-secondary drop-shadow-lg">${vCount} <span class="text-sm font-medium text-gray-500">ครั้ง</span></p>
+                        </div>
+                        
+                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden">
+                             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-3">สถานะข้อมูล (อิงจากชีต)</p>
+                             <div class="flex items-center gap-3">
+                                 ${isComplete ? 
+                                     `<div class="w-12 h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check"></i></div> <span class="text-xl font-bold text-white drop-shadow-md">สมบูรณ์</span>` : 
+                                     `<div class="w-12 h-12 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-clock"></i></div> <span class="text-xl font-bold text-white drop-shadow-md">รออัปเดต</span>`}
+                             </div>
+                        </div>
+
+                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer hover:bg-white/10 transition-colors border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]" onclick="app.sharePublicLink('${sid}')">
+                            <div class="w-16 h-16 rounded-full bg-secondary text-black flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-2 transition-transform shadow-[0_0_20px_rgba(253,223,49,0.5)]"><i class="fa-solid fa-share-nodes"></i></div>
+                            <p class="text-xs font-bold text-white tracking-widest uppercase">แชร์ลิงก์ส่วนตัว</p>
+                        </div>
+                    </div>
+
+                    ${this.settings.allowEdit ? `
+                    <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden border-t-4 border-t-secondary">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg"><i class="fa-solid fa-pen-nib"></i></div>
+                            <h3 class="text-white font-bold text-lg md:text-xl">เพิ่มข้อความทักทาย / แนวคิด</h3>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-5 bg-black/40 p-4 rounded-xl border border-white/5 leading-relaxed">ข้อความนี้จะแสดงเด่นอยู่ด้านบนสุดของหน้าผลงานคุณ สามารถใช้อธิบายคอนเซปต์สั้นๆ หรือกล่าวขอบคุณได้</p>
+                        <textarea id="editStudentText" class="glass-input w-full p-5 rounded-2xl min-h-[150px] text-sm mb-5 placeholder:text-gray-600 transition-shadow leading-relaxed" placeholder="พิมพ์ข้อความที่นี่...">${currentText}</textarea>
+                        <button onclick="app.saveStudentText()" class="bg-secondary text-black font-bold px-8 py-4 rounded-xl text-sm hover:bg-yellow-500 transition-colors shadow-lg flex items-center gap-2 uppercase tracking-widest">
+                            <i class="fa-solid fa-floppy-disk text-lg"></i> บันทึกข้อความ
+                        </button>
+                    </div>` : ''}
+                </div>`;
+            },
+
+            // ================== ADMIN PAGES (Standalone) ==================
+            
+            // 1. Admin Settings Page
+            renderAdminSettings: function() {
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-gear"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ตั้งค่าระบบ</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Settings</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8 space-y-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div>
+                                <p class="font-bold text-white text-sm">เปิดระบบให้เข้าชม (ผ่านลิงก์แชร์/QR)</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด จะมีเพียงแอดมินที่เข้าระบบได้ ผู้เยี่ยมชมจะไม่สามารถเห็นผลงาน</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${this.settings.isSystemOpen ? 'checked' : ''} onchange="app.updateSetting('isSystemOpen', this.checked)" class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div>
+                                <p class="font-bold text-white text-sm">อนุญาตให้นักศึกษาแก้ไขข้อความ</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">เปิดฟอร์มแก้ไขข้อความทักทายในหน้า Dashboard ของ นศ.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${this.settings.allowEdit ? 'checked' : ''} onchange="app.updateSetting('allowEdit', this.checked)" class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                        </div>
+
+                        <div class="p-8 bg-black/40 rounded-2xl border border-white/10 text-center shadow-inner">
+                            <i class="fa-solid fa-envelope-circle-check text-5xl text-blue-400 mb-4 opacity-80 drop-shadow-md"></i>
+                            <p class="text-white font-bold text-sm mb-5">เช็คโควต้าอีเมลสำหรับส่ง OTP (ต่อวัน)</p>
+                            <button onclick="app.checkQuota()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 inline-flex items-center gap-2 uppercase tracking-widest">
+                                ตรวจสอบโควต้า <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            // 2. Admin Users Page
+            renderAdminUsers: function() {
+                let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                            <th class="p-4 rounded-tl-xl">ลำดับ/รหัส/ชื่อ</th>
+                            <th class="p-4 text-center">Views</th>
+                            <th class="p-4 text-center">สถานะข้อมูล</th>
+                            <th class="p-4 text-center rounded-tr-xl">ลิงก์</th>
+                        </tr>
+                    </thead><tbody class="divide-y divide-white/5">`;
+                
+                predefinedUsers.forEach(u => {
+                    const vCount = this.visitLogs[u.studentId] || 0;
+                    const data = this.thesisData.find(d => d.studentId === u.studentId) || {};
+                    const isComplete = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
+                    
+                    html += `
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full border border-secondary bg-black overflow-hidden shrink-0">
+                                    <img src="./MORANASATECT/${u.id}/Profile.png" onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}/Profile.jpg';} else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=fddf31&color=000'; }" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</div>
+                                    <div class="text-[10px] text-gray-500 mt-0.5">${u.name}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="inline-block bg-black/50 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-secondary">${vCount}</span>
+                        </td>
+                        <td class="p-4 text-center">
+                            ${isComplete ? 
+                                '<span class="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
+                                '<span class="text-[10px] bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>'}
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="app.showView('public_exhibit', '${u.studentId}')" class="bg-white/10 w-9 h-9 rounded-full text-sm hover:bg-secondary hover:text-black transition-colors shadow-sm" title="ดูผลงาน">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-users"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการข้อมูลสมาชิก</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Users Data</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        ${html}
+                    </div>
+                </div>`;
+            },
+
+            // 3. Admin Iframe Page
+            renderAdminIframe: function() {
+                const sites = this.settings.embeddedSites || [];
+                let siteList = sites.map((s, idx) => `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
+                        <div class="min-w-0 flex-1">
+                            <p class="font-bold text-white text-sm truncate mb-1"><i class="fa-solid fa-link text-secondary mr-2 text-xs"></i>${s.title}</p>
+                            <p class="text-[10px] text-gray-500 truncate bg-black/50 p-2 rounded-lg border border-white/5 font-mono">${s.url}</p>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <span class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full">
+                                ${s.showToStudents ? 'แสดงให้ นศ.' : 'ซ่อนจาก นศ.'}
+                            </span>
+                            <button onclick="app.deleteEmbeddedSite(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
+                                <i class="fa-solid fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                if(sites.length === 0) siteList = `
+                    <div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
+                        <i class="fa-solid fa-puzzle-piece text-3xl text-gray-600 mb-3"></i>
+                        <p class="text-xs text-gray-400 font-bold">ยังไม่มีการฝังเว็บเพิ่มเติม</p>
+                    </div>`;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-link"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการเมนูเว็บฝัง</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Iframe Manager</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                            <div class="lg:col-span-2">
+                                <div class="bg-black/40 p-6 rounded-3xl border border-white/10 sticky top-4 shadow-inner">
+                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มเมนูเว็บฝัง (Iframe)</h3>
+                                    
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อเมนู</label>
+                                    <input type="text" id="iframeTitle" placeholder="เช่น แบบประเมินความพึงพอใจ" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
+                                    
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">URL เว็บไซต์</label>
+                                    <input type="url" id="iframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-6 text-sm font-mono">
+                                    
+                                    <label class="flex items-center gap-3 text-xs text-white mb-6 bg-black/50 p-4 rounded-xl border border-white/10 cursor-pointer hover:border-secondary/50 transition-colors shadow-inner">
+                                        <input type="checkbox" id="iframeShow" class="w-4 h-4 accent-secondary bg-black border-white/20 rounded"> 
+                                        <span class="font-bold">แสดงในเมนูของ นศ. 57 คนด้วย</span>
+                                    </label>
+                                    
+                                    <button onclick="app.addEmbeddedSite()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
+                                        บันทึกเมนู <i class="fa-solid fa-floppy-disk text-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-3">
+                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>เมนูที่ฝังไว้ทั้งหมด</h3>
+                                <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                    ${siteList}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            // 4. Admin Export Page
+            renderAdminExport: function() {
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-qrcode"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">สร้าง QR Code</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Export QR ZIP</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-12 text-center">
+                        <div class="w-24 h-24 bg-secondary/10 border-2 border-secondary/30 rounded-3xl flex items-center justify-center text-secondary text-5xl mx-auto mb-6 shadow-inner">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                        <h3 class="text-2xl font-black text-white mb-3">สร้าง QR Code รวม 57 คน</h3>
+                        <p class="text-xs text-gray-400 mb-10 max-w-sm mx-auto leading-relaxed">ระบบจะสร้างคิวอาร์โค้ดลิงก์หน้าผลงานของนักศึกษาทุกคน และบีบอัดเป็นไฟล์ <span class="text-white font-bold">.ZIP</span> เพื่อนำไปใช้พิมพ์ติดตั้งในงานนิทรรศการ</p>
+                        
+                        <button onclick="app.generateQRZip()" id="btnGenZip" class="bg-secondary text-black font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.3)] hover:scale-105 transition-transform flex items-center justify-center mx-auto gap-3 text-sm tracking-widest uppercase">
+                            <i class="fa-solid fa-file-zipper text-lg"></i> เริ่มดาวน์โหลด
+                        </button>
+                    </div>
+                </div>`;
+            },
+
+            // ================== PAGE: IFRAME VIEW ==================
+            renderIframeView: function(idxStr) {
+                const idx = parseInt(idxStr);
+                const sites = this.settings.embeddedSites || [];
+                const site = sites[idx];
+
+                if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto"><i class="fa-solid fa-link-slash text-4xl mb-3"></i><br>ไม่พบหน้าเว็บนี้</div>`;
+
+                return `
+                <div class="animate-fade-in flex flex-col h-[85vh]">
+                    <div class="flex items-center gap-4 mb-4 bg-black/60 p-4 rounded-3xl border border-white/10 backdrop-blur-xl shadow-lg">
+                        <div class="min-w-0 pl-2">
+                            <h2 class="text-white font-bold text-sm sm:text-base truncate"><i class="fa-solid fa-arrow-up-right-from-square text-secondary mr-2"></i>${site.title}</h2>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
+                            <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
+                            <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
+                        </div>
+                        <iframe src="${site.url}" class="w-full h-full relative z-10 border-0" allowfullscreen></iframe>
+                    </div>
+                </div>`;
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => app.init());
+        window.app = app; 
+    </script>
+</body>
+</html>
