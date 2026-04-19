@@ -166,7 +166,7 @@
                 <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
             </button>
 
-            <!-- Dropdown Menu -->
+            <!-- Dropdown Menu (All Navigation Here) -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
                 <!-- Admin Menu Section -->
@@ -358,17 +358,14 @@
             accessLogs: [],
             adminUserSearchQuery: '',
             
-            // OTP Temp
             tempId: '',
             serverOtp: '',
             refCode: '',
             
-            // View State
             pendingExhibitId: null,
             isMenuOpen: false,
             tempGuestRole: '',
             
-            // SweetAlert Theme
             swal: Swal.mixin({
                 background: 'rgba(20, 20, 20, 0.95)',
                 color: '#fff',
@@ -871,8 +868,8 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] border-secondary ring-[3px] ring-white/30 overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl z-0 hidden">${abbr}</span>
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
@@ -903,11 +900,11 @@
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-32 h-32 rounded-full border-[3px] border-white/20 ring-[3px] ring-white/30 overflow-hidden mb-5 bg-black shadow-2xl relative flex items-center justify-center">
-                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-white text-4xl z-0 hidden">${abbr}</span>
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center">
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=333&color=fff'; }" class="w-full h-full object-cover">
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
@@ -976,14 +973,15 @@
             },
 
             // --- Clear Access Logs ---
-            clearAllLogs: async function() {
+            clearAllLogs: async function(actionType) {
+                const textMsg = actionType === 'view_exhibit' ? 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้ และยอดวิวของทุกคนจะถูกรีเซ็ตเป็น 0' : 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้';
                 const result = await app.swal.fire({
-                    title: 'ยืนยันล้างประวัติการเข้าชมทั้งหมด?',
-                    text: 'ข้อมูลบันทึกการเข้าชมจะไม่สามารถกู้คืนได้',
+                    title: 'ยืนยันล้างประวัติทั้งหมด?',
+                    text: textMsg,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'ล้างประวัติ',
+                    confirmButtonText: 'ล้างข้อมูล',
                     cancelButtonText: 'ยกเลิก'
                 });
 
@@ -991,10 +989,18 @@
                     app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
                         for(let log of app.accessLogs) {
-                            if (log.action === 'view_exhibit') {
+                            if (log.action === actionType) {
                                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
                             }
                         }
+                        
+                        // Clear all visits count when clearing view logs
+                        if (actionType === 'view_exhibit') {
+                            for(let u of predefinedUsers) {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
+                            }
+                        }
+                        
                         app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
                     } catch(e) {
                         app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
@@ -1299,12 +1305,11 @@
                 }
             },
 
-            // --- ส่วน Render Iframe ภาพและวิดีโอ ---
             renderMediaFrames: function(urlsStr, typeStr) {
                 if (!urlsStr) return '';
                 
                 const lines = urlsStr.split('\n').map(u => u.trim()).filter(u => u);
-                let html = '<div class="flex flex-col gap-10 overflow-hidden w-full max-w-full">';
+                let html = '<div class="flex flex-col gap-10 overflow-hidden px-1">';
                 
                 lines.forEach((line, index) => {
                     const match = line.match(/^(.*?)(https?:\/\/[^\s]+)(.*)$/);
@@ -1327,50 +1332,35 @@
                     const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
                     
                     html += `
-                    <div class="flex flex-col gap-3 w-full max-w-full">
+                    <div class="flex flex-col gap-3 w-full">
                         <div class="flex items-center gap-2 pl-1">
                             <div class="w-1.5 h-4 bg-secondary rounded-full"></div>
-                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md truncate">
+                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md">
                                 ${label}
                             </h4>
                         </div>
                     `;
                     
                     if (isImg) {
-                        // รูปภาพปกติ: ปรับตามอัตราส่วนของรูปภาพอัตโนมัติ
                         html += `
-                        <div class="relative w-full flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group">
+                        <div class="relative flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group w-full min-h-[300px]">
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
-                                 onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0')"
-                                 class="w-full h-auto object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]" 
+                                 onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0'); this.parentElement.classList.remove('min-h-[300px]');"
+                                 class="w-full h-auto max-h-[85vh] object-contain transition-opacity duration-700 relative z-10 opacity-0 block" 
                                  onerror="this.style.display='none'">
                         </div>`;
-                    } else if (typeStr === 'video') {
-                        // วิดีโอ: ล็อกสัดส่วน 16:9 แบบ YouTube ป้องกันการตกขอบขวา
+                    } else {
                         html += `
                         <div class="relative w-full rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto" style="padding-top: 56.25%;">
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                 <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
-                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Video...</span>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
                             </div>
                             <iframe src="${url}" 
                                     onload="this.classList.remove('opacity-0')"
                                     class="absolute top-0 left-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0" 
                                     allow="autoplay" allowfullscreen></iframe>
-                        </div>`;
-                    } else {
-                        // ภาพจาก Google Drive (Iframe): ปรับความสูงให้ยืดหยุ่นในมือถือ
-                        html += `
-                        <div class="relative w-full rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto h-[65vh] sm:h-[75vh]">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
-                                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
-                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Image...</span>
-                            </div>
-                            <iframe src="${url}" 
-                                    onload="this.classList.remove('opacity-0')"
-                                    class="absolute top-0 left-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0" 
-                                    allowfullscreen></iframe>
                         </div>`;
                     }
                     html += `</div>`;
@@ -1380,7 +1370,6 @@
                 return html;
             },
 
-            // ================== PAGE: PUBLIC EXHIBIT ==================
             renderPublicExhibit: function(studentId) {
                 const user = predefinedUsers.find(u => u.studentId === studentId);
                 if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
@@ -1391,7 +1380,6 @@
                 const cleanName = app.formatName(data.name || user.name);
                 const abbr = app.getAbbr(cleanName);
 
-                // Render Dynamic Custom Boxes if allowEdit is true
                 let customBoxesHtml = '';
                 if (app.settings.allowEdit) {
                     const studentCustomData = app.studentEdits[studentId] || {};
@@ -1418,9 +1406,9 @@
 
                         <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] border-secondary ring-[3px] ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
-                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
+                            <div class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl sm:text-4xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
@@ -1486,7 +1474,6 @@
                 </div>`;
             },
 
-            // ================== PAGE: STUDENT DASHBOARD ==================
             renderDetailBox: function(label, value) {
                 if(!value) return '';
                 let formattedValue = value.split('\n').map(v => `<p class="mb-1">${v}</p>`).join('');
@@ -1561,12 +1548,12 @@
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-secondary ring-[3px] ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div>
@@ -1677,6 +1664,118 @@
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', app.profile.uid), saveData, { merge:true });
                     app.swal.fire({ iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton:false });
                 } catch(e) { app.swal.fire('Error', 'Cannot save', 'error'); }
+            },
+
+            // --- Popup Functions ---
+            showDesignerInfo: function(studentId) {
+                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const data = app.thesisData.find(d => d.studentId === studentId) || {};
+                const cleanName = app.formatName(data.name || user.name);
+                const abbr = app.getAbbr(cleanName);
+                
+                let rawContactInfo = data.personalInfo || '';
+                let contactHtml = '';
+                let personalText = '';
+
+                if (rawContactInfo) {
+                    contactHtml += `<div class="flex flex-wrap gap-2 justify-center mt-3 w-full">`;
+                    const lines = rawContactInfo.split('\n').map(l => l.trim()).filter(l => l);
+                    
+                    lines.forEach(line => {
+                        const lowerLine = line.toLowerCase();
+                        if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
+                            let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
+                            let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
+                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> ${igHandle}</a>`;
+                        } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
+                            let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
+                            let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
+                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> ${fbHandle}</a>`;
+                        } else if (lowerLine.startsWith('gmail') || lowerLine.startsWith('email') || lowerLine.includes('@gmail.com')) {
+                            let emailHandle = line.replace(/^(gmail|email)[\s:\-\.]*/i, '').trim();
+                            let emailLink = `mailto:${emailHandle}`;
+                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-envelope text-base"></i> ${emailHandle}</a>`;
+                        } else if (line.includes('http')) {
+                            let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
+                            if (linkMatch) {
+                                let url = linkMatch[1];
+                                let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim();
+                                if(!label) label = 'Link';
+                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
+                            }
+                        } else {
+                            personalText += line + '\n';
+                        }
+                    });
+                    contactHtml += `</div>`;
+                }
+
+                let personalInfoHtml = '';
+                if (personalText.trim()) {
+                    personalInfoHtml = `
+                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-4 shadow-inner leading-relaxed">
+                        ${personalText.trim()}
+                    </div>`;
+                }
+
+                app.swal.fire({
+                    html: `
+                        <div class="flex flex-col items-center pt-2">
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                <img src="./MORANASATECT/${user.id}.png" 
+                                     onload="this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                            </div>
+                            <h3 class="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-md break-words text-center px-2 leading-tight">${cleanName}</h3>
+                            <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
+                            
+                            ${personalInfoHtml}
+                            ${contactHtml}
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[95%] max-w-md bg-black/90 p-4',
+                        closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                    }
+                });
+            },
+
+            showAdvisorInfo: function(advisorName) {
+                const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
+                const cleanAdvisorNameForAbbr = advisor ? advisor.name.split('.').pop().trim() : advisorName.split('.').pop().trim();
+                const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
+
+                if (advisor) {
+                    app.swal.fire({
+                        html: `
+                            <div class="flex flex-col items-center pt-4 pb-2">
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center">
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                    <img src="./MORANASATECT01/${advisor.id}.png" 
+                                         onload="this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover">
+                                </div>
+                                <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
+                                <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
+                                <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
+                                    อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            </div>
+                        `,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        customClass: {
+                            popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-w-sm bg-black/95 p-6',
+                            closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                        }
+                    });
+                } else {
+                    app.swal.fire({ title: 'อาจารย์ที่ปรึกษา', text: advisorName, icon: 'info', showConfirmButton: false, showCloseButton: true });
+                }
             },
 
             // ================== ADMIN PAGES ==================
@@ -1938,12 +2037,12 @@
 
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                        <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-[3px] ring-white/30 bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
+                        <div class="w-20 h-20 rounded-full border-2 border-secondary ring-[1.5px] ring-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
                             <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl z-0 hidden">${abbr}</span>
                             <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="this.classList.remove('opacity-0')"
-                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                  class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
                         </div>
                         <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
@@ -1974,7 +2073,7 @@
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border-[2px] border-secondary ring-[3px] ring-white/30 bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-full border-2 border-secondary ring-[1.5px] ring-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
@@ -2018,7 +2117,6 @@
                 return gridHtml + tableHtml;
             },
 
-            // จัดการข้อมูลเสริมแต่ละคน + โหลด Excel
             manageUserData: function(studentId) {
                 const data = app.studentEdits[studentId] || {};
                 const user = predefinedUsers.find(u => u.studentId === studentId);
@@ -2049,17 +2147,17 @@
                     showCancelButton: true,
                     showDenyButton: true,
                     confirmButtonText: 'ปิดหน้าต่าง',
-                    cancelButtonText: 'ลบข้อมูล',
-                    denyButtonText: 'โหลด Excel',
+                    denyButtonText: 'ลบข้อมูล',
+                    cancelButtonText: 'โหลด Excel',
                     customClass: {
                         popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] w-[90%] max-w-lg',
                         title: 'text-white font-bold',
                         confirmButton: 'bg-gray-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-gray-500 w-full sm:w-auto m-1',
-                        cancelButton: 'bg-red-500/20 text-red-500 border border-red-500/50 font-bold rounded-xl px-4 py-2 hover:bg-red-500 hover:text-white w-full sm:w-auto m-1',
-                        denyButton: 'bg-green-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-green-500 w-full sm:w-auto m-1'
+                        denyButton: 'bg-red-500/20 text-red-500 border border-red-500/50 font-bold rounded-xl px-4 py-2 hover:bg-red-500 hover:text-white w-full sm:w-auto m-1',
+                        cancelButton: 'bg-green-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-green-500 w-full sm:w-auto m-1'
                     }
                 }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.cancel) {
+                    if (result.isDenied) {
                         app.swal.fire({
                             title: 'ยืนยันลบข้อมูล?',
                             text: "ข้อความทั้งหมดที่นักศึกษาคนนี้พิมพ์ไว้จะหายไปทันที",
@@ -2076,7 +2174,7 @@
                                 } catch(e) {}
                             }
                         });
-                    } else if (result.dismiss === Swal.DismissReason.deny) {
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
                         app.exportAllDataCSV();
                     }
                 });
@@ -2208,32 +2306,6 @@
                         ${html}
                     </div>
                 </div>`;
-            },
-
-            clearAllLogs: async function(actionType) {
-                const result = await app.swal.fire({
-                    title: 'ยืนยันล้างประวัติทั้งหมด?',
-                    text: 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'ล้างข้อมูล',
-                    cancelButtonText: 'ยกเลิก'
-                });
-
-                if(result.isConfirmed) {
-                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                    try {
-                        for(let log of app.accessLogs) {
-                            if (log.action === actionType) {
-                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
-                            }
-                        }
-                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
-                    } catch(e) {
-                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
-                    }
-                }
             },
 
             renderAdminIframe: function() {
