@@ -646,6 +646,21 @@
             },
 
             // ================== HELPER FUNCTIONS ==================
+            // ฟังก์ชันตัดคำนำหน้าชื่อ และทำความสะอาดข้อมูล
+            formatName: function(name) {
+                if (!name) return '';
+                // ตัดคำว่า นาย นาง นางสาว ด้านหน้าออก
+                return name.replace(/^(นาย|นางสาว|นาง)\s*/, '').trim();
+            },
+            
+            // ฟังก์ชันสร้างตัวย่อ 2 ตัวอักษร
+            getAbbr: function(name) {
+                if (!name) return '';
+                const formatted = this.formatName(name);
+                // ดึง 2 ตัวอักษรแรกออกมา
+                return formatted.substring(0, 2);
+            },
+
             // ฟังก์ชันจัดรูปแบบชื่อผลงาน (ไทย 2 บรรทัดใหญ่, อังกฤษบรรทัดใหม่ขนาดเล็ก)
             formatThesisTitle: function(title) {
                 if (!title) return '<span class="text-xl md:text-2xl">กำลังจัดทำวิทยานิพนธ์</span>';
@@ -1008,6 +1023,10 @@
                 const customText = this.studentEdits[studentId] || '';
                 const visitCount = this.visitLogs[studentId] || 0;
 
+                // Format Name and Get Abbreviation
+                const cleanName = this.formatName(data.name || user.name);
+                const abbr = this.getAbbr(cleanName);
+
                 // ระบบแสดงช่องทางติดต่อ (Facebook, Instagram, Link)
                 let contactHtml = '';
                 if (data.facebook || data.instagram || data.otherContact) {
@@ -1060,19 +1079,20 @@
 
                         <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-black relative flex items-center justify-center">
-                                <i class="fa-solid fa-circle-notch fa-spin text-gray-600 text-3xl absolute z-0"></i>
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
-                                     onload="this.classList.remove('opacity-0')"
-                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || user.name)}&background=fddf31&color=000'; this.classList.remove('opacity-0'); }" 
-                                     class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-500">
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0">
                                 <div class="mb-4 leading-tight drop-shadow-lg break-words">
                                     ${this.formatThesisTitle(data.title)}
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
-                                    <span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-user-pen text-gray-500"></i>ผู้ออกแบบ: ${data.name || user.name}</span>
+                                    <span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-user-pen text-gray-500"></i>ผู้ออกแบบ: ${cleanName}</span>
                                     ${data.advisor ? `<span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-chalkboard-user text-gray-500"></i>อ.ที่ปรึกษา: ${data.advisor}</span>` : ''}
                                 </div>
                                 ${contactHtml}
@@ -1125,21 +1145,25 @@
                 const completeness = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0);
                 const isComplete = completeness >= 2;
 
+                const cleanName = this.formatName(this.profile.name);
+                const abbr = this.getAbbr(cleanName);
+
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-black relative flex items-center justify-center">
-                                <i class="fa-solid fa-circle-notch fa-spin text-gray-600 text-xl absolute z-0"></i>
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${this.profile.id}.png" 
-                                     onload="this.classList.remove('opacity-0')"
-                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(this.profile.name)}&background=fddf31&color=000'; this.classList.remove('opacity-0'); }" 
-                                     class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-500">
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div>
-                                <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${this.profile.name}</p>
+                                <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${cleanName}</p>
                                 <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase"><i class="fa-solid fa-user-graduate mr-1 text-gray-500"></i> STUDENT DASHBOARD</p>
                             </div>
                         </div>
@@ -1274,20 +1298,24 @@
                     const data = this.thesisData.find(d => d.studentId === u.studentId) || {};
                     const isComplete = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
                     
+                    const cleanName = this.formatName(u.name);
+                    const abbr = this.getAbbr(cleanName);
+
                     html += `
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border border-secondary bg-black overflow-hidden shrink-0 relative flex items-center justify-center">
-                                    <i class="fa-solid fa-circle-notch fa-spin text-gray-600 text-xs absolute z-0"></i>
+                                <div class="w-10 h-10 rounded-full border border-secondary bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-sm z-0 hidden">${abbr}</span>
+                                    <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
-                                         onload="this.classList.remove('opacity-0')"
-                                         onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg';} else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=fddf31&color=000'; this.classList.remove('opacity-0'); }" 
-                                         class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-300">
+                                         onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0')"
+                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                         class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
                                 </div>
                                 <div>
                                     <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</div>
-                                    <div class="text-[10px] text-gray-500 mt-0.5">${u.name}</div>
+                                    <div class="text-[10px] text-gray-500 mt-0.5">${cleanName}</div>
                                 </div>
                             </div>
                         </td>
