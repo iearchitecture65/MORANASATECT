@@ -1070,10 +1070,12 @@
 
                         <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-black">
-                                <img src="./MORANASATECT/${user.id}/Profile.png" 
-                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}/Profile.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || user.name)}&background=fddf31&color=000'; }" 
-                                     class="w-full h-full object-cover">
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-black relative flex items-center justify-center">
+                                <i class="fa-solid fa-circle-notch fa-spin text-gray-600 text-3xl absolute z-0"></i>
+                                <img src="./MORANASATECT/${user.id}.png" 
+                                     onload="this.classList.remove('opacity-0')"
+                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || user.name)}&background=fddf31&color=000'; this.classList.remove('opacity-0'); }" 
+                                     class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0">
                                 <div class="mb-4 leading-tight drop-shadow-lg break-words">
@@ -1139,10 +1141,12 @@
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-black">
-                                <img src="./MORANASATECT/${this.profile.id}/Profile.png" 
-                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}/Profile.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(this.profile.name)}&background=fddf31&color=000'; }" 
-                                     class="w-full h-full object-cover">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-black relative flex items-center justify-center">
+                                <i class="fa-solid fa-circle-notch fa-spin text-gray-600 text-xl absolute z-0"></i>
+                                <img src="./MORANASATECT/${this.profile.id}.png" 
+                                     onload="this.classList.remove('opacity-0')"
+                                     onerror="if(this.dataset.fallback !== '1'){ this.dataset.fallback='1'; this.src='./MORANASATECT/${this.profile.id}.jpg'; } else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(this.profile.name)}&background=fddf31&color=000'; this.classList.remove('opacity-0'); }" 
+                                     class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-500">
                             </div>
                             <div>
                                 <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${this.profile.name}</p>
@@ -1284,8 +1288,12 @@
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border border-secondary bg-black overflow-hidden shrink-0">
-                                    <img src="./MORANASATECT/${u.id}/Profile.png" onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}/Profile.jpg';} else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=fddf31&color=000'; }" class="w-full h-full object-cover">
+                                <div class="w-10 h-10 rounded-full border border-secondary bg-black overflow-hidden shrink-0 relative flex items-center justify-center">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-gray-600 text-xs absolute z-0"></i>
+                                    <img src="./MORANASATECT/${u.id}.png" 
+                                         onload="this.classList.remove('opacity-0')"
+                                         onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg';} else { this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=fddf31&color=000'; this.classList.remove('opacity-0'); }" 
+                                         class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-300">
                                 </div>
                                 <div>
                                     <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</div>
