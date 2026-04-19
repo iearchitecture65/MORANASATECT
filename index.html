@@ -125,6 +125,21 @@
             pointer-events: none;
             user-select: none;
         }
+        
+        /* Iframe container full width */
+        .full-media-container {
+            width: 100%;
+            height: 60vh;
+            min-height: 300px;
+            max-height: 80vh;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            position: relative;
+            background-color: #000;
+        }
+        @media (min-width: 768px) {
+            .full-media-container { height: 75vh; }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -136,7 +151,7 @@
         <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Header & Menu (Floating without background bar) -->
+    <!-- Header & Menu -->
     <header class="absolute top-0 left-0 w-full px-4 py-4 md:px-6 md:py-6 flex justify-between items-start z-50 pointer-events-none">
         
         <!-- Logo Left -->
@@ -152,42 +167,43 @@
                 <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
             </button>
 
-            <!-- Dropdown Menu (All Navigation Here) -->
+            <!-- Dropdown Menu -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
-                <!-- Admin Menu Section -->
+                <!-- Admin Menu -->
                 <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
-                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
-                <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
-                </button>
-                <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
-                </button>
-                <button onclick="app.showView('admin_iframe')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-link w-5 text-center text-secondary"></i> จัดการเมนูเว็บฝัง
-                </button>
-                <button onclick="app.showView('admin_export')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-qrcode w-5 text-center text-secondary"></i> สร้าง QR Code
-                </button>
-            </div>
+                    <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
+                    <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
+                    </button>
+                    <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
+                    </button>
+                    <button onclick="app.showView('admin_iframe')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-link w-5 text-center text-secondary"></i> จัดการเมนูเว็บฝัง
+                    </button>
+                    <button onclick="app.showView('admin_export')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-qrcode w-5 text-center text-secondary"></i> สร้าง QR Code
+                    </button>
+                </div>
             
-            <!-- Student Menu Section -->
-            <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
-                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
-                <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-sliders w-5 text-center text-secondary"></i> หน้าจัดการของฉัน
-                </button>
-                <button onclick="app.showView('public_exhibit', app.profile?.uid)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                    <i class="fa-solid fa-display w-5 text-center text-secondary"></i> ดูผลงานของฉัน
-                </button>
-            </div>
+                <!-- Student Menu -->
+                <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
+                    <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
+                    <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-sliders w-5 text-center text-secondary"></i> หน้าจัดการของฉัน
+                    </button>
+                    <button onclick="app.showView('public_exhibit', app.profile?.uid)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-display w-5 text-center text-secondary"></i> ดูผลงานของฉัน
+                    </button>
+                </div>
 
-            <!-- Dynamic Iframe Links -->
-            <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
-                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
-                <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
-            </div>
+                <!-- Iframe Links -->
+                <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
+                    <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
+                    <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
+                </div>
+                
                 <div class="h-px bg-white/20 my-2 mx-3"></div>
                 <button onclick="app.logout()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400 transition-colors text-left font-black text-sm">
                     <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> ออกจากระบบ
@@ -295,6 +311,21 @@
             { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล" }
         ];
 
+        // Advisors Data
+        const advisorsData = [
+            { id: 1, name: "ศ.ดร.คุ้มพงศ์ หนูบรรจง", url: "https://siet.kmitl.ac.th/node/193" },
+            { id: 2, name: "ดร.พรหมปพร นวลแสง", url: "https://siet.kmitl.ac.th/node/212" },
+            { id: 3, name: "รศ.ดร.สมพล ดำรงเสถียร", url: "https://siet.kmitl.ac.th/node/49" },
+            { id: 4, name: "รศ.สุรศักดิ์ กังขาว", url: "https://siet.kmitl.ac.th/node/196" },
+            { id: 5, name: "รศ.ดร.พัสตราภรณ์ ทิพยโสธร", url: "https://siet.kmitl.ac.th/node/201" },
+            { id: 6, name: "ผศ.อัครพงศ์ อนุพันธ์พงศ์", url: "https://siet.kmitl.ac.th/node/205" },
+            { id: 7, name: "ผศ.ณธทัย จันเสน", url: "https://siet.kmitl.ac.th/node/93" },
+            { id: 8, name: "ผศ.ชูเกียรติ แซ่ตั้ง", url: "https://siet.kmitl.ac.th/node/92" },
+            { id: 9, name: "อ.รัฐภัทร์ อุปละ", url: "https://siet.kmitl.ac.th/node/216" },
+            { id: 10, name: "อ.ทศพร โสดาบรรลุ", url: "https://siet.kmitl.ac.th/node/195" },
+            { id: 11, name: "ผศ.สันติ กวินวงศ์ไพบูลย์", url: "https://siet.kmitl.ac.th/node/211" }
+        ];
+
         const guestRoles = ['ปี 1', 'ปี 2', 'ปี 3', 'ปี 4', 'ปี 5', 'ศิษย์เก่า', 'อาจารย์', 'เจ้าหน้าที่', 'บุคลากร', 'ผู้ปกครอง', 'บุคคลภายนอก'];
 
         // Global App State
@@ -355,12 +386,10 @@
                             this.setupRealtimeListeners();
                             await this.fetchThesisData();
                             
-                            // Check URL parameters
                             const urlParams = new URLSearchParams(window.location.search);
                             const exhibitId = urlParams.get('exhibit');
                             const iframeId = urlParams.get('iframe');
                             
-                            // Restore Session
                             const savedProfile = localStorage.getItem('moranasatect_profile');
                             if (savedProfile) {
                                 try {
@@ -427,7 +456,6 @@
                         const headers = parsed[0];
                         const dataRows = parsed.slice(1);
                         
-                        // เพิ่มคอลัมน์สำหรับการติดต่อ (5.1-5.4) เข้ามา
                         const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4'];
                         const headerMap = {};
                         prefixes.forEach(p => headerMap[p] = []);
@@ -445,9 +473,9 @@
                                 let values = headerMap[p].map(idx => row[idx] ? row[idx].trim() : '').filter(v => v !== '');
                                 obj[p] = values.join('\n\n'); 
                             });
-                            // Map for easier access
                             obj.studentId = obj['1.1'];
                             obj.name = obj['1.2'];
+                            obj.personalInfo = obj['1.3'];
                             obj.title = obj['2.1'];
                             obj.advisor = obj['2.2'];
                             obj.category = obj['2.3'];
@@ -495,7 +523,6 @@
                     } else {
                         await setDoc(ref, { count: 1 });
                     }
-                    // Log to access_logs for detail tracking
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
                         uid: this.profile.uid,
                         name: this.profile.name,
@@ -545,7 +572,6 @@
                 this.goHome();
             },
 
-            // ================== MENU LOGIC ==================
             toggleMenu: function() {
                 this.isMenuOpen = !this.isMenuOpen;
                 const menu = document.getElementById('mobileDropdown');
@@ -599,7 +625,6 @@
                     if (secAdmin) secAdmin.classList.toggle('hidden', this.profile.role !== 'admin');
                     if (secStudent) secStudent.classList.toggle('hidden', this.profile.role !== 'student');
                     
-                    // Render Iframe Links dynamically
                     if (iframeContainer) {
                         iframeContainer.innerHTML = '';
                         const sites = this.settings.embeddedSites || [];
@@ -630,39 +655,30 @@
                 this.showView('iframe_view', idx);
             },
 
-            // ================== HELPER FUNCTIONS ==================
-            // ฟังก์ชันตัดคำนำหน้าชื่อ และทำความสะอาดข้อมูล
             formatName: function(name) {
                 if (!name) return '';
-                // ตัดคำว่า นาย นาง นางสาว ด้านหน้าออก
                 return name.replace(/^(นาย|นางสาว|นาง)\s*/, '').trim();
             },
             
-            // ฟังก์ชันสร้างตัวย่อ 2 ตัวอักษร
             getAbbr: function(name) {
                 if (!name) return '';
                 const formatted = this.formatName(name);
-                // ดึง 2 ตัวอักษรแรกออกมา
                 return formatted.substring(0, 2);
             },
 
-            // ฟังก์ชันจัดรูปแบบชื่อผลงาน (ตัด line-clamp ทิ้ง เพื่อให้แสดงผลเต็มบรรทัดไม่ตัด ...)
             formatThesisTitle: function(title) {
                 if (!title) return '<span class="text-xl md:text-2xl font-black block">กำลังจัดทำวิทยานิพนธ์</span>';
                 
-                // ลองหาบรรทัดใหม่
                 let parts = title.split('\n');
                 if (parts.length > 1) {
                     return `<span class="text-xl md:text-2xl font-black block leading-snug">${parts[0]}</span><span class="block text-sm md:text-base text-gray-400 mt-2 font-medium">${parts.slice(1).join(' ')}</span>`;
                 }
                 
-                // ถ้าไม่มีบรรทัดใหม่ ลองแยกด้วยวงเล็บ (ไทย) (Eng)
                 const bracketMatch = title.match(/^(.*?)(\([^)]+\))$/);
                 if (bracketMatch) {
                     return `<span class="text-xl md:text-2xl font-black block leading-snug">${bracketMatch[1].trim()}</span><span class="block text-sm md:text-base text-gray-400 mt-2 font-medium">${bracketMatch[2].trim()}</span>`;
                 }
 
-                // หาช่วงท้ายที่เป็นภาษาอังกฤษเพียวๆ (รองรับ , - : ' & ตัวเลข)
                 const engMatch = title.match(/([a-zA-Z0-9\s\-:,'".&]+)$/);
                 if (engMatch && engMatch[1].trim().length > 3 && engMatch[1].trim() !== title.trim()) {
                     const thaiPart = title.replace(engMatch[1], '').trim();
@@ -675,13 +691,10 @@
                 return `<span class="text-xl md:text-2xl font-black block leading-snug">${title}</span>`;
             },
 
-            // ฟังก์ชันแชร์ลิงก์
             sharePublicLink: async function(studentId) {
-                // สร้างลิงก์ที่ตัดพารามิเตอร์เก่าออกเพื่อไม่ให้ซ้อนกัน
                 const baseUrl = window.location.href.split('?')[0];
                 const link = `${baseUrl}?exhibit=${studentId}`;
                 
-                // ฟังก์ชันสำหรับแสดง UI คัดลอกแบบ Manual (กรณีแชร์/ก๊อปปี้อัตโนมัติล้มเหลว)
                 const showFallbackCopy = () => {
                     this.swal.fire({
                         title: 'แชร์ลิงก์ผลงาน',
@@ -705,20 +718,16 @@
 
                 if (navigator.share) {
                     try { 
-                        // ลองเรียก Web Share API ก่อน (สำหรับมือถือจะเด้งเมนูแชร์ของเครื่อง)
                         await navigator.share({ 
                             title: 'MORANASATECT Thesis Exhibition', 
                             text: 'ชมนิทรรศการผลงานวิทยานิพนธ์',
                             url: link 
                         }); 
                     } catch(e) {
-                        // ถ้า User ยกเลิก หรือแชร์ไม่ได้ ให้เรียก Fallback คัดลอกลิงก์
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
-                    // สำหรับคอมพิวเตอร์ที่ไม่มี Web Share API
                     try {
-                        // ลองใช้ API ใหม่ล่าสุดก่อน (อาจติดเรื่อง HTTPS / iFrame)
                         if (navigator.clipboard && navigator.clipboard.writeText) {
                             await navigator.clipboard.writeText(link);
                             this.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
@@ -726,7 +735,6 @@
                             throw new Error("Clipboard API not available");
                         }
                     } catch (err) {
-                        // ถ้าใช้ไม่ได้ ให้ลองวิธีคลาสสิก (สร้าง textarea แล้วก็อปปี้)
                         try {
                             const textArea = document.createElement("textarea");
                             textArea.value = link;
@@ -736,9 +744,144 @@
                             document.body.removeChild(textArea);
                             this.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } catch (err2) {
-                            // ไม้ตายสุดท้าย: เด้งกล่องข้อความให้ผู้ใช้กดก็อปปี้เอง 100%
                             showFallbackCopy();
                         }
+                    }
+                }
+            },
+
+            // --- Popup Functions ---
+            showDesignerInfo: function(studentId) {
+                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const data = this.thesisData.find(d => d.studentId === studentId) || {};
+                const cleanName = this.formatName(data.name || user.name);
+                const abbr = this.getAbbr(cleanName);
+                
+                let contactHtml = '';
+                if (data.facebook || data.instagram || data.otherContact) {
+                    contactHtml += `<div class="flex flex-wrap gap-2 justify-center mt-2">`;
+                    
+                    if (data.facebook) {
+                        let fb = data.facebook;
+                        let fbLink = fb.includes('http') ? fb : (fb.includes('facebook.com') ? `https://${fb}` : `https://facebook.com/${fb}`);
+                        contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> Facebook</a>`;
+                    }
+                    if (data.instagram) {
+                        let ig = data.instagram;
+                        let igHandle = ig.replace('@', '');
+                        let igLink = ig.includes('http') ? ig : `https://instagram.com/${igHandle}`;
+                        contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> Instagram</a>`;
+                    }
+                    if (data.otherContact) {
+                        let others = data.otherContact.split('\n').filter(o => o.trim());
+                        others.forEach(o => {
+                            let text = o.trim();
+                            if(text.includes('http')) {
+                                let linkMatch = text.match(/(https?:\/\/[^\s]+)/);
+                                if(linkMatch) {
+                                    let url = linkMatch[1];
+                                    let label = text.replace(url, '').trim();
+                                    label = label.replace(/^[-:]|[-:]$/g, '').trim();
+                                    if(!label) label = 'Link';
+                                    contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
+                                } else {
+                                    contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-address-book text-base"></i> ${text}</span>`;
+                                }
+                            } else {
+                                contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-address-book text-base"></i> ${text}</span>`;
+                            }
+                        });
+                    }
+                    contactHtml += `</div>`;
+                }
+
+                let personalInfoHtml = '';
+                if (data.personalInfo) {
+                    personalInfoHtml = `
+                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-left whitespace-pre-wrap border border-white/5 my-4 max-h-[200px] overflow-y-auto custom-scrollbar shadow-inner leading-relaxed">
+                        ${data.personalInfo}
+                    </div>`;
+                }
+
+                this.swal.fire({
+                    html: `
+                        <div class="flex flex-col items-center pt-2">
+                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-secondary overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl z-0 hidden">${abbr}</span>
+                                <img src="./MORANASATECT/${user.id}.png" 
+                                     onload="this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                            </div>
+                            <h3 class="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-md">${cleanName}</h3>
+                            <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
+                            
+                            ${personalInfoHtml}
+                            ${contactHtml}
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[95%] max-w-md bg-black/90 p-4',
+                        closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                    }
+                });
+            },
+
+            showAdvisorInfo: function(advisorName) {
+                const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
+                
+                if (advisor) {
+                    this.swal.fire({
+                        html: `
+                            <div class="flex flex-col items-center pt-4 pb-2">
+                                <div class="w-32 h-32 rounded-full border-4 border-white/20 overflow-hidden mb-5 bg-black shadow-2xl">
+                                     <img src="./MORANASATECT01/${advisor.id}.png" onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(advisor.name)}&background=333&color=fff'; }" class="w-full h-full object-cover">
+                                </div>
+                                <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
+                                <h3 class="text-xl md:text-2xl font-black text-white mb-6 drop-shadow-md">${advisor.name}</h3>
+                                <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
+                                    อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            </div>
+                        `,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        customClass: {
+                            popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-w-sm bg-black/95 p-6',
+                            closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                        }
+                    });
+                } else {
+                    this.swal.fire({
+                        title: 'อาจารย์ที่ปรึกษา',
+                        text: advisorName,
+                        icon: 'info',
+                        showConfirmButton: false,
+                        showCloseButton: true
+                    });
+                }
+            },
+
+            // --- Reset Visit Admin ---
+            resetVisit: async function(studentId) {
+                const result = await this.swal.fire({
+                    title: 'ยืนยันการล้างค่า?',
+                    html: `<p class="text-sm text-gray-300">ยอดวิวของรหัส <b class="text-secondary">${studentId}</b> จะกลับเป็น 0</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ล้างค่าทันที',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#ef4444',
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId), { count: 0 });
+                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                    } catch(e) {
+                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
                     }
                 }
             },
@@ -798,7 +941,7 @@
                     <div class="p-6 md:p-8 text-center bg-white/5 border-b border-white/10">
                         <i class="fa-solid fa-id-badge text-secondary text-4xl mb-3 opacity-90 drop-shadow-md"></i>
                         <h2 class="text-2xl font-extrabold text-white drop-shadow-sm">เข้าสู่ระบบ</h2>
-                        <p class="text-gray-400 text-xs mt-1 font-medium">สำหรับนักศึกษา 57 คน</p>
+                        <p class="text-gray-400 text-xs mt-2 font-medium">สำหรับผู้ส่งผลงานทั้ง 57 ท่าน</p>
                     </div>
                     <div class="p-6 md:p-8 space-y-5">
                         <div>
@@ -1007,12 +1150,12 @@
                 }
             },
 
-            // แสดงหน้า Iframe แบบเพียวๆ ไม่มีกรอบ 2 ชั้น และ Loading Spinner
+            // --- ส่วน Render Iframe แบบไม่มีกล่อง ---
             renderMediaFrames: function(urlsStr, typeStr) {
-                if (!urlsStr) return '<div class="text-gray-500 italic text-sm p-6 bg-black/40 rounded-2xl text-center border border-white/5 shadow-inner">ไม่มีข้อมูลในส่วนนี้</div>';
+                if (!urlsStr) return '';
                 
                 const lines = urlsStr.split('\n').map(u => u.trim()).filter(u => u);
-                let html = '<div class="grid grid-cols-1 gap-10">';
+                let html = '<div class="flex flex-col gap-8">';
                 
                 lines.forEach((line, index) => {
                     const match = line.match(/^(.*?)(https?:\/\/[^\s]+)(.*)$/);
@@ -1020,7 +1163,6 @@
                     
                     let prefix = match[1].trim();
                     let url = match[2];
-                    let originalUrl = url;
                     
                     let label = prefix;
                     if (label.endsWith(':')) label = label.substring(0, label.length - 1).trim();
@@ -1036,41 +1178,35 @@
                     const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
                     
                     html += `
-                    <div class="flex flex-col gap-4 bg-black/20 p-5 md:p-6 rounded-[2rem] border border-white/5">
-                        <h4 class="text-secondary font-extrabold text-base md:text-lg flex items-center gap-2 border-l-4 border-secondary pl-3 uppercase tracking-wider drop-shadow-md">
-                            ${label}
+                    <div class="flex flex-col gap-3">
+                        <h4 class="text-secondary font-bold text-sm md:text-base flex items-center gap-2 pl-1 drop-shadow-md">
+                            <i class="fa-solid fa-play text-xs opacity-70"></i> ${label}
                         </h4>
                     `;
                     
                     if (isImg) {
                         html += `
-                        <div class="relative group rounded-2xl overflow-hidden border border-white/10 bg-black/50 flex items-center justify-center shadow-lg min-h-[300px]">
-                            <!-- Loading Spinner for Image -->
-                            <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
+                        <div class="relative w-full flex items-center justify-center min-h-[200px]">
+                            <!-- Loading Spinner -->
+                            <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-3xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
                                  onload="this.classList.remove('opacity-0')"
-                                 class="max-w-full max-h-[80vh] object-contain transition-all duration-700 group-hover:scale-[1.02] relative z-10 opacity-0" 
+                                 class="max-w-full max-h-[80vh] rounded-2xl shadow-xl border border-white/10 object-contain transition-all duration-700 relative z-10 opacity-0" 
                                  onerror="this.style.display='none'">
                         </div>`;
                     } else {
                         html += `
-                        <div class="relative rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black w-full h-[65vh] md:h-[80vh] flex items-center justify-center">
-                            <!-- Loading Spinner for Iframe -->
+                        <div class="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center rounded-2xl shadow-xl border border-white/10 bg-black overflow-hidden">
+                            <!-- Loading Spinner -->
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
-                                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3"></i>
                                 <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
                             </div>
-                            <!-- Pure Iframe -->
+                            <!-- Iframe -->
                             <iframe src="${url}" 
                                     onload="this.classList.remove('opacity-0')"
                                     class="w-full h-full relative z-10 opacity-0 transition-opacity duration-700 border-0" 
                                     allow="autoplay" allowfullscreen loading="lazy"></iframe>
-                        </div>
-                        <div class="bg-transparent flex justify-between items-center gap-2 pt-1">
-                            <span class="text-[10px] text-gray-500 truncate max-w-[60%] font-mono pl-2">${originalUrl}</span>
-                            <a href="${originalUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] bg-secondary text-black font-bold transition-transform hover:scale-105 px-4 py-2 rounded-xl shrink-0">
-                                <i class="fa-solid fa-external-link"></i> เปิดลิงก์นี้
-                            </a>
                         </div>`;
                     }
                     html += `</div>`;
@@ -1089,58 +1225,12 @@
                 const customText = this.studentEdits[studentId] || '';
                 const visitCount = this.visitLogs[studentId] || 0;
 
-                // Format Name and Get Abbreviation
                 const cleanName = this.formatName(data.name || user.name);
                 const abbr = this.getAbbr(cleanName);
 
-                // ระบบแสดงช่องทางติดต่อ (Facebook, Instagram, Link)
-                let contactHtml = '';
-                if (data.facebook || data.instagram || data.otherContact) {
-                    contactHtml += `<div class="mt-5 pt-5 border-t border-white/10 flex flex-wrap gap-2 justify-center sm:justify-start">`;
-                    
-                    if (data.facebook) {
-                        let fb = data.facebook;
-                        let fbLink = fb.includes('http') ? fb : (fb.includes('facebook.com') ? `https://${fb}` : `https://facebook.com/${fb}`);
-                        contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> Facebook</a>`;
-                    }
-                    if (data.instagram) {
-                        let ig = data.instagram;
-                        let igHandle = ig.replace('@', '');
-                        let igLink = ig.includes('http') ? ig : `https://instagram.com/${igHandle}`;
-                        contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> Instagram</a>`;
-                    }
-                    if (data.otherContact) {
-                        let others = data.otherContact.split('\n').filter(o => o.trim());
-                        others.forEach(o => {
-                            let text = o.trim();
-                            if(text.includes('http')) {
-                                let linkMatch = text.match(/(https?:\/\/[^\s]+)/);
-                                if(linkMatch) {
-                                    let url = linkMatch[1];
-                                    let label = text.replace(url, '').trim();
-                                    label = label.replace(/^[-:]|[-:]$/g, '').trim(); // ลบเครื่องหมาย : หรือ - ท้ายชื่อ
-                                    if(!label) label = 'Link';
-                                    contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/20 hover:bg-gray-600/40 text-gray-300 border border-gray-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-link text-sm"></i> ${label}</a>`;
-                                } else {
-                                    contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book text-sm"></i> ${text}</span>`;
-                                }
-                            } else {
-                                contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-address-book text-sm"></i> ${text}</span>`;
-                            }
-                        });
-                    }
-                    contactHtml += `</div>`;
-                }
-
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10">
-                    <div class="flex justify-end mb-4">
-                        <div class="text-[10px] bg-black/60 border border-secondary/40 text-secondary px-4 py-2 rounded-full font-bold shadow-lg backdrop-blur-md flex items-center gap-2 tracking-widest">
-                            <i class="fa-solid fa-eye animate-pulse"></i> ${visitCount} VIEWS
-                        </div>
-                    </div>
-
-                    <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden">
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden mt-6">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
 
                         <!-- User Profile Information -->
@@ -1154,14 +1244,27 @@
                                      class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0">
-                                <div class="mb-4 leading-tight drop-shadow-lg break-words">
+                                <div class="mb-5 leading-tight drop-shadow-lg break-words">
                                     ${this.formatThesisTitle(data.title)}
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
-                                    <span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-user-pen text-gray-500"></i>ผู้ออกแบบ: ${cleanName}</span>
-                                    ${data.advisor ? `<span class="bg-black/30 px-4 py-2 rounded-lg border border-white/5 inline-flex items-center justify-center gap-2"><i class="fa-solid fa-chalkboard-user text-gray-500"></i>อ.ที่ปรึกษา: ${data.advisor}</span>` : ''}
+                                    
+                                    <!-- ปุ่มผู้ออกแบบ (กดแล้วขึ้น Popup) -->
+                                    <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm group">
+                                        <i class="fa-solid fa-user-pen text-secondary group-hover:scale-110 transition-transform"></i>
+                                        ผู้ออกแบบ: ${cleanName}
+                                        <i class="fa-solid fa-circle-info text-[10px] text-gray-500 ml-1"></i>
+                                    </div>
+                                    
+                                    <!-- ปุ่มอาจารย์ (กดแล้วขึ้น Popup) -->
+                                    ${data.advisor ? `
+                                    <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm group">
+                                        <i class="fa-solid fa-chalkboard-user text-secondary group-hover:scale-110 transition-transform"></i>
+                                        อ.ที่ปรึกษา: ${data.advisor}
+                                        <i class="fa-solid fa-circle-info text-[10px] text-gray-500 ml-1"></i>
+                                    </div>` : ''}
+
                                 </div>
-                                ${contactHtml}
                             </div>
                         </div>
                         
@@ -1180,27 +1283,23 @@
                         </div>` : ''}
 
                         <div class="space-y-12">
-                            <!-- เอา Video ขึ้นมาก่อน Image ตามที่กำหนด -->
                             ${data.videoUrl ? `
                             <div class="animate-slide-up">
-                                <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner w-full sm:w-auto">
-                                    <i class="fa-solid fa-video text-secondary mr-2 text-lg"></i> วิดีโอ / แอนิเมชัน
-                                </h3>
                                 ${this.renderMediaFrames(data.videoUrl, 'video')}
                             </div>` : ''}
 
                             ${data.coverImg || data.portfolioImgs ? `
                             <div class="animate-slide-up" style="animation-delay: 0.15s">
-                                <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner w-full sm:w-auto">
-                                    <i class="fa-solid fa-images text-secondary mr-2 text-lg"></i> ภาพผลงาน
-                                </h3>
                                 ${this.renderMediaFrames(data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs, 'image')}
                             </div>` : ''}
                         </div>
                     </div>
                     
-                    <div class="text-center mt-8 mb-4">
-                        <button onclick="app.sharePublicLink('${studentId}')" class="bg-secondary text-primary font-black px-8 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                    <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
+                        <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-black/30 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                            <i class="fa-solid fa-eye text-secondary"></i> เข้าชมผลงานชิ้นนี้แล้ว ${visitCount} ครั้ง
+                        </div>
+                        <button onclick="app.sharePublicLink('${studentId}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                             <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าผลงานนี้
                         </button>
                     </div>
@@ -1355,13 +1454,14 @@
 
             // 2. Admin Users Page
             renderAdminUsers: function() {
-                let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[600px]">
+                let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
                             <th class="p-4 rounded-tl-xl">ลำดับ/รหัส/ชื่อ</th>
-                            <th class="p-4 text-center">Views</th>
+                            <th class="p-4 text-center">ยอดวิว</th>
+                            <th class="p-4 text-center">รีเซ็ตวิว</th>
                             <th class="p-4 text-center">สถานะข้อมูล</th>
-                            <th class="p-4 text-center rounded-tr-xl">ลิงก์</th>
+                            <th class="p-4 text-center rounded-tr-xl">ผลงาน</th>
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
                 
@@ -1395,6 +1495,11 @@
                             <span class="inline-block bg-black/50 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-secondary">${vCount}</span>
                         </td>
                         <td class="p-4 text-center">
+                            <button onclick="app.resetVisit('${u.studentId}')" class="text-gray-500 hover:text-red-400 bg-white/5 hover:bg-red-500/10 w-8 h-8 rounded-full transition-colors flex items-center justify-center mx-auto border border-white/10" title="ล้างยอดวิว">
+                                <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                            </button>
+                        </td>
+                        <td class="p-4 text-center">
                             ${isComplete ? 
                                 '<span class="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
                                 '<span class="text-[10px] bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>'}
@@ -1422,6 +1527,28 @@
                         ${html}
                     </div>
                 </div>`;
+            },
+
+            // --- ฟังก์ชันสำหรับ Admin รีเซ็ตยอดวิว ---
+            resetVisit: async function(studentId) {
+                const result = await this.swal.fire({
+                    title: 'ยืนยันการล้างค่า?',
+                    html: `<p class="text-sm text-gray-300">ยอดวิวของรหัส <b class="text-secondary">${studentId}</b> จะกลับเป็น 0</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ล้างค่าทันที',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#ef4444',
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId), { count: 0 });
+                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                    } catch(e) {
+                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
+                    }
+                }
             },
 
             // 3. Admin Iframe Page
