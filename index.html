@@ -119,25 +119,6 @@
         }
         .swal2-title { color: #fddf31 !important; }
         .swal2-html-container { color: #ccc !important; }
-
-        .iframe-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            border-radius: 0.75rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #111;
-        }
-        .iframe-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
         
         .menu-open-blur {
             filter: blur(5px);
@@ -176,6 +157,10 @@
                 
                 <!-- Admin Menu Section -->
                 <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
+                <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
+                </button>
                 <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                     <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
                 </button>
@@ -661,20 +646,20 @@
                 return formatted.substring(0, 2);
             },
 
-            // ฟังก์ชันจัดรูปแบบชื่อผลงาน (ไทย 2 บรรทัดใหญ่, อังกฤษบรรทัดใหม่ขนาดเล็ก)
+            // ฟังก์ชันจัดรูปแบบชื่อผลงาน (ตัด line-clamp ทิ้ง เพื่อให้แสดงผลเต็มบรรทัดไม่ตัด ...)
             formatThesisTitle: function(title) {
-                if (!title) return '<span class="text-xl md:text-2xl">กำลังจัดทำวิทยานิพนธ์</span>';
+                if (!title) return '<span class="text-xl md:text-2xl font-black block">กำลังจัดทำวิทยานิพนธ์</span>';
                 
                 // ลองหาบรรทัดใหม่
                 let parts = title.split('\n');
                 if (parts.length > 1) {
-                    return `<span class="line-clamp-2 text-xl md:text-2xl">${parts[0]}</span><span class="block text-sm md:text-base text-gray-400 mt-1 font-medium">${parts.slice(1).join(' ')}</span>`;
+                    return `<span class="text-xl md:text-2xl font-black block leading-snug">${parts[0]}</span><span class="block text-sm md:text-base text-gray-400 mt-2 font-medium">${parts.slice(1).join(' ')}</span>`;
                 }
                 
                 // ถ้าไม่มีบรรทัดใหม่ ลองแยกด้วยวงเล็บ (ไทย) (Eng)
                 const bracketMatch = title.match(/^(.*?)(\([^)]+\))$/);
                 if (bracketMatch) {
-                    return `<span class="line-clamp-2 text-xl md:text-2xl">${bracketMatch[1].trim()}</span><span class="block text-sm md:text-base text-gray-400 mt-1 font-medium">${bracketMatch[2].trim()}</span>`;
+                    return `<span class="text-xl md:text-2xl font-black block leading-snug">${bracketMatch[1].trim()}</span><span class="block text-sm md:text-base text-gray-400 mt-2 font-medium">${bracketMatch[2].trim()}</span>`;
                 }
 
                 // หาช่วงท้ายที่เป็นภาษาอังกฤษเพียวๆ (รองรับ , - : ' & ตัวเลข)
@@ -683,11 +668,11 @@
                     const thaiPart = title.replace(engMatch[1], '').trim();
                     const engPart = engMatch[1].trim();
                     if (thaiPart) {
-                        return `<span class="line-clamp-2 text-xl md:text-2xl">${thaiPart}</span><span class="block text-sm md:text-base text-gray-400 mt-1 font-medium">${engPart}</span>`;
+                        return `<span class="text-xl md:text-2xl font-black block leading-snug">${thaiPart}</span><span class="block text-sm md:text-base text-gray-400 mt-2 font-medium">${engPart}</span>`;
                     }
                 }
                 
-                return `<span class="line-clamp-2 text-xl md:text-2xl">${title}</span>`;
+                return `<span class="text-xl md:text-2xl font-black block leading-snug">${title}</span>`;
             },
 
             // ฟังก์ชันแชร์ลิงก์
@@ -1022,6 +1007,7 @@
                 }
             },
 
+            // แสดงหน้า Iframe แบบเพียวๆ ไม่มีกรอบ 2 ชั้น และ Loading Spinner
             renderMediaFrames: function(urlsStr, typeStr) {
                 if (!urlsStr) return '<div class="text-gray-500 italic text-sm p-6 bg-black/40 rounded-2xl text-center border border-white/5 shadow-inner">ไม่มีข้อมูลในส่วนนี้</div>';
                 
@@ -1058,21 +1044,33 @@
                     
                     if (isImg) {
                         html += `
-                        <div class="relative group rounded-2xl overflow-hidden border border-white/10 bg-black/50 flex justify-center shadow-lg">
-                            <img src="${url}" alt="${label}" class="max-w-full max-h-[80vh] object-contain transition-transform duration-500 group-hover:scale-[1.02]" onerror="this.style.display='none'">
+                        <div class="relative group rounded-2xl overflow-hidden border border-white/10 bg-black/50 flex items-center justify-center shadow-lg min-h-[300px]">
+                            <!-- Loading Spinner for Image -->
+                            <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
+                            <img src="${url}" alt="${label}" 
+                                 onload="this.classList.remove('opacity-0')"
+                                 class="max-w-full max-h-[80vh] object-contain transition-all duration-700 group-hover:scale-[1.02] relative z-10 opacity-0" 
+                                 onerror="this.style.display='none'">
                         </div>`;
                     } else {
                         html += `
-                        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black">
-                            <div class="iframe-container shadow-inner">
-                                <iframe src="${url}" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+                        <div class="relative rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black w-full h-[65vh] md:h-[80vh] flex items-center justify-center">
+                            <!-- Loading Spinner for Iframe -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
                             </div>
-                            <div class="bg-white/5 p-3 flex justify-between items-center gap-2">
-                                <span class="text-[10px] text-gray-500 truncate max-w-[60%] font-mono">${originalUrl}</span>
-                                <a href="${originalUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] bg-secondary text-black font-bold transition-transform hover:scale-105 px-4 py-2 rounded-lg shrink-0">
-                                    <i class="fa-solid fa-external-link"></i> เปิดลิงก์นี้
-                                </a>
-                            </div>
+                            <!-- Pure Iframe -->
+                            <iframe src="${url}" 
+                                    onload="this.classList.remove('opacity-0')"
+                                    class="w-full h-full relative z-10 opacity-0 transition-opacity duration-700 border-0" 
+                                    allow="autoplay" allowfullscreen loading="lazy"></iframe>
+                        </div>
+                        <div class="bg-transparent flex justify-between items-center gap-2 pt-1">
+                            <span class="text-[10px] text-gray-500 truncate max-w-[60%] font-mono pl-2">${originalUrl}</span>
+                            <a href="${originalUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] bg-secondary text-black font-bold transition-transform hover:scale-105 px-4 py-2 rounded-xl shrink-0">
+                                <i class="fa-solid fa-external-link"></i> เปิดลิงก์นี้
+                            </a>
                         </div>`;
                     }
                     html += `</div>`;
@@ -1599,12 +1597,12 @@
                             <h2 class="text-white font-bold text-sm sm:text-base truncate"><i class="fa-solid fa-arrow-up-right-from-square text-secondary mr-2"></i>${site.title}</h2>
                         </div>
                     </div>
-                    <div class="flex-1 bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative">
+                    <div class="flex-1 bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative flex items-center justify-center">
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
                             <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                             <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
                         </div>
-                        <iframe src="${site.url}" class="w-full h-full relative z-10 border-0" allowfullscreen></iframe>
+                        <iframe src="${site.url}" onload="this.classList.remove('opacity-0')" class="w-full h-full relative z-10 border-0 opacity-0 transition-opacity duration-700" allowfullscreen></iframe>
                     </div>
                 </div>`;
             }
