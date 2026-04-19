@@ -6,8 +6,8 @@
     <title>MORANASATECT - Thesis Exhibition</title>
     
     <!-- Website Icon (Favicon) -->
-    <link rel="icon" type="image/png" href="iconLOGO MORANASATECT.png">
-    <link rel="apple-touch-icon" href="iconLOGO MORANASATECT.png">
+    <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
+    <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,21 +125,6 @@
             pointer-events: none;
             user-select: none;
         }
-        
-        /* Iframe container full width */
-        .full-media-container {
-            width: 100%;
-            height: 60vh;
-            min-height: 300px;
-            max-height: 80vh;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            position: relative;
-            background-color: #000;
-        }
-        @media (min-width: 768px) {
-            .full-media-container { height: 75vh; }
-        }
     </style>
 </head>
 <body class="antialiased">
@@ -151,7 +136,7 @@
         <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Header & Menu -->
+    <!-- Header & Menu (Floating without background bar) -->
     <header class="absolute top-0 left-0 w-full px-4 py-4 md:px-6 md:py-6 flex justify-between items-start z-50 pointer-events-none">
         
         <!-- Logo Left -->
@@ -167,43 +152,42 @@
                 <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
             </button>
 
-            <!-- Dropdown Menu -->
+            <!-- Dropdown Menu (All Navigation Here) -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
-                <!-- Admin Menu -->
+                <!-- Admin Menu Section -->
                 <div id="menuAdminSection" class="hidden flex-col gap-1 w-full">
-                    <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
-                    <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
-                    </button>
-                    <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
-                    </button>
-                    <button onclick="app.showView('admin_iframe')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-link w-5 text-center text-secondary"></i> จัดการเมนูเว็บฝัง
-                    </button>
-                    <button onclick="app.showView('admin_export')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-qrcode w-5 text-center text-secondary"></i> สร้าง QR Code
-                    </button>
-                </div>
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-shield-halved mr-2 text-secondary"></i>ผู้ดูแลระบบ</p>
+                <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
+                </button>
+                <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
+                </button>
+                <button onclick="app.showView('admin_iframe')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-link w-5 text-center text-secondary"></i> จัดการเมนูเว็บฝัง
+                </button>
+                <button onclick="app.showView('admin_export')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-qrcode w-5 text-center text-secondary"></i> สร้าง QR Code
+                </button>
+            </div>
             
-                <!-- Student Menu -->
-                <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
-                    <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
-                    <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-sliders w-5 text-center text-secondary"></i> หน้าจัดการของฉัน
-                    </button>
-                    <button onclick="app.showView('public_exhibit', app.profile?.uid)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-display w-5 text-center text-secondary"></i> ดูผลงานของฉัน
-                    </button>
-                </div>
+            <!-- Student Menu Section -->
+            <div id="menuStudentSection" class="hidden flex-col gap-1 w-full">
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-user-graduate mr-2 text-secondary"></i>นักศึกษา</p>
+                <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-sliders w-5 text-center text-secondary"></i> หน้าจัดการของฉัน
+                </button>
+                <button onclick="app.showView('public_exhibit', app.profile?.uid)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <i class="fa-solid fa-display w-5 text-center text-secondary"></i> ดูผลงานของฉัน
+                </button>
+            </div>
 
-                <!-- Iframe Links -->
-                <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
-                    <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
-                    <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
-                </div>
-                
+            <!-- Dynamic Iframe Links -->
+            <div id="menuIframeSection" class="hidden flex-col gap-1 w-full mt-2">
+                <p class="text-[10px] text-gray-400 font-black px-4 py-2 uppercase tracking-widest bg-white/5 rounded-xl mb-1"><i class="fa-solid fa-bars-staggered mr-2 text-secondary"></i>เมนูเพิ่มเติม</p>
+                <div id="menuIframeLinks" class="flex flex-col gap-1 w-full"></div>
+            </div>
                 <div class="h-px bg-white/20 my-2 mx-3"></div>
                 <button onclick="app.logout()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400 transition-colors text-left font-black text-sm">
                     <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> ออกจากระบบ
@@ -456,7 +440,7 @@
                         const headers = parsed[0];
                         const dataRows = parsed.slice(1);
                         
-                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4'];
+                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1'];
                         const headerMap = {};
                         prefixes.forEach(p => headerMap[p] = []);
 
@@ -473,6 +457,7 @@
                                 let values = headerMap[p].map(idx => row[idx] ? row[idx].trim() : '').filter(v => v !== '');
                                 obj[p] = values.join('\n\n'); 
                             });
+                            // Map for easier access
                             obj.studentId = obj['1.1'];
                             obj.name = obj['1.2'];
                             obj.personalInfo = obj['1.3'];
@@ -483,9 +468,6 @@
                             obj.coverImg = obj['3.1'];
                             obj.portfolioImgs = obj['3.3'];
                             obj.videoUrl = obj['4.1'];
-                            obj.facebook = obj['5.1'];
-                            obj.instagram = obj['5.2'];
-                            obj.otherContact = [obj['5.3'], obj['5.4']].filter(Boolean).join('\n');
                             return obj;
                         }).filter(r => r.studentId);
                     }
@@ -757,49 +739,50 @@
                 const cleanName = this.formatName(data.name || user.name);
                 const abbr = this.getAbbr(cleanName);
                 
+                let rawContactInfo = data.personalInfo || '';
                 let contactHtml = '';
-                if (data.facebook || data.instagram || data.otherContact) {
-                    contactHtml += `<div class="flex flex-wrap gap-2 justify-center mt-2">`;
+                let personalText = '';
+
+                if (rawContactInfo) {
+                    contactHtml += `<div class="flex flex-wrap gap-2 justify-center mt-3 w-full">`;
+                    const lines = rawContactInfo.split('\n').map(l => l.trim()).filter(l => l);
                     
-                    if (data.facebook) {
-                        let fb = data.facebook;
-                        let fbLink = fb.includes('http') ? fb : (fb.includes('facebook.com') ? `https://${fb}` : `https://facebook.com/${fb}`);
-                        contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> Facebook</a>`;
-                    }
-                    if (data.instagram) {
-                        let ig = data.instagram;
-                        let igHandle = ig.replace('@', '');
-                        let igLink = ig.includes('http') ? ig : `https://instagram.com/${igHandle}`;
-                        contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> Instagram</a>`;
-                    }
-                    if (data.otherContact) {
-                        let others = data.otherContact.split('\n').filter(o => o.trim());
-                        others.forEach(o => {
-                            let text = o.trim();
-                            if(text.includes('http')) {
-                                let linkMatch = text.match(/(https?:\/\/[^\s]+)/);
-                                if(linkMatch) {
-                                    let url = linkMatch[1];
-                                    let label = text.replace(url, '').trim();
-                                    label = label.replace(/^[-:]|[-:]$/g, '').trim();
-                                    if(!label) label = 'Link';
-                                    contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
-                                } else {
-                                    contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-address-book text-base"></i> ${text}</span>`;
-                                }
-                            } else {
-                                contactHtml += `<span class="bg-white/5 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-address-book text-base"></i> ${text}</span>`;
+                    lines.forEach(line => {
+                        const lowerLine = line.toLowerCase();
+                        if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
+                            // ลบ IG:, IG : , หรือขีดล่าง _ ส่วนเกินออก เพื่อไม่ให้มีเว้นวรรคและทำลิงก์ได้ถูกต้อง
+                            let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
+                            let cleanIgHandle = igHandle.replace(/^[_]+/, '').trim();
+                            let igLink = cleanIgHandle.includes('http') ? cleanIgHandle : `https://instagram.com/${cleanIgHandle.replace(/^[@\s]+/, '')}`;
+                            
+                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> ${igHandle}</a>`;
+                            
+                        } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
+                            let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
+                            let cleanFbHandle = fbHandle.replace(/^[_]+/, '').trim();
+                            let fbLink = cleanFbHandle.includes('http') ? cleanFbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(cleanFbHandle)}`;
+                            
+                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> ${fbHandle}</a>`;
+                            
+                        } else if (line.includes('http')) {
+                            let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
+                            if (linkMatch) {
+                                let url = linkMatch[1];
+                                let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim() || 'Link';
+                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
                             }
-                        });
-                    }
+                        } else {
+                            personalText += line + '\n';
+                        }
+                    });
                     contactHtml += `</div>`;
                 }
 
                 let personalInfoHtml = '';
-                if (data.personalInfo) {
+                if (personalText.trim()) {
                     personalInfoHtml = `
-                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-left whitespace-pre-wrap border border-white/5 my-4 max-h-[200px] overflow-y-auto custom-scrollbar shadow-inner leading-relaxed">
-                        ${data.personalInfo}
+                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-4 shadow-inner leading-relaxed">
+                        ${personalText.trim()}
                     </div>`;
                 }
 
@@ -1228,6 +1211,44 @@
                 const cleanName = this.formatName(data.name || user.name);
                 const abbr = this.getAbbr(cleanName);
 
+                let rawContactInfo = data.personalInfo || '';
+                let contactHtml = '';
+                let personalText = '';
+
+                if (rawContactInfo) {
+                    contactHtml += `<div class="mt-5 pt-5 border-t border-white/10 flex flex-wrap gap-2 justify-center sm:justify-start">`;
+                    const lines = rawContactInfo.split('\n').map(l => l.trim()).filter(l => l);
+                    
+                    lines.forEach(line => {
+                        const lowerLine = line.toLowerCase();
+                        if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
+                            let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
+                            let cleanIgHandle = igHandle.replace(/^[_]+/, '').trim();
+                            let igLink = cleanIgHandle.includes('http') ? cleanIgHandle : `https://instagram.com/${cleanIgHandle.replace(/^[@\s]+/, '')}`;
+                            
+                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> ${igHandle}</a>`;
+                            
+                        } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
+                            let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
+                            let cleanFbHandle = fbHandle.replace(/^[_]+/, '').trim();
+                            let fbLink = cleanFbHandle.includes('http') ? cleanFbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(cleanFbHandle)}`;
+                            
+                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> ${fbHandle}</a>`;
+                            
+                        } else if (line.includes('http')) {
+                            let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
+                            if (linkMatch) {
+                                let url = linkMatch[1];
+                                let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim() || 'Link';
+                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/20 hover:bg-gray-600/40 text-gray-300 border border-gray-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-link text-sm"></i> ${label}</a>`;
+                            }
+                        } else {
+                            personalText += line + '\n';
+                        }
+                    });
+                    contactHtml += `</div>`;
+                }
+
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10">
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden mt-6">
@@ -1265,6 +1286,7 @@
                                     </div>` : ''}
 
                                 </div>
+                                ${contactHtml}
                             </div>
                         </div>
                         
@@ -1283,6 +1305,7 @@
                         </div>` : ''}
 
                         <div class="space-y-12">
+                            <!-- เอา Video ขึ้นมาก่อน Image ตามที่กำหนด -->
                             ${data.videoUrl ? `
                             <div class="animate-slide-up">
                                 ${this.renderMediaFrames(data.videoUrl, 'video')}
@@ -1527,28 +1550,6 @@
                         ${html}
                     </div>
                 </div>`;
-            },
-
-            // --- ฟังก์ชันสำหรับ Admin รีเซ็ตยอดวิว ---
-            resetVisit: async function(studentId) {
-                const result = await this.swal.fire({
-                    title: 'ยืนยันการล้างค่า?',
-                    html: `<p class="text-sm text-gray-300">ยอดวิวของรหัส <b class="text-secondary">${studentId}</b> จะกลับเป็น 0</p>`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'ล้างค่าทันที',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#ef4444',
-                });
-
-                if (result.isConfirmed) {
-                    try {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId), { count: 0 });
-                        this.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
-                    } catch(e) {
-                        this.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
-                    }
-                }
             },
 
             // 3. Admin Iframe Page
