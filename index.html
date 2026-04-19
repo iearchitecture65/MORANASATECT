@@ -1304,7 +1304,7 @@
                 if (!urlsStr) return '';
                 
                 const lines = urlsStr.split('\n').map(u => u.trim()).filter(u => u);
-                let html = '<div class="flex flex-col gap-10 overflow-hidden px-1">';
+                let html = '<div class="flex flex-col gap-10 overflow-hidden w-full max-w-full">';
                 
                 lines.forEach((line, index) => {
                     const match = line.match(/^(.*?)(https?:\/\/[^\s]+)(.*)$/);
@@ -1327,35 +1327,50 @@
                     const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
                     
                     html += `
-                    <div class="flex flex-col gap-3 w-full">
+                    <div class="flex flex-col gap-3 w-full max-w-full">
                         <div class="flex items-center gap-2 pl-1">
                             <div class="w-1.5 h-4 bg-secondary rounded-full"></div>
-                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md">
+                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md truncate">
                                 ${label}
                             </h4>
                         </div>
                     `;
                     
                     if (isImg) {
+                        // รูปภาพปกติ: ปรับตามอัตราส่วนของรูปภาพอัตโนมัติ
                         html += `
                         <div class="relative w-full flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group">
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
                                  onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0')"
-                                 class="w-full h-auto max-h-[80vh] object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]" 
+                                 class="w-full h-auto object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]" 
                                  onerror="this.style.display='none'">
                         </div>`;
-                    } else {
+                    } else if (typeStr === 'video') {
+                        // วิดีโอ: ล็อกสัดส่วน 16:9 แบบ YouTube ป้องกันการตกขอบขวา
                         html += `
-                        <div class="relative w-full h-[65vh] md:h-[80vh] rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden flex items-center justify-center pointer-events-auto">
+                        <div class="relative w-full rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto" style="padding-top: 56.25%;">
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                 <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
-                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Video...</span>
                             </div>
                             <iframe src="${url}" 
                                     onload="this.classList.remove('opacity-0')"
-                                    class="absolute inset-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0 rounded-3xl" 
+                                    class="absolute top-0 left-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0" 
                                     allow="autoplay" allowfullscreen></iframe>
+                        </div>`;
+                    } else {
+                        // ภาพจาก Google Drive (Iframe): ปรับความสูงให้ยืดหยุ่นในมือถือ
+                        html += `
+                        <div class="relative w-full rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto h-[65vh] sm:h-[75vh]">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Image...</span>
+                            </div>
+                            <iframe src="${url}" 
+                                    onload="this.classList.remove('opacity-0')"
+                                    class="absolute top-0 left-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0" 
+                                    allowfullscreen></iframe>
                         </div>`;
                     }
                     html += `</div>`;
@@ -1637,7 +1652,7 @@
                 
                 app.swal.fire({
                     title: type === 'video' ? 'วิดีโอผลงาน' : 'รูปภาพผลงาน',
-                    html: `<div class="mt-4 text-left max-h-[65vh] overflow-y-auto custom-scrollbar px-1 sm:px-2">${html}</div>`,
+                    html: `<div class="mt-4 text-left max-h-[75vh] overflow-y-auto overflow-x-hidden custom-scrollbar px-1 sm:px-2">${html}</div>`,
                     showCloseButton: true,
                     showConfirmButton: false,
                     width: '85vw', 
@@ -1903,6 +1918,7 @@
                             <th class="p-4 rounded-tl-xl">ลำดับ/รหัส/ชื่อ</th>
                             <th class="p-4 text-center">ยอดวิว</th>
                             <th class="p-4 text-center">รีเซ็ตวิว</th>
+                            <th class="p-4 text-center">สถานะ</th>
                             <th class="p-4 text-center">จัดการ</th>
                             <th class="p-4 text-center rounded-tr-xl">ดูผลงาน</th>
                         </tr>
@@ -1916,6 +1932,10 @@
                     const cleanName = app.formatName(u.name);
                     const abbr = app.getAbbr(cleanName);
 
+                    const statusHtml = isComplete ? 
+                        '<span class="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
+                        '<span class="text-[10px] bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>';
+
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
                         <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-[3px] ring-white/30 bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
@@ -1923,15 +1943,21 @@
                             <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="this.classList.remove('opacity-0')"
-                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                  class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
                         </div>
                         <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
                         <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</p>
                         
-                        <div class="mt-4 bg-black/30 px-4 py-2 rounded-xl border border-white/10 flex items-center gap-2 shadow-inner w-full justify-between">
-                            <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">ยอดเข้าชม</span>
-                            <span class="text-secondary font-black text-sm dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
+                        <div class="mt-4 bg-black/30 p-3 rounded-xl border border-white/10 flex flex-col gap-2 shadow-inner w-full">
+                            <div class="flex justify-between items-center w-full">
+                                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">สถานะข้อมูล</span>
+                                ${statusHtml}
+                            </div>
+                            <div class="flex justify-between items-center w-full">
+                                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">ยอดเข้าชม</span>
+                                <span class="text-secondary font-black text-sm dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
+                            </div>
                         </div>
                         
                         <div class="flex gap-2 w-full mt-4">
@@ -1969,6 +1995,9 @@
                             <button onclick="app.resetVisit('${u.studentId}')" class="text-gray-500 hover:text-red-400 bg-white/5 hover:bg-red-500/10 w-8 h-8 rounded-full transition-colors flex items-center justify-center mx-auto border border-white/10" title="ล้างยอดวิว">
                                 <i class="fa-solid fa-rotate-left text-[10px]"></i>
                             </button>
+                        </td>
+                        <td class="p-4 text-center">
+                            ${statusHtml}
                         </td>
                         <td class="p-4 text-center">
                             <button onclick="app.manageUserData('${u.studentId}')" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
