@@ -734,7 +734,7 @@
 
             formatName: function(name) {
                 if (!name) return '';
-                return name.replace(/^(นาย|นางสาว|นาง)\s*/, '').trim();
+                return name.replace(/^(ศ\.ดร\.|รศ\.ดร\.|ผศ\.ดร\.|ดร\.|รศ\.|ผศ\.|อ\.|นาย|นางสาว|นาง)\s*/, '').trim();
             },
             
             getAbbr: function(name) {
@@ -878,12 +878,13 @@
                         <div class="flex flex-col items-center pt-2">
                             <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[2px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
-                                     onload="this.classList.remove('opacity-0');"
-                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
                             </div>
-                            <h3 class="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-md break-words text-center px-2 leading-tight">${cleanName}</h3>
+                            <h3 class="font-black text-white mb-1 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
                             
                             ${personalInfoHtml}
@@ -901,7 +902,7 @@
 
             showAdvisorInfo: function(advisorName) {
                 const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
-                const cleanAdvisorNameForAbbr = advisor ? advisor.name.split('.').pop().trim() : advisorName.split('.').pop().trim();
+                const cleanAdvisorNameForAbbr = advisor ? app.formatName(advisor.name) : app.formatName(advisorName);
                 const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
 
                 if (advisor) {
@@ -910,12 +911,13 @@
                             <div class="flex flex-col items-center pt-4 pb-2">
                                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] border-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                    <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                         onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
+                                <h3 class="font-black text-white mb-6 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${advisor.name}</h3>
                                 <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
                                     อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
@@ -1449,7 +1451,7 @@
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
                                 <div class="mb-5 leading-tight drop-shadow-lg break-words whitespace-normal">
@@ -1589,7 +1591,7 @@
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
                             </div>
                             <div>
                                 <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${cleanName}</p>
@@ -1759,9 +1761,9 @@
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
                             </div>
-                            <h3 class="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-md break-words text-center px-2 leading-tight">${cleanName}</h3>
+                            <h3 class="font-black text-white mb-1 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
                             
                             ${personalInfoHtml}
@@ -1779,7 +1781,7 @@
 
             showAdvisorInfo: function(advisorName) {
                 const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
-                const cleanAdvisorNameForAbbr = advisor ? advisor.name.split('.').pop().trim() : advisorName.split('.').pop().trim();
+                const cleanAdvisorNameForAbbr = advisor ? app.formatName(advisor.name) : app.formatName(advisorName);
                 const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
 
                 if (advisor) {
@@ -1790,10 +1792,10 @@
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
+                                <h3 class="font-black text-white mb-6 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${advisor.name}</h3>
                                 <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
                                     อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
@@ -2076,7 +2078,7 @@
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                  onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                 class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
+                                 class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-300">
                         </div>
                         <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
                         <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</p>
@@ -2115,7 +2117,7 @@
                                     <img src="./MORANASATECT/${u.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                          onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
+                                         class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-300">
                                 </div>
                                 <div>
                                     <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</div>
