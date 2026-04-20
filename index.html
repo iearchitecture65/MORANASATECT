@@ -728,7 +728,7 @@
 
             formatName: function(name) {
                 if (!name) return '';
-                return name.replace(/^(ศ\.ดร\.|รศ\.ดร\.|ผศ\.ดร\.|ดร\.|รศ\.|ผศ\.|อ\.|นาย|นางสาว|นาง)\s*/, '').trim();
+                return name.replace(/^(นาย|นางสาว|นาง)\s*/, '').trim();
             },
             
             getAbbr: function(name) {
@@ -876,7 +876,7 @@
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
                             <h3 id="designer-popup-name" class="font-black text-white mb-1 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
@@ -906,19 +906,20 @@
 
             showAdvisorInfo: function(advisorName) {
                 const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
-                const cleanAdvisorNameForAbbr = advisor ? app.formatName(advisor.name) : app.formatName(advisorName);
+                const cleanAdvisorNameForAbbr = advisor ? advisor.name.split('.').pop().trim() : advisorName.split('.').pop().trim();
                 const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
 
                 if (advisor) {
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[4px] border-secondary ring-[2.5px] sm:ring-3 ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
+                                         onload="this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
+                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
@@ -1459,13 +1460,13 @@
 
                         <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[4px] sm:border-[6px] border-secondary ring-2 sm:ring-[3px] ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] sm:border-[4px] border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
                                 <div class="mb-5 leading-tight drop-shadow-lg break-words whitespace-normal">
@@ -1599,13 +1600,13 @@
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] sm:border-[4px] border-secondary ring-[1.5px] sm:ring-2 ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
                             <div>
                                 <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${cleanName}</p>
@@ -1776,7 +1777,7 @@
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
                             <h3 id="designer-popup-name" class="font-black text-white mb-1 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
@@ -1806,19 +1807,20 @@
 
             showAdvisorInfo: function(advisorName) {
                 const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
-                const cleanAdvisorNameForAbbr = advisor ? app.formatName(advisor.name) : app.formatName(advisorName);
+                const cleanAdvisorNameForAbbr = advisor ? advisor.name.split('.').pop().trim() : advisorName.split('.').pop().trim();
                 const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
 
                 if (advisor) {
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[4px] border-secondary ring-[2.5px] sm:ring-3 ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
+                                         onload="this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
+                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
@@ -1846,6 +1848,89 @@
                     });
                 } else {
                     app.swal.fire({ title: 'อาจารย์ที่ปรึกษา', text: advisorName, icon: 'info', showConfirmButton: false, showCloseButton: true });
+                }
+            },
+
+            // --- Reset All Visits (Admin) ---
+            resetAllVisits: async function() {
+                const result = await app.swal.fire({
+                    title: 'ยืนยันล้างยอดวิวทั้งหมด?',
+                    html: '<p class="text-sm text-gray-300">ยอดวิวผลงานของนักศึกษาทุกคนจะถูกรีเซ็ตเป็น <b class="text-red-500">0</b></p>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'ล้างทั้งหมดทันที',
+                    cancelButtonText: 'ยกเลิก'
+                });
+
+                if(result.isConfirmed) {
+                    app.swal.fire({title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                    try {
+                        for(let u of predefinedUsers) {
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
+                        }
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างยอดเข้าชมทั้งหมดแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                    } catch(e) {
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้', 'error');
+                    }
+                }
+            },
+
+            // --- Reset Single Visit ---
+            resetVisit: async function(studentId) {
+                const result = await app.swal.fire({
+                    title: 'ยืนยันการล้างค่า?',
+                    html: `<p class="text-sm text-gray-300">ยอดวิวของรหัส <b class="text-secondary">${studentId}</b> จะกลับเป็น 0</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ล้างค่าทันที',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#ef4444',
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId), { count: 0 });
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                    } catch(e) {
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
+                    }
+                }
+            },
+
+            // --- Clear Access Logs ---
+            clearAllLogs: async function(actionType) {
+                const textMsg = actionType === 'view_exhibit' ? 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้ และยอดวิวของทุกคนจะถูกรีเซ็ตเป็น 0' : 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้';
+                const result = await app.swal.fire({
+                    title: 'ยืนยันล้างประวัติทั้งหมด?',
+                    text: textMsg,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'ล้างข้อมูล',
+                    cancelButtonText: 'ยกเลิก'
+                });
+
+                if(result.isConfirmed) {
+                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                    try {
+                        for(let log of app.accessLogs) {
+                            if (log.action === actionType) {
+                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
+                            }
+                        }
+                        
+                        // Clear all visits count when clearing view logs
+                        if (actionType === 'view_exhibit') {
+                            for(let u of predefinedUsers) {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
+                            }
+                        }
+                        
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                    } catch(e) {
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
+                    }
                 }
             },
 
@@ -2108,13 +2193,13 @@
 
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                        <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-[1.5px] ring-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3 p-0">
+                        <div class="w-20 h-20 rounded-full border-[2px] border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3 p-0">
                             <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl z-0 hidden">${abbr}</span>
                             <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                  onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                 class="absolute inset-0 w-full h-full object-cover z-20 opacity-0 transition-all duration-300">
+                                 class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                         </div>
                         <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
                         <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</p>
@@ -2147,13 +2232,13 @@
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border-2 border-secondary ring-1 ring-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
+                                <div class="w-10 h-10 rounded-full border-[1.5px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                          onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="absolute inset-0 w-full h-full object-cover z-20 opacity-0 transition-all duration-300">
+                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                                 </div>
                                 <div>
                                     <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</div>
