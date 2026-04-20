@@ -733,10 +733,11 @@
             getAbbr: function(name) {
                 if (!name) return '';
                 const formatted = app.formatName(name);
-                const consonants = formatted.replace(/[^ก-ฮ]/g, '');
+                const firstName = formatted.split(' ')[0]; 
+                const consonants = firstName.replace(/[^ก-ฮ]/g, '');
                 if (consonants.length >= 2) return consonants.substring(0, 2);
                 if (consonants.length === 1) return consonants;
-                return formatted.substring(0, 2); 
+                return firstName.substring(0, 2); 
             },
 
             formatThesisTitle: function(title) {
@@ -868,7 +869,7 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-[4px] border-secondary ring-2 sm:ring-[2.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.classList.remove('opacity-0');"
@@ -900,11 +901,11 @@
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center">
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[4px] border-secondary ring-[2.5px] sm:ring-3 ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover">
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
@@ -1075,8 +1076,11 @@
                         </div>
                         <button onclick="app.requestOTP()" id="btnReqOTP"
                             class="w-full py-4 rounded-xl font-bold text-black bg-secondary hover:bg-yellow-500 shadow-lg transition-transform transform hover:-translate-y-1 text-sm uppercase tracking-widest flex items-center justify-center gap-2">
-                            รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>
+                            เข้าสู่ระบบ <i class="fa-solid fa-right-to-bracket"></i>
                         </button>
+                        <div class="text-center mt-4">
+                            <button onclick="app.showView('guest_register')" class="text-xs text-gray-400 hover:text-white underline transition-colors">สำหรับผู้เยี่ยมชมทั่วไป เข้าระบบที่นี่</button>
+                        </div>
                     </div>
                 </div>`;
             },
@@ -1141,13 +1145,13 @@
                     } else {
                         const errMsg = (result && result.message) ? result.message : 'เกิดข้อผิดพลาดในการส่งอีเมล (โควต้าอาจเต็ม)';
                         app.swal.fire('ข้อผิดพลาด', errMsg, 'error');
-                        btn.innerHTML = 'รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>';
+                        btn.innerHTML = 'เข้าสู่ระบบ <i class="fa-solid fa-right-to-bracket"></i>';
                         btn.disabled = false;
                     }
                 } catch (e) {
                     console.error("OTP Send error", e);
                     app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบส่งอีเมลได้ โปรดลองอีกครั้ง', 'error');
-                    btn.innerHTML = 'รับรหัส OTP <i class="fa-solid fa-paper-plane"></i>';
+                    btn.innerHTML = 'เข้าสู่ระบบ <i class="fa-solid fa-right-to-bracket"></i>';
                     btn.disabled = false;
                 }
             },
@@ -1297,8 +1301,19 @@
                 app.logSystemAccess('guest', finalName);
                 
                 if (app.pendingExhibitId) {
-                    app.logVisit(app.pendingExhibitId);
-                    app.showView('public_exhibit', app.pendingExhibitId);
+                    const targetStudent = predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
+                    if (targetStudent) {
+                        app.logVisit(app.pendingExhibitId);
+                        app.showView('public_exhibit', app.pendingExhibitId);
+                    } else {
+                        app.swal.fire({
+                            title: 'ไม่พบผลงาน',
+                            text: 'ไม่พบลิงก์ผลงานที่ท่านต้องการ กรุณาสแกนคิวอาร์โค้ดหรือเปิดลิงก์ใหม่อีกครั้ง',
+                            icon: 'warning',
+                            confirmButtonText: 'ตกลง'
+                        });
+                        app.routeBasedOnRole();
+                    }
                     app.pendingExhibitId = null;
                 } else {
                     app.routeBasedOnRole();
@@ -1309,7 +1324,7 @@
                 if (!urlsStr) return '';
                 
                 const lines = urlsStr.split('\n').map(u => u.trim()).filter(u => u);
-                let html = '<div class="flex flex-col gap-10 overflow-hidden px-1">';
+                let html = '<div class="flex flex-col gap-10 overflow-hidden w-full max-w-full">';
                 
                 lines.forEach((line, index) => {
                     const match = line.match(/^(.*?)(https?:\/\/[^\s]+)(.*)$/);
@@ -1332,10 +1347,10 @@
                     const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
                     
                     html += `
-                    <div class="flex flex-col gap-3 w-full">
+                    <div class="flex flex-col gap-3 w-full max-w-full">
                         <div class="flex items-center gap-2 pl-1">
                             <div class="w-1.5 h-4 bg-secondary rounded-full"></div>
-                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md">
+                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md truncate">
                                 ${label}
                             </h4>
                         </div>
@@ -1343,24 +1358,36 @@
                     
                     if (isImg) {
                         html += `
-                        <div class="relative flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group w-full min-h-[300px]">
+                        <div class="relative w-fit mx-auto flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group max-w-full">
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
-                                 onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0'); this.parentElement.classList.remove('min-h-[300px]');"
-                                 class="w-full h-auto max-h-[85vh] object-contain transition-opacity duration-700 relative z-10 opacity-0 block" 
+                                 onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0')"
+                                 class="w-auto h-auto max-w-full max-h-[80vh] object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]" 
                                  onerror="this.style.display='none'">
                         </div>`;
-                    } else {
+                    } else if (typeStr === 'video') {
                         html += `
                         <div class="relative w-full rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto" style="padding-top: 56.25%;">
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                 <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
-                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Media...</span>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Video...</span>
                             </div>
                             <iframe src="${url}" 
                                     onload="this.classList.remove('opacity-0')"
                                     class="absolute top-0 left-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0" 
                                     allow="autoplay" allowfullscreen></iframe>
+                        </div>`;
+                    } else {
+                        html += `
+                        <div class="relative w-full rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto h-[65vh] sm:h-[75vh]">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Image...</span>
+                            </div>
+                            <iframe src="${url}" 
+                                    onload="this.classList.remove('opacity-0')"
+                                    class="absolute top-0 left-0 w-full h-full z-10 opacity-0 transition-opacity duration-700 border-0" 
+                                    allowfullscreen></iframe>
                         </div>`;
                     }
                     html += `</div>`;
@@ -1404,11 +1431,10 @@
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-10 mb-8 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
 
-                        <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl sm:text-4xl z-0 hidden">${abbr}</span>
-                                <i class="fa-solid fa-circle-notch fa-spin text-white text-2xl absolute z-10 spinner-icon"></i>
+                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[4px] sm:border-[6px] border-secondary ring-3 sm:ring-4 ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
@@ -1420,14 +1446,12 @@
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
                                     
-                                    <!-- ปุ่มผู้ออกแบบ (กดแล้วขึ้น Popup) -->
                                     <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left">
                                         <i class="fa-solid fa-user-pen text-secondary group-hover:scale-110 transition-transform shrink-0"></i>
                                         <span class="break-words leading-tight">ผู้ออกแบบ: ${cleanName}</span>
                                         <i class="fa-solid fa-circle-info text-[10px] text-gray-500 shrink-0"></i>
                                     </div>
                                     
-                                    <!-- ปุ่มอาจารย์ (กดแล้วขึ้น Popup) -->
                                     ${data.advisor ? `
                                     <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left">
                                         <i class="fa-solid fa-chalkboard-user text-secondary group-hover:scale-110 transition-transform shrink-0"></i>
@@ -1450,7 +1474,6 @@
                         </div>` : ''}
 
                         <div class="space-y-12">
-                            <!-- เอา Video ขึ้นมาก่อน Image ตามที่กำหนด -->
                             ${data.videoUrl ? `
                             <div class="animate-slide-up">
                                 ${app.renderMediaFrames(data.videoUrl, 'video')}
@@ -1495,7 +1518,6 @@
                 const cleanName = app.formatName(app.profile.name);
                 const abbr = app.getAbbr(cleanName);
 
-                // Render Input fields for Custom Boxes
                 let customBoxesInputHtml = '';
                 const studentCustomData = app.studentEdits[sid] || {};
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
@@ -1548,7 +1570,7 @@
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center">
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-[4px] border-secondary ring-2 sm:ring-[2.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
@@ -1587,7 +1609,6 @@
 
                     ${customBoxesInputHtml}
 
-                    <!-- Data View Section -->
                     <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
                         <h3 class="text-white font-bold text-lg md:text-xl mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ <span class="text-xs text-gray-400 font-normal ml-2">(ไม่อนุญาตให้แก้ไข)</span></h3>
                         
@@ -1666,7 +1687,6 @@
                 } catch(e) { app.swal.fire('Error', 'Cannot save', 'error'); }
             },
 
-            // --- Popup Functions ---
             showDesignerInfo: function(studentId) {
                 const user = predefinedUsers.find(u => u.studentId === studentId);
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
@@ -1713,7 +1733,7 @@
                 let personalInfoHtml = '';
                 if (personalText.trim()) {
                     personalInfoHtml = `
-                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-4 shadow-inner leading-relaxed">
+                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-4 shadow-inner leading-relaxed auto-scale-text">
                         ${personalText.trim()}
                     </div>`;
                 }
@@ -1721,7 +1741,7 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4">
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-[4px] border-secondary ring-2 sm:ring-[2.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.classList.remove('opacity-0');"
@@ -1753,11 +1773,11 @@
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-secondary ring-[1.5px] ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center">
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[4px] border-secondary ring-[2.5px] sm:ring-3 ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover">
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 class="text-lg md:text-xl font-black text-white mb-6 drop-shadow-md break-words w-full text-center px-2 leading-tight">${advisor.name}</h3>
@@ -2037,12 +2057,12 @@
 
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                        <div class="w-20 h-20 rounded-full border-2 border-secondary ring-[1.5px] ring-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3">
+                        <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-2 ring-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3 p-0">
                             <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl z-0 hidden">${abbr}</span>
                             <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                             <img src="./MORANASATECT/${u.id}.png" 
-                                 onload="this.classList.remove('opacity-0')"
-                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                 onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                  class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
                         </div>
                         <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
@@ -2059,12 +2079,15 @@
                             </div>
                         </div>
                         
-                        <div class="flex gap-2 w-full mt-4">
-                            <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 py-3 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                        <div class="flex flex-wrap gap-2 w-full mt-4">
+                            <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 min-w-[45%] py-3 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-rotate-left"></i> ล้างวิว
                             </button>
-                            <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 py-3 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                            <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 min-w-[45%] py-3 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-pen-to-square"></i> จัดการ
+                            </button>
+                            <button onclick="app.showView('public_exhibit', '${u.studentId}')" class="w-full py-3 bg-secondary text-primary rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 mt-1">
+                                <i class="fa-solid fa-eye"></i> ดูผลงาน
                             </button>
                         </div>
                     </div>`;
@@ -2073,12 +2096,12 @@
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border-2 border-secondary ring-[1.5px] ring-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-full border-2 border-secondary ring-1 ring-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
-                                         onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0')"
-                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                         onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                          class="w-full h-full object-cover relative z-20 opacity-0 transition-opacity duration-300">
                                 </div>
                                 <div>
@@ -2306,6 +2329,40 @@
                         ${html}
                     </div>
                 </div>`;
+            },
+
+            clearAllLogs: async function(actionType) {
+                const textMsg = actionType === 'view_exhibit' ? 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้ และยอดวิวของทุกคนจะถูกรีเซ็ตเป็น 0' : 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้';
+                const result = await app.swal.fire({
+                    title: 'ยืนยันล้างประวัติทั้งหมด?',
+                    text: textMsg,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'ล้างข้อมูล',
+                    cancelButtonText: 'ยกเลิก'
+                });
+
+                if(result.isConfirmed) {
+                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                    try {
+                        for(let log of app.accessLogs) {
+                            if (log.action === actionType) {
+                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
+                            }
+                        }
+                        
+                        if (actionType === 'view_exhibit') {
+                            for(let u of predefinedUsers) {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
+                            }
+                        }
+                        
+                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
+                    } catch(e) {
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
+                    }
+                }
             },
 
             renderAdminIframe: function() {
