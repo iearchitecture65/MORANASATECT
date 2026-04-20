@@ -726,12 +726,6 @@
                 }
             },
 
-            loadIframeUrl: function(idx) {
-                app.closeMenu();
-                try { window.history.replaceState(null, '', `${window.location.pathname}?iframe=${idx}`); } catch(e){}
-                app.showView('iframe_view', idx);
-            },
-
             formatName: function(name) {
                 if (!name) return '';
                 return name.replace(/^(ศ\.ดร\.|รศ\.ดร\.|ผศ\.ดร\.|ดร\.|รศ\.|ผศ\.|อ\.|นาย|นางสาว|นาง)\s*/, '').trim();
@@ -877,14 +871,14 @@
                     html: `
                         <div class="flex flex-col items-center pt-2">
                             <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[2px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
                             </div>
-                            <h3 class="font-black text-white mb-1 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${cleanName}</h3>
+                            <h3 id="designer-popup-name" class="font-black text-white mb-1 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
                             
                             ${personalInfoHtml}
@@ -896,6 +890,16 @@
                     customClass: {
                         popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[95%] max-w-md bg-black/90 p-4',
                         closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                    },
+                    didOpen: () => {
+                        const el = document.getElementById('designer-popup-name');
+                        if (el) {
+                            let size = 24;
+                            while (el.scrollWidth > el.clientWidth && size > 10) {
+                                size--;
+                                el.style.fontSize = size + 'px';
+                            }
+                        }
                     }
                 });
             },
@@ -909,15 +913,15 @@
                     app.swal.fire({
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] border-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
-                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[4px] border-secondary ring-[2.5px] sm:ring-3 ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 class="font-black text-white mb-6 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${advisor.name}</h3>
+                                <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
                                     อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
@@ -928,6 +932,16 @@
                         customClass: {
                             popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-w-sm bg-black/95 p-6',
                             closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                        },
+                        didOpen: () => {
+                            const el = document.getElementById('advisor-popup-name');
+                            if (el) {
+                                let size = 24;
+                                while (el.scrollWidth > el.clientWidth && size > 10) {
+                                    size--;
+                                    el.style.fontSize = size + 'px';
+                                }
+                            }
                         }
                     });
                 } else {
@@ -1446,12 +1460,12 @@
                         <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
                             <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[4px] sm:border-[6px] border-secondary ring-2 sm:ring-[3px] ring-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
                             </div>
                             <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
                                 <div class="mb-5 leading-tight drop-shadow-lg break-words whitespace-normal">
@@ -1586,12 +1600,12 @@
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] sm:border-[4px] border-secondary ring-[1.5px] sm:ring-2 ring-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
                                      onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
                             </div>
                             <div>
                                 <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${cleanName}</p>
@@ -1756,14 +1770,15 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-[4px] border-secondary ring-2 sm:ring-[2.5px] ring-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[2px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
-                                     onload="this.classList.remove('opacity-0');"
-                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
                             </div>
-                            <h3 class="font-black text-white mb-1 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${cleanName}</h3>
+                            <h3 id="designer-popup-name" class="font-black text-white mb-1 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
                             
                             ${personalInfoHtml}
@@ -1775,6 +1790,16 @@
                     customClass: {
                         popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[95%] max-w-md bg-black/90 p-4',
                         closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                    },
+                    didOpen: () => {
+                        const el = document.getElementById('designer-popup-name');
+                        if (el) {
+                            let size = 24;
+                            while (el.scrollWidth > el.clientWidth && size > 10) {
+                                size--;
+                                el.style.fontSize = size + 'px';
+                            }
+                        }
                     }
                 });
             },
@@ -1789,13 +1814,14 @@
                         html: `
                             <div class="flex flex-col items-center pt-4 pb-2">
                                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[4px] border-secondary ring-[2.5px] sm:ring-3 ring-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
-                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                    <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-500">
+                                         onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 class="font-black text-white mb-6 drop-shadow-md text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full" style="font-size: clamp(14px, 6vw, 24px);">${advisor.name}</h3>
+                                <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
                                     อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
@@ -1806,6 +1832,16 @@
                         customClass: {
                             popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-w-sm bg-black/95 p-6',
                             closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                        },
+                        didOpen: () => {
+                            const el = document.getElementById('advisor-popup-name');
+                            if (el) {
+                                let size = 24;
+                                while (el.scrollWidth > el.clientWidth && size > 10) {
+                                    size--;
+                                    el.style.fontSize = size + 'px';
+                                }
+                            }
                         }
                     });
                 } else {
@@ -2073,12 +2109,12 @@
                     gridHtml += `
                     <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
                         <div class="w-20 h-20 rounded-full border-[3px] border-secondary ring-[1.5px] ring-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3 p-0">
-                            <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-2xl z-0 hidden">${abbr}</span>
+                            <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl z-0 hidden">${abbr}</span>
                             <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                             <img src="./MORANASATECT/${u.id}.png" 
                                  onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                  onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                 class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-300">
+                                 class="absolute inset-0 w-full h-full object-cover z-20 opacity-0 transition-all duration-300">
                         </div>
                         <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
                         <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</p>
@@ -2112,12 +2148,12 @@
                         <td class="p-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full border-2 border-secondary ring-1 ring-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
-                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-black text-primary text-sm z-0 hidden">${abbr}</span>
+                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                          onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="w-full h-full object-cover scale-[1.15] relative z-20 opacity-0 transition-all duration-300">
+                                         class="absolute inset-0 w-full h-full object-cover z-20 opacity-0 transition-all duration-300">
                                 </div>
                                 <div>
                                     <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">#${u.id}</span> ${u.studentId}</div>
