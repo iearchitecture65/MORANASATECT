@@ -917,8 +917,8 @@
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
+                                         onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
@@ -1858,8 +1858,8 @@
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
+                                         onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
@@ -2528,6 +2528,7 @@
                             }
                         }
                         
+                        // Clear all visits count when clearing view logs
                         if (actionType === 'view_exhibit') {
                             for(let u of predefinedUsers) {
                                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
