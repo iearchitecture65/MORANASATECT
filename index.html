@@ -1348,19 +1348,19 @@
             playVideoPopup: function(url) {
                 app.swal.fire({
                     html: `
-                        <div class="relative w-full h-[85vh] sm:h-[90vh] bg-black rounded-2xl overflow-hidden pointer-events-auto flex items-center justify-center">
-                            <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
+                        <div class="relative w-full aspect-video bg-black rounded-xl sm:rounded-2xl overflow-hidden pointer-events-auto flex items-center justify-center shadow-2xl border border-white/20">
+                            <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-3xl sm:text-4xl absolute z-0"></i>
                             <iframe src="${url}" class="absolute top-0 left-0 w-full h-full z-10 border-0" allow="autoplay; fullscreen" allowfullscreen onload="this.previousElementSibling.style.display='none'"></iframe>
                         </div>
                     `,
                     showCloseButton: true,
                     showConfirmButton: false,
-                    width: '100%',
+                    width: '98%',
                     padding: '0',
                     background: 'transparent',
                     customClass: {
-                        popup: 'bg-transparent border-0 shadow-none w-[95%] sm:w-[90%] max-w-6xl mx-auto p-0',
-                        closeButton: 'text-white bg-black/50 hover:bg-red-500 rounded-full w-10 h-10 transition-colors focus:outline-none absolute top-2 right-2 z-50 flex items-center justify-center'
+                        popup: 'bg-transparent border-0 shadow-none max-w-6xl mx-auto p-0',
+                        closeButton: 'text-white bg-black/60 hover:bg-red-500 rounded-full w-9 h-9 sm:w-11 sm:h-11 transition-colors focus:outline-none absolute top-2 right-2 sm:top-3 sm:right-3 z-50 flex items-center justify-center backdrop-blur-sm border border-white/20'
                     }
                 });
             },
