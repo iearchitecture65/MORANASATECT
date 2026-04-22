@@ -173,6 +173,11 @@
                 <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
             </button>
 
+            <!-- Guest Logout Button -->
+            <button id="navGuestLogout" onclick="app.logout()" class="hidden text-red-400 hover:text-red-300 transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center" title="ออกจากระบบ">
+                <i class="fa-solid fa-right-from-bracket text-xl drop-shadow-md"></i>
+            </button>
+
             <!-- Dropdown Menu (All Navigation Here) -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
@@ -369,6 +374,7 @@
             accessLogs: [],
             adminUserSearchQuery: '',
             historyStack: [],
+            guestTimeoutId: null,
             
             tempId: '',
             serverOtp: '',
@@ -424,7 +430,23 @@
                             const savedProfile = localStorage.getItem('moranasatect_profile');
                             if (savedProfile) {
                                 try {
-                                    app.profile = JSON.parse(savedProfile);
+                                    const parsed = JSON.parse(savedProfile);
+                                    if (parsed.role === 'guest') {
+                                        const twoHours = 2 * 60 * 60 * 1000;
+                                        if (!parsed.loginTime || Date.now() - parsed.loginTime > twoHours) {
+                                            localStorage.removeItem('moranasatect_profile');
+                                            app.profile = null;
+                                            app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info');
+                                        } else {
+                                            app.profile = parsed;
+                                            const timeLeft = twoHours - (Date.now() - parsed.loginTime);
+                                            app.guestTimeoutId = setTimeout(() => {
+                                                app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info').then(() => app.logout());
+                                            }, Math.max(0, timeLeft));
+                                        }
+                                    } else {
+                                        app.profile = parsed;
+                                    }
                                 } catch(e) { app.profile = null; }
                             }
 
@@ -666,6 +688,10 @@
             },
 
             logout: function() {
+                if (app.guestTimeoutId) {
+                    clearTimeout(app.guestTimeoutId);
+                    app.guestTimeoutId = null;
+                }
                 app.profile = null;
                 localStorage.removeItem('moranasatect_profile');
                 app.closeMenu();
@@ -713,6 +739,7 @@
 
             updateMenuVisibility: function() {
                 const hamBtn = document.getElementById('navHamburger');
+                const guestLogoutBtn = document.getElementById('navGuestLogout');
                 const secAdmin = document.getElementById('menuAdminSection');
                 const secStudent = document.getElementById('menuStudentSection');
                 const secIframe = document.getElementById('menuIframeSection');
@@ -721,31 +748,39 @@
                 if (!hamBtn) return;
 
                 if (app.profile) {
-                    hamBtn.classList.remove('hidden');
-                    
-                    if (secAdmin) secAdmin.classList.toggle('hidden', app.profile.role !== 'admin');
-                    if (secStudent) secStudent.classList.toggle('hidden', app.profile.role !== 'student');
-                    
-                    if (iframeContainer) {
-                        iframeContainer.innerHTML = '';
-                        const sites = app.settings.embeddedSites || [];
-                        let iframeCount = 0;
-                        sites.forEach((site, idx) => {
-                            if (app.profile.role === 'admin' || (app.profile.role === 'student' && site.showToStudents)) {
-                                iframeContainer.innerHTML += `
-                                    <button onclick="app.showView('iframe_view', ${idx})" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                                        <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center text-secondary"></i> ${site.title}
-                                    </button>
-                                `;
-                                iframeCount++;
+                    if (app.profile.role === 'guest') {
+                        hamBtn.classList.add('hidden');
+                        if (guestLogoutBtn) guestLogoutBtn.classList.remove('hidden');
+                        app.closeMenu();
+                    } else {
+                        hamBtn.classList.remove('hidden');
+                        if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
+                        
+                        if (secAdmin) secAdmin.classList.toggle('hidden', app.profile.role !== 'admin');
+                        if (secStudent) secStudent.classList.toggle('hidden', app.profile.role !== 'student');
+                        
+                        if (iframeContainer) {
+                            iframeContainer.innerHTML = '';
+                            const sites = app.settings.embeddedSites || [];
+                            let iframeCount = 0;
+                            sites.forEach((site, idx) => {
+                                if (app.profile.role === 'admin' || (app.profile.role === 'student' && site.showToStudents)) {
+                                    iframeContainer.innerHTML += `
+                                        <button onclick="app.showView('iframe_view', ${idx})" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                                            <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center text-secondary"></i> ${site.title}
+                                        </button>
+                                    `;
+                                    iframeCount++;
+                                }
+                            });
+                            if (secIframe) {
+                                secIframe.classList.toggle('hidden', iframeCount === 0);
                             }
-                        });
-                        if (secIframe) {
-                            secIframe.classList.toggle('hidden', iframeCount === 0);
                         }
                     }
                 } else {
                     hamBtn.classList.add('hidden');
+                    if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
                     app.closeMenu();
                 }
             },
@@ -912,22 +947,22 @@
                         if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
                             let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
                             let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
-                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> ${igHandle}</a>`;
+                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> ${igHandle}</a>`;
                         } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
                             let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
                             let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
-                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> ${fbHandle}</a>`;
+                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> ${fbHandle}</a>`;
                         } else if (lowerLine.startsWith('gmail') || lowerLine.startsWith('email') || lowerLine.includes('@gmail.com')) {
                             let emailHandle = line.replace(/^(gmail|email)[\s:\-\.]*/i, '').trim();
                             let emailLink = `mailto:${emailHandle}`;
-                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-envelope text-base"></i> ${emailHandle}</a>`;
+                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-sm"></i> ${emailHandle}</a>`;
                         } else if (line.includes('http')) {
                             let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
                             if (linkMatch) {
                                 let url = linkMatch[1];
                                 let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim();
                                 if(!label) label = 'Link';
-                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
+                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-link text-sm"></i> ${label}</a>`;
                             }
                         } else {
                             personalText += line + '\n';
@@ -939,7 +974,7 @@
                 let personalInfoHtml = '';
                 if (personalText.trim()) {
                     personalInfoHtml = `
-                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-4 shadow-inner leading-relaxed auto-scale-text">
+                    <div class="bg-black/40 p-3 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-3 shadow-inner leading-relaxed">
                         ${personalText.trim()}
                     </div>`;
                 }
@@ -947,7 +982,7 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[2px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-5 p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
@@ -1001,11 +1036,11 @@
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-4 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 
-                                <div class="flex flex-col items-center gap-2.5 w-full mt-3">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-normal px-4 py-2 rounded-lg text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 shadow-sm">
+                                <div class="flex flex-col items-center gap-2 w-full mt-3">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-normal px-3 py-1.5 rounded-md text-[13px] hover:bg-secondary hover:text-black transition-colors inline-flex items-center justify-center gap-1.5 shadow-sm w-fit">
                                         ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
                                     </button>
-                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-normal px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-sm">
+                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-normal px-3 py-1.5 rounded-md text-[13px] hover:scale-105 transition-transform inline-flex items-center justify-center gap-1.5 shadow-sm w-fit">
                                         อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
                                 </div>
@@ -1416,11 +1451,17 @@
                 
                 const finalName = `${name} (${role})`;
                 const gid = 'G_' + Math.random().toString(36).substr(2, 6);
+                const loginTime = Date.now();
                 
-                app.profile = { uid: gid, name: finalName, role: 'guest', id: 0 };
+                app.profile = { uid: gid, name: finalName, role: 'guest', id: 0, loginTime: loginTime };
                 localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                 
                 app.logSystemAccess('guest', finalName);
+
+                const twoHours = 2 * 60 * 60 * 1000;
+                app.guestTimeoutId = setTimeout(() => {
+                    app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info').then(() => app.logout());
+                }, twoHours);
                 
                 if (app.pendingExhibitId) {
                     const targetStudent = predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
@@ -2060,230 +2101,6 @@
                 } catch(e) { app.swal.fire('Error', 'Cannot save', 'error'); }
             },
 
-            showDesignerInfo: function(studentId) {
-                const user = predefinedUsers.find(u => u.studentId === studentId);
-                const data = app.thesisData.find(d => d.studentId === studentId) || {};
-                const cleanName = app.formatName(data.name || user.name);
-                const abbr = app.getAbbr(cleanName);
-                
-                let rawContactInfo = data.personalInfo || '';
-                let contactHtml = '';
-                let personalText = '';
-
-                if (rawContactInfo) {
-                    contactHtml += `<div class="flex flex-wrap gap-2 justify-center mt-3 w-full">`;
-                    const lines = rawContactInfo.split('\n').map(l => l.trim()).filter(l => l);
-                    
-                    lines.forEach(line => {
-                        const lowerLine = line.toLowerCase();
-                        if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
-                            let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
-                            let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
-                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> ${igHandle}</a>`;
-                        } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
-                            let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
-                            let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
-                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> ${fbHandle}</a>`;
-                        } else if (lowerLine.startsWith('gmail') || lowerLine.startsWith('email') || lowerLine.includes('@gmail.com')) {
-                            let emailHandle = line.replace(/^(gmail|email)[\s:\-\.]*/i, '').trim();
-                            let emailLink = `mailto:${emailHandle}`;
-                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-sm"></i> ${emailHandle}</a>`;
-                        } else if (line.includes('http')) {
-                            let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
-                            if (linkMatch) {
-                                let url = linkMatch[1];
-                                let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim();
-                                if(!label) label = 'Link';
-                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-link text-sm"></i> ${label}</a>`;
-                            }
-                        } else {
-                            personalText += line + '\n';
-                        }
-                    });
-                    contactHtml += `</div>`;
-                }
-
-                let personalInfoHtml = '';
-                if (personalText.trim()) {
-                    personalInfoHtml = `
-                    <div class="bg-black/40 p-3 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-3 shadow-inner leading-relaxed">
-                        ${personalText.trim()}
-                    </div>`;
-                }
-
-                app.swal.fire({
-                    html: `
-                        <div class="flex flex-col items-center pt-2">
-                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-5 p-0">
-                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
-                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
-                                <img src="./MORANASATECT/${user.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
-                                     onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
-                            </div>
-                            <h3 id="designer-popup-name" class="font-black text-white mb-1 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${cleanName}</h3>
-                            <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
-                            
-                            ${personalInfoHtml}
-                            ${contactHtml}
-                        </div>
-                    `,
-                    showConfirmButton: false,
-                    showCloseButton: true,
-                    customClass: {
-                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[95%] max-w-md bg-black/90 p-4',
-                        closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
-                    },
-                    didOpen: () => {
-                        const el = document.getElementById('designer-popup-name');
-                        if (el) {
-                            let size = 24;
-                            while (el.scrollWidth > el.clientWidth && size > 10) {
-                                size--;
-                                el.style.fontSize = size + 'px';
-                            }
-                        }
-                    }
-                });
-            },
-
-            showAdvisorInfo: function(advisorName) {
-                const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
-                const cleanAdvisorNameForAbbr = app.formatName(advisor ? advisor.name : advisorName);
-                const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
-
-                if (advisor) {
-                    app.swal.fire({
-                        html: `
-                            <div class="flex flex-col items-center pt-4 pb-2">
-                                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden mb-5 bg-secondary shadow-2xl relative flex items-center justify-center p-0">
-                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
-                                    <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
-                                    <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
-                                </div>
-                                <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 id="advisor-popup-name" class="font-black text-white mb-4 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
-                                
-                                <div class="flex flex-col items-center gap-2.5 w-full mt-3">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-normal px-4 py-2 rounded-lg text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 shadow-sm w-auto min-w-[200px]">
-                                        ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
-                                    </button>
-                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-normal px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-sm w-auto min-w-[200px]">
-                                        อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        `,
-                        showConfirmButton: false,
-                        showCloseButton: true,
-                        customClass: {
-                            popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-w-sm bg-black/95 p-6',
-                            closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
-                        },
-                        didOpen: () => {
-                            const el = document.getElementById('advisor-popup-name');
-                            if (el) {
-                                let size = 24;
-                                while (el.scrollWidth > el.clientWidth && size > 10) {
-                                    size--;
-                                    el.style.fontSize = size + 'px';
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    app.swal.fire({ title: 'อาจารย์ที่ปรึกษา', text: advisorName, icon: 'info', showConfirmButton: false, showCloseButton: true });
-                }
-            },
-
-            // --- Reset All Visits (Admin) ---
-            resetAllVisits: async function() {
-                const result = await app.swal.fire({
-                    title: 'ยืนยันล้างยอดวิวทั้งหมด?',
-                    html: '<p class="text-sm text-gray-300">ยอดวิวผลงานของนักศึกษาทุกคนจะถูกรีเซ็ตเป็น <b class="text-red-500">0</b></p>',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'ล้างทั้งหมดทันที',
-                    cancelButtonText: 'ยกเลิก'
-                });
-
-                if(result.isConfirmed) {
-                    app.swal.fire({title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                    try {
-                        for(let u of predefinedUsers) {
-                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
-                        }
-                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างยอดเข้าชมทั้งหมดแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
-                    } catch(e) {
-                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้', 'error');
-                    }
-                }
-            },
-
-            // --- Reset Single Visit ---
-            resetVisit: async function(studentId) {
-                const result = await app.swal.fire({
-                    title: 'ยืนยันการล้างค่า?',
-                    html: `<p class="text-sm text-gray-300">ยอดวิวของรหัส <b class="text-secondary">${studentId}</b> จะกลับเป็น 0</p>`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'ล้างค่าทันที',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#ef4444',
-                });
-
-                if (result.isConfirmed) {
-                    try {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId), { count: 0 });
-                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างค่ายอดวิวเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
-                    } catch(e) {
-                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างค่าได้', 'error');
-                    }
-                }
-            },
-
-            // --- Clear Access Logs ---
-            clearAllLogs: async function(actionType) {
-                const textMsg = actionType === 'view_exhibit' ? 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้ และยอดวิวของทุกคนจะถูกรีเซ็ตเป็น 0' : 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้';
-                const result = await app.swal.fire({
-                    title: 'ยืนยันล้างประวัติทั้งหมด?',
-                    text: textMsg,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'ล้างข้อมูล',
-                    cancelButtonText: 'ยกเลิก'
-                });
-
-                if(result.isConfirmed) {
-                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                    try {
-                        for(let log of app.accessLogs) {
-                            if (log.action === actionType) {
-                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
-                            }
-                        }
-                        
-                        // Clear all visits count when clearing view logs
-                        if (actionType === 'view_exhibit') {
-                            for(let u of predefinedUsers) {
-                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
-                            }
-                        }
-                        
-                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
-                    } catch(e) {
-                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
-                    }
-                }
-            },
-
-            // ================== ADMIN PAGES ==================
             renderAdminSettings: function() {
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
