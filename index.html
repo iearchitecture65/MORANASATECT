@@ -158,7 +158,7 @@
     </div>
 
     <!-- Header & Menu (Floating without background bar) -->
-    <header class="absolute top-0 left-0 w-full px-4 py-4 md:px-6 md:py-6 flex justify-between items-start z-50 pointer-events-none">
+    <header class="absolute top-0 left-0 w-full px-4 py-2 md:px-6 md:py-3 flex justify-between items-start z-50 pointer-events-none">
         
         <!-- Logo Left -->
         <div class="pointer-events-auto flex items-center h-[40px] md:h-[56px]">
@@ -231,7 +231,7 @@
     </header>
 
     <!-- Main Content App -->
-    <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-20 md:mt-24">
+    <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-16 md:mt-20">
         <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24">
             <!-- Loading Indicator shown by default before JS kicks in -->
             <div class="flex flex-col items-center justify-center h-[60vh] text-secondary">
@@ -368,12 +368,14 @@
             visitLogs: {}, 
             accessLogs: [],
             adminUserSearchQuery: '',
+            historyStack: [],
             
             tempId: '',
             serverOtp: '',
             refCode: '',
             
             pendingExhibitId: null,
+            pendingAdvisorId: null,
             isMenuOpen: false,
             tempGuestRole: '',
             
@@ -417,6 +419,7 @@
                             const urlParams = new URLSearchParams(window.location.search);
                             const exhibitId = urlParams.get('exhibit');
                             const iframeId = urlParams.get('iframe');
+                            const advisorNameParam = urlParams.get('advisor');
                             
                             const savedProfile = localStorage.getItem('moranasatect_profile');
                             if (savedProfile) {
@@ -435,6 +438,13 @@
                                     app.showView('public_exhibit', exhibitId);
                                 } else {
                                     app.pendingExhibitId = exhibitId;
+                                    app.showView('guest_register');
+                                }
+                            } else if (advisorNameParam) {
+                                if (app.profile) {
+                                    app.showView('advisor_profile', decodeURIComponent(advisorNameParam));
+                                } else {
+                                    app.pendingAdvisorId = decodeURIComponent(advisorNameParam);
                                     app.showView('guest_register');
                                 }
                             } else if (app.profile) {
@@ -628,11 +638,21 @@
             },
 
             goHome: function() {
+                app.historyStack = [];
                 try { window.history.replaceState(null, '', window.location.pathname); } catch(e){}
                 if (app.profile) {
                     app.routeBasedOnRole();
                 } else {
                     app.showView('login');
+                }
+            },
+
+            goBack: function() {
+                if (app.historyStack && app.historyStack.length > 0) {
+                    const prev = app.historyStack.pop();
+                    app.showView(prev.view, prev.param, true);
+                } else {
+                    app.goHome();
                 }
             },
 
@@ -819,6 +839,59 @@
                 }
             },
 
+            shareAdvisorLink: async function(advisorName) {
+                const baseUrl = window.location.href.split('?')[0];
+                const link = `${baseUrl}?advisor=${encodeURIComponent(advisorName)}`;
+                
+                const showFallbackCopy = () => {
+                    app.swal.fire({
+                        title: 'แชร์ลิงก์อาจารย์ที่ปรึกษา',
+                        html: `
+                            <input type="text" value="${link}" class="w-full p-4 rounded-xl text-center text-sm text-primary font-bold bg-white outline-none border-2 border-secondary" readonly id="copyLinkInput">
+                            <p class="text-xs text-gray-400 mt-3">คัดลอกลิงก์ด้านบนเพื่อแชร์</p>`,
+                        confirmButtonText: 'คัดลอกลิงก์',
+                        showCancelButton: true,
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const input = document.getElementById('copyLinkInput');
+                            if(input) {
+                                input.select();
+                                document.execCommand('copy');
+                                app.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
+                            }
+                        }
+                    });
+                };
+
+                if (navigator.share) {
+                    try { 
+                        await navigator.share({ title: 'MORANASATECT - Advisor', text: 'หน้าโปรไฟล์อาจารย์ที่ปรึกษา', url: link }); 
+                    } catch(e) {
+                        if (e.name !== 'AbortError') showFallbackCopy();
+                    }
+                } else {
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(link);
+                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                        } else {
+                            throw new Error("Clipboard API not available");
+                        }
+                    } catch (err) {
+                        try {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = link;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                        } catch (err2) { showFallbackCopy(); }
+                    }
+                }
+            },
+
             // --- Popup Functions ---
             showDesignerInfo: function(studentId) {
                 const user = predefinedUsers.find(u => u.studentId === studentId);
@@ -928,11 +1001,11 @@
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 
-                                <div class="flex flex-col gap-2 w-full mt-2">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-black px-4 py-2.5 rounded-xl text-xs hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 uppercase tracking-widest shadow-sm w-full">
+                                <div class="flex flex-col items-center gap-2 w-full mt-3">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-medium px-4 py-2 rounded-lg text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 shadow-sm w-auto min-w-[220px]">
                                         ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
                                     </button>
-                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-4 py-2.5 rounded-xl text-xs hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-sm w-full">
+                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-medium px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-sm w-auto min-w-[220px]">
                                         อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
                                 </div>
@@ -1044,7 +1117,13 @@
             },
 
             // ================== VIEWS ==================
-            showView: function(viewName, param = null) {
+            showView: function(viewName, param = null, isBack = false) {
+                if (!app.historyStack) app.historyStack = [];
+                if (!isBack && app.view && app.view !== 'loading' && app.view !== viewName) {
+                    app.historyStack.push({ view: app.view, param: app.currentParam });
+                    if (app.historyStack.length > 20) app.historyStack.shift();
+                }
+
                 app.view = viewName;
                 app.currentParam = param;
                 app.closeMenu();
@@ -1077,6 +1156,9 @@
                 else if(app.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = app.renderPublicExhibit(app.pendingExhibitId || app.profile?.uid); 
                 else if(app.view === 'advisor_profile') document.getElementById('appRoot').innerHTML = app.renderAdvisorProfile(app.currentParam);
                 else if(app.view === 'admin_advisors') document.getElementById('appRoot').innerHTML = app.renderAdminAdvisors();
+                else if(app.view === 'admin_boxes') document.getElementById('appRoot').innerHTML = app.renderAdminBoxes();
+                else if(app.view === 'admin_iframe') document.getElementById('appRoot').innerHTML = app.renderAdminIframe();
+                else if(app.view === 'admin_settings') document.getElementById('appRoot').innerHTML = app.renderAdminSettings();
             },
 
             // ================== RENDERERS ==================
@@ -1106,7 +1188,7 @@
                     <div class="p-6 md:p-8 text-center bg-white/5 border-b border-white/10">
                         <i class="fa-solid fa-id-badge text-secondary text-4xl mb-3 opacity-90 drop-shadow-md"></i>
                         <h2 class="text-2xl font-extrabold text-white drop-shadow-sm">เข้าสู่ระบบ</h2>
-                        <p class="text-gray-400 text-xs mt-2 font-medium">สำหรับผู้ส่งผลงานทั้ง 57 ท่าน</p>
+                        <p class="text-gray-400 text-xs mt-2 font-medium">MORANASATECT - Thesis Exhibition</p>
                     </div>
                     <div class="p-6 md:p-8 space-y-5">
                         <div>
@@ -1355,6 +1437,9 @@
                         app.routeBasedOnRole();
                     }
                     app.pendingExhibitId = null;
+                } else if (app.pendingAdvisorId) {
+                    app.showView('advisor_profile', app.pendingAdvisorId);
+                    app.pendingAdvisorId = null;
                 } else {
                     app.routeBasedOnRole();
                 }
@@ -1560,9 +1645,11 @@
 
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
-                    <button onclick="app.goHome()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
+                    ${app.profile && app.profile.role === 'admin' ? `
+                    <button onclick="app.goBack()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
                         <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
                     </button>
+                    ` : ''}
 
                     <div class="glass-card rounded-[2.5rem] p-5 sm:p-6 md:p-10 mb-8 relative overflow-hidden w-full max-w-full box-border">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
@@ -1592,6 +1679,12 @@
                             <div class="flex flex-col gap-3">
                                 ${studentsHtml}
                             </div>
+                        </div>
+                        
+                        <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
+                            <button onclick="app.shareAdvisorLink('${advisor.name}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                                <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าโปรไฟล์นี้
+                            </button>
                         </div>
                     </div>
                 </div>`;
@@ -2620,7 +2713,34 @@
             },
 
             renderAdminLogs: function() {
-                let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
+                let viewLogs = [];
+                if (app.accessLogs && app.accessLogs.length > 0) {
+                    viewLogs = app.accessLogs.filter(log => log.action === 'view_exhibit');
+                }
+
+                if (viewLogs.length === 0) {
+                    return `
+                    <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
+                                <div>
+                                    <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติเข้าชมผลงาน</p>
+                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visitor Logs</p>
+                                </div>
+                            </div>
+                            <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
+                                <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
+                            </button>
+                        </div>
+                        <div class="glass-card rounded-[2.5rem] p-10 text-center text-gray-500 font-bold">
+                            ยังไม่มีประวัติการเข้าชมผลงาน
+                        </div>
+                    </div>`;
+                }
+
+                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-4">';
+                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
                             <th class="p-4 rounded-tl-xl">ผู้เข้าชม</th>
@@ -2629,26 +2749,38 @@
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
                 
-                let viewLogs = [];
-                if (app.accessLogs && app.accessLogs.length > 0) {
-                    app.accessLogs.forEach(log => {
-                        if (log.action === 'view_exhibit') {
-                            viewLogs.push(log);
-                            const date = new Date(log.timestamp).toLocaleString('th-TH');
-                            html += `
-                            <tr class="hover:bg-white/5 transition-colors group">
-                                <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'guest'})</span></td>
-                                <td class="p-4 text-sm text-secondary font-bold">${log.target || '-'}</td>
-                                <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
-                            </tr>`;
-                        }
-                    });
-                }
+                viewLogs.forEach(log => {
+                    const date = new Date(log.timestamp).toLocaleString('th-TH');
+                    
+                    // Card Layout for Mobile
+                    gridHtml += `
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
+                        <div class="flex justify-between items-start w-full">
+                            <div class="min-w-0 flex-1 pr-2">
+                                <p class="text-white text-sm font-bold truncate">${log.name || 'ไม่ทราบชื่อ'}</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5 uppercase tracking-widest">${log.role || 'guest'}</p>
+                            </div>
+                            <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
+                                ${date}
+                            </div>
+                        </div>
+                        <div class="bg-black/30 p-3 rounded-xl border border-white/5 mt-1">
+                            <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-1">ผลงานที่เข้าดู</span>
+                            <span class="text-secondary font-bold text-sm break-all">${log.target || '-'}</span>
+                        </div>
+                    </div>`;
+
+                    // Table Row Layout for Desktop
+                    tableHtml += `
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'guest'})</span></td>
+                        <td class="p-4 text-sm text-secondary font-bold">${log.target || '-'}</td>
+                        <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
+                    </tr>`;
+                });
                 
-                if (viewLogs.length === 0) {
-                    html += `<tr><td colspan="3" class="text-center p-10 text-gray-500 font-bold">ยังไม่มีประวัติการเข้าชมผลงาน</td></tr>`;
-                }
-                html += `</tbody></table></div>`;
+                gridHtml += '</div>';
+                tableHtml += `</tbody></table></div>`;
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
@@ -2666,13 +2798,41 @@
                     </div>
 
                     <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
-                        ${html}
+                        ${gridHtml}
+                        ${tableHtml}
                     </div>
                 </div>`;
             },
 
             renderAdminLoginLogs: function() {
-                let html = `<div class="overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
+                let loginLogs = [];
+                if (app.accessLogs && app.accessLogs.length > 0) {
+                    loginLogs = app.accessLogs.filter(log => log.action === 'login');
+                }
+
+                if (loginLogs.length === 0) {
+                    return `
+                    <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
+                                <div>
+                                    <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติการเข้าสู่ระบบ</p>
+                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Login Logs</p>
+                                </div>
+                            </div>
+                            <button onclick="app.clearAllLogs('login')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
+                                <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
+                            </button>
+                        </div>
+                        <div class="glass-card rounded-[2.5rem] p-10 text-center text-gray-500 font-bold">
+                            ยังไม่มีประวัติการเข้าสู่ระบบ
+                        </div>
+                    </div>`;
+                }
+
+                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-4">';
+                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
                             <th class="p-4 rounded-tl-xl">ผู้เข้าสู่ระบบ</th>
@@ -2681,26 +2841,38 @@
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
                 
-                let loginLogs = [];
-                if (app.accessLogs && app.accessLogs.length > 0) {
-                    app.accessLogs.forEach(log => {
-                        if (log.action === 'login') {
-                            loginLogs.push(log);
-                            const date = new Date(log.timestamp).toLocaleString('th-TH');
-                            html += `
-                            <tr class="hover:bg-white/5 transition-colors group">
-                                <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'student'})</span></td>
-                                <td class="p-4 text-sm text-secondary font-bold">${log.uid || '-'}</td>
-                                <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
-                            </tr>`;
-                        }
-                    });
-                }
+                loginLogs.forEach(log => {
+                    const date = new Date(log.timestamp).toLocaleString('th-TH');
+                    
+                    // Card Layout for Mobile
+                    gridHtml += `
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
+                        <div class="flex justify-between items-start w-full">
+                            <div class="min-w-0 flex-1 pr-2">
+                                <p class="text-white text-sm font-bold truncate">${log.name || 'ไม่ทราบชื่อ'}</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5 uppercase tracking-widest">${log.role || 'student'}</p>
+                            </div>
+                            <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
+                                ${date}
+                            </div>
+                        </div>
+                        <div class="bg-black/30 p-3 rounded-xl border border-white/5 mt-1 flex justify-between items-center">
+                            <span class="text-[10px] text-gray-500 uppercase tracking-widest">รหัสประจำตัว</span>
+                            <span class="text-secondary font-bold text-sm">${log.uid || '-'}</span>
+                        </div>
+                    </div>`;
+
+                    // Table Layout for Desktop
+                    tableHtml += `
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'student'})</span></td>
+                        <td class="p-4 text-sm text-secondary font-bold">${log.uid || '-'}</td>
+                        <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
+                    </tr>`;
+                });
                 
-                if (loginLogs.length === 0) {
-                    html += `<tr><td colspan="3" class="text-center p-10 text-gray-500 font-bold">ยังไม่มีประวัติการเข้าสู่ระบบ</td></tr>`;
-                }
-                html += `</tbody></table></div>`;
+                gridHtml += '</div>';
+                tableHtml += `</tbody></table></div>`;
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
@@ -2718,7 +2890,8 @@
                     </div>
 
                     <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
-                        ${html}
+                        ${gridHtml}
+                        ${tableHtml}
                     </div>
                 </div>`;
             },
