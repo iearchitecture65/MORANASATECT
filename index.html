@@ -1384,8 +1384,10 @@
                     
                     let prefix = match[1].trim();
                     let url = match[2];
+                    let suffix = match[3].trim();
                     
                     let label = prefix;
+                    if (!label && suffix) label = suffix;
                     if (label.endsWith(':')) label = label.substring(0, label.length - 1).trim();
                     if (!label) label = `${typeStr === 'video' ? 'วิดีโอนำเสนอผลงาน' : 'ภาพผลงานชิ้นที่'} ${index + 1}`;
 
@@ -1408,21 +1410,27 @@
                         </div>
                     `;
                     
+                    let lineClean = '';
+                    try {
+                        lineClean = decodeURIComponent(line).toLowerCase().replace(/\s+/g, '');
+                    } catch(e) {
+                        lineClean = line.toLowerCase().replace(/\s+/g, '');
+                    }
+
                     if (isImg) {
                         let aspectClass = '';
                         let imgClass = 'w-auto h-auto max-w-full max-h-[80vh] object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01]';
                         let containerClass = 'relative w-fit mx-auto flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group max-w-full';
                         let inlineStyle = '';
 
-                        const labelLower = label.toLowerCase();
-                        if (labelLower.includes('chat presentation 2 หน้า')) {
+                        if (lineClean.includes('chatpresentation2หน้า')) {
                             aspectClass = 'w-full';
-                            inlineStyle = 'aspect-ratio: 1.414 / 1;';
+                            inlineStyle = 'aspect-ratio: 1.414 / 1 !important;';
                             containerClass = `relative mx-auto flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group max-w-full ${aspectClass}`;
                             imgClass = 'w-full h-full object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01] absolute inset-0';
-                        } else if (labelLower.includes('chat presentation หน้าที่ 1') || labelLower.includes('chat presentation หน้าที่ 2')) {
+                        } else if (lineClean.includes('chatpresentationหน้าที่1') || lineClean.includes('chatpresentationหน้าที่2')) {
                             aspectClass = 'w-full sm:w-3/4 md:w-2/3 lg:w-1/2'; 
-                            inlineStyle = 'aspect-ratio: 1 / 1.414;';
+                            inlineStyle = 'aspect-ratio: 1 / 1.414 !important;';
                             containerClass = `relative mx-auto flex items-center justify-center bg-black/20 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10 group max-w-full ${aspectClass}`;
                             imgClass = 'w-full h-full object-contain transition-all duration-700 relative z-10 opacity-0 group-hover:scale-[1.01] absolute inset-0';
                         }
@@ -1446,16 +1454,31 @@
                             </div>
                         </div>`;
                     } else {
+                        let aspectClassIframe = 'w-full aspect-[4/3] sm:h-[75vh] sm:aspect-auto';
+                        let inlineStyleIframe = '';
+                        let outerDivClass = 'w-full';
+
+                        if (lineClean.includes('chatpresentation2หน้า')) {
+                            aspectClassIframe = 'w-full';
+                            inlineStyleIframe = 'aspect-ratio: 1.414 / 1 !important; height: auto !important;';
+                        } else if (lineClean.includes('chatpresentationหน้าที่1') || lineClean.includes('chatpresentationหน้าที่2')) {
+                            aspectClassIframe = 'w-full sm:w-3/4 md:w-2/3 lg:w-1/2 mx-auto'; 
+                            inlineStyleIframe = 'aspect-ratio: 1 / 1.414 !important; height: auto !important;';
+                            outerDivClass = 'w-full flex justify-center';
+                        }
+
                         html += `
-                        <div class="relative w-full aspect-[4/3] sm:h-[75vh] sm:aspect-auto rounded-2xl sm:rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
-                                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
-                                <span class="text-[10px] font-bold tracking-widest uppercase">Loading Image...</span>
+                        <div class="${outerDivClass}">
+                            <div class="relative ${aspectClassIframe} rounded-2xl sm:rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto" ${inlineStyleIframe ? `style="${inlineStyleIframe}"` : ''}>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
+                                    <span class="text-[10px] font-bold tracking-widest uppercase">Loading Image...</span>
+                                </div>
+                                <iframe src="${url}" width="100%" height="100%"
+                                        onload="this.classList.remove('opacity-0')"
+                                        class="absolute top-0 left-0 w-full h-full max-w-full z-10 opacity-0 transition-opacity duration-700 border-0" 
+                                        allowfullscreen></iframe>
                             </div>
-                            <iframe src="${url}" width="100%" height="100%"
-                                    onload="this.classList.remove('opacity-0')"
-                                    class="absolute top-0 left-0 w-full h-full max-w-full z-10 opacity-0 transition-opacity duration-700 border-0" 
-                                    allowfullscreen></iframe>
                         </div>`;
                     }
                     html += `</div>`;
