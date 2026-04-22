@@ -1036,12 +1036,14 @@
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-4 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 
-                                <div class="flex flex-col items-center gap-2 w-full mt-3">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-normal px-3 py-1.5 rounded-md text-[13px] hover:bg-secondary hover:text-black transition-colors inline-flex items-center justify-center gap-1.5 shadow-sm w-fit">
-                                        ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
+                                <div class="flex flex-col items-center gap-2.5 w-full mt-3">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" 
+                                        class="w-full bg-primary border border-secondary/50 text-secondary font-normal px-4 py-2 rounded-xl hover:bg-secondary hover:text-black transition-colors flex items-center justify-center shadow-sm overflow-hidden">
+                                        <span id="btn-advisor-students" class="whitespace-nowrap text-[14px]">ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i></span>
                                     </button>
-                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-normal px-3 py-1.5 rounded-md text-[13px] hover:scale-105 transition-transform inline-flex items-center justify-center gap-1.5 shadow-sm w-fit">
-                                        อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    <a href="${advisor.url}" target="_blank" 
+                                        class="w-full bg-secondary text-primary font-normal px-4 py-2 rounded-xl hover:scale-105 transition-transform flex items-center justify-center shadow-sm overflow-hidden">
+                                        <span id="btn-advisor-bio" class="whitespace-nowrap text-[14px]">อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
                                     </a>
                                 </div>
                             </div>
@@ -1061,6 +1063,18 @@
                                     el.style.fontSize = size + 'px';
                                 }
                             }
+                            // Scale font size for buttons if too long
+                            ['btn-advisor-students', 'btn-advisor-bio'].forEach(id => {
+                                const btnSpan = document.getElementById(id);
+                                if (btnSpan) {
+                                    let bSize = 14;
+                                    const parentWidth = btnSpan.parentElement.clientWidth - 32;
+                                    while (btnSpan.scrollWidth > parentWidth && bSize > 8) {
+                                        bSize -= 0.5;
+                                        btnSpan.style.fontSize = bSize + 'px';
+                                    }
+                                }
+                            });
                         }
                     });
                 } else {
@@ -2792,7 +2806,7 @@
                                     <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อเมนู</label>
                                     <input type="text" id="iframeTitle" placeholder="เช่น แบบประเมินความพึงพอใจ" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
-                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">URL เว็บไซต์</label>
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">URL เว็บใจ</label>
                                     <input type="url" id="iframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-6 text-sm font-mono">
                                     
                                     <label class="flex items-center gap-3 text-xs text-white mb-6 bg-black/50 p-4 rounded-xl border border-white/10 cursor-pointer hover:border-secondary/50 transition-colors shadow-inner">
