@@ -1950,22 +1950,22 @@
                         if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
                             let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
                             let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
-                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-instagram text-base"></i> ${igHandle}</a>`;
+                            contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> ${igHandle}</a>`;
                         } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
                             let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
                             let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
-                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-brands fa-facebook text-base"></i> ${fbHandle}</a>`;
+                            contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> ${fbHandle}</a>`;
                         } else if (lowerLine.startsWith('gmail') || lowerLine.startsWith('email') || lowerLine.includes('@gmail.com')) {
                             let emailHandle = line.replace(/^(gmail|email)[\s:\-\.]*/i, '').trim();
                             let emailLink = `mailto:${emailHandle}`;
-                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-envelope text-base"></i> ${emailHandle}</a>`;
+                            contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-sm"></i> ${emailHandle}</a>`;
                         } else if (line.includes('http')) {
                             let linkMatch = line.match(/(https?:\/\/[^\s]+)/);
                             if (linkMatch) {
                                 let url = linkMatch[1];
                                 let label = line.replace(url, '').trim().replace(/^[-:]|[-:]$/g, '').trim();
                                 if(!label) label = 'Link';
-                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 flex items-center gap-2"><i class="fa-solid fa-link text-base"></i> ${label}</a>`;
+                                contactHtml += `<a href="${url}" target="_blank" class="bg-gray-600/30 hover:bg-gray-600/50 text-white border border-gray-500/40 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-link text-sm"></i> ${label}</a>`;
                             }
                         } else {
                             personalText += line + '\n';
@@ -1977,7 +1977,7 @@
                 let personalInfoHtml = '';
                 if (personalText.trim()) {
                     personalInfoHtml = `
-                    <div class="bg-black/40 p-4 rounded-2xl text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-4 shadow-inner leading-relaxed auto-scale-text">
+                    <div class="bg-black/40 p-3 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-3 shadow-inner leading-relaxed">
                         ${personalText.trim()}
                     </div>`;
                 }
@@ -1985,7 +1985,7 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center pt-2">
-                            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[2px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-4 p-0">
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden shrink-0 shadow-[0_0_20px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center mb-5 p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
