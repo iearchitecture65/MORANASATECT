@@ -157,9 +157,8 @@
         <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Header & Menu (Floating without background bar) -->
+    <!-- Header & Menu -->
     <header class="absolute top-0 left-0 w-full px-4 py-2 md:px-6 md:py-3 flex justify-between items-start z-50 pointer-events-none">
-        
         <!-- Logo Left -->
         <div class="pointer-events-auto flex items-center h-[40px] md:h-[56px]">
             <img src="./LOGO MORANASATECT.png" alt="Logo" class="h-full w-auto drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform active:scale-95" 
@@ -178,7 +177,7 @@
                 <i class="fa-solid fa-right-from-bracket text-xl drop-shadow-md"></i>
             </button>
 
-            <!-- Dropdown Menu (All Navigation Here) -->
+            <!-- Dropdown Menu -->
             <div id="mobileDropdown" class="hidden absolute top-[100%] right-0 bg-black/95 backdrop-blur-3xl rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-secondary/30 p-3 flex-col gap-2 z-[60] w-[260px] transform transition-all origin-top-right mt-3 text-left max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
                 <!-- Admin Menu Section -->
@@ -238,7 +237,6 @@
     <!-- Main Content App -->
     <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-16 md:mt-20">
         <div id="appRoot" class="max-w-6xl mx-auto w-full min-h-[80vh] p-4 pb-24">
-            <!-- Loading Indicator shown by default before JS kicks in -->
             <div class="flex flex-col items-center justify-center h-[60vh] text-secondary">
                 <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
                 <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
@@ -425,7 +423,7 @@
                             const urlParams = new URLSearchParams(window.location.search);
                             const exhibitId = urlParams.get('exhibit');
                             const iframeId = urlParams.get('iframe');
-                            const advisorNameParam = urlParams.get('advisor');
+                            const advisorIdParam = urlParams.get('advisor'); // เปลี่ยนจาก advisor เป็น ID
                             
                             const savedProfile = localStorage.getItem('moranasatect_profile');
                             if (savedProfile) {
@@ -462,11 +460,11 @@
                                     app.pendingExhibitId = exhibitId;
                                     app.showView('guest_register');
                                 }
-                            } else if (advisorNameParam) {
+                            } else if (advisorIdParam) {
                                 if (app.profile) {
-                                    app.showView('advisor_profile', decodeURIComponent(advisorNameParam));
+                                    app.showView('advisor_profile', advisorIdParam);
                                 } else {
-                                    app.pendingAdvisorId = decodeURIComponent(advisorNameParam);
+                                    app.pendingAdvisorId = advisorIdParam;
                                     app.showView('guest_register');
                                 }
                             } else if (app.profile) {
@@ -874,9 +872,10 @@
                 }
             },
 
-            shareAdvisorLink: async function(advisorName) {
+            // แก้ไข: เปลี่ยนจาก advisorName เป็น advisorId
+            shareAdvisorLink: async function(advisorId) {
                 const baseUrl = window.location.href.split('?')[0];
-                const link = `${baseUrl}?advisor=${encodeURIComponent(advisorName)}`;
+                const link = `${baseUrl}?advisor=${advisorId}`;
                 
                 const showFallbackCopy = () => {
                     app.swal.fire({
@@ -927,7 +926,6 @@
                 }
             },
 
-            // --- Popup Functions ---
             showDesignerInfo: function(studentId) {
                 const user = predefinedUsers.find(u => u.studentId === studentId);
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
@@ -1037,7 +1035,7 @@
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-4 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 
                                 <div class="flex flex-col items-center gap-2.5 w-full mt-3">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" 
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.id}')" 
                                         class="w-full bg-primary border border-secondary/50 text-secondary font-normal px-4 py-2 rounded-xl hover:bg-secondary hover:text-black transition-colors flex items-center justify-center shadow-sm overflow-hidden">
                                         <span id="btn-advisor-students" class="whitespace-nowrap text-[14px]">ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i></span>
                                     </button>
@@ -1051,7 +1049,7 @@
                         showConfirmButton: false,
                         showCloseButton: true,
                         customClass: {
-                            popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-w-sm bg-black/95 p-6',
+                            popup: 'border border-white/20 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[90%] max-sm max-w-sm bg-black/95 p-6',
                             closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
                         },
                         didOpen: () => {
@@ -1063,7 +1061,6 @@
                                     el.style.fontSize = size + 'px';
                                 }
                             }
-                            // Scale font size for buttons if too long
                             ['btn-advisor-students', 'btn-advisor-bio'].forEach(id => {
                                 const btnSpan = document.getElementById(id);
                                 if (btnSpan) {
@@ -1082,7 +1079,6 @@
                 }
             },
 
-            // --- Reset All Visits (Admin) ---
             resetAllVisits: async function() {
                 const result = await app.swal.fire({
                     title: 'ยืนยันล้างยอดวิวทั้งหมด?',
@@ -1107,7 +1103,6 @@
                 }
             },
 
-            // --- Reset Single Visit ---
             resetVisit: async function(studentId) {
                 const result = await app.swal.fire({
                     title: 'ยืนยันการล้างค่า?',
@@ -1129,7 +1124,6 @@
                 }
             },
 
-            // --- Clear Access Logs ---
             clearAllLogs: async function(actionType) {
                 const textMsg = actionType === 'view_exhibit' ? 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้ และยอดวิวของทุกคนจะถูกรีเซ็ตเป็น 0' : 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้';
                 const result = await app.swal.fire({
@@ -1151,7 +1145,6 @@
                             }
                         }
                         
-                        // Clear all visits count when clearing view logs
                         if (actionType === 'view_exhibit') {
                             for(let u of predefinedUsers) {
                                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
@@ -1178,6 +1171,30 @@
                 app.closeMenu();
                 const root = document.getElementById('appRoot');
                 window.scrollTo(0,0);
+
+                // Update Dynamic Page Title
+                let newDocTitle = "MORANASATECT - Thesis Exhibition";
+                if (viewName === 'public_exhibit') {
+                    const data = app.thesisData.find(d => d.studentId === param);
+                    const user = predefinedUsers.find(u => u.studentId === param);
+                    if (data && data.title) {
+                        const cleanT = data.title.split('\n')[0];
+                        newDocTitle = `${cleanT} - MORANASATECT`;
+                    } else if (user) {
+                        newDocTitle = `${app.formatName(user.name)} - MORANASATECT`;
+                    }
+                } else if (viewName === 'advisor_profile') {
+                    const adv = advisorsData.find(a => a.id == param);
+                    if (adv) newDocTitle = `${adv.name} - MORANASATECT`;
+                } else if (viewName === 'student_dash') {
+                    newDocTitle = "หน้าจัดการของฉัน - MORANASATECT";
+                } else if (viewName === 'iframe_view') {
+                    const site = app.settings.embeddedSites?.[param];
+                    if (site) newDocTitle = `${site.title} - MORANASATECT`;
+                } else if (viewName.startsWith('admin_')) {
+                    newDocTitle = "ระบบจัดการ - MORANASATECT";
+                }
+                document.title = newDocTitle;
 
                 if (viewName === 'loading') root.innerHTML = app.renderLoading();
                 else if (viewName === 'login') root.innerHTML = app.renderLogin();
@@ -1527,7 +1544,6 @@
                 });
             },
 
-            // --- ส่วน Render Iframe ภาพและวิดีโอ ---
             renderMediaFrames: function(urlsStr, typeStr) {
                 if (!urlsStr) return '';
                 
@@ -1645,17 +1661,15 @@
             },
 
             // ================== PAGE: ADVISOR PROFILE ==================
-            renderAdvisorProfile: function(advisorName) {
-                const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
+            // แก้ไข: เปลี่ยนจาก advisorName เป็น advisorId
+            renderAdvisorProfile: function(advisorId) {
+                const advisor = advisorsData.find(a => a.id == advisorId);
                 if(!advisor) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลอาจารย์ที่ปรึกษา</div>`;
                 
                 const cleanAdvisorName = app.formatName(advisor.name);
                 const abbr = app.getAbbr(cleanAdvisorName);
 
-                // กรองหานักศึกษาที่มีชื่ออาจารย์ที่ปรึกษาตรงกัน
                 let students = app.thesisData.filter(d => d.advisor && (d.advisor.includes(advisor.name) || advisor.name.includes(d.advisor)));
-                
-                // เรียงรหัสนักศึกษาจากน้อยไปมาก
                 students.sort((a, b) => parseInt(a.studentId) - parseInt(b.studentId));
 
                 let studentsHtml = '';
@@ -1667,7 +1681,6 @@
                         const uid = u ? u.id : 0;
                         const sAbbr = app.getAbbr(app.formatName(s.name));
                         
-                        // ดึงชื่อโครงการภาษาไทย (บรรทัดแรก)
                         let thaiTitle = s.title.split('\n')[0];
                         const bracketMatch = s.title.match(/^(.*?)(\([^)]+\))$/);
                         if (bracketMatch) thaiTitle = bracketMatch[1].trim();
@@ -1738,7 +1751,7 @@
                         </div>
                         
                         <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
-                            <button onclick="app.shareAdvisorLink('${advisor.name}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                            <button onclick="app.shareAdvisorLink('${advisor.id}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                                 <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าโปรไฟล์นี้
                             </button>
                         </div>
@@ -1751,7 +1764,7 @@
                     const cleanName = app.formatName(a.name);
                     const abbr = app.getAbbr(cleanName);
                     return `
-                    <div onclick="app.showView('advisor_profile', '${a.name}')" class="glass-card p-5 rounded-[2rem] flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-all border-white/10 hover:border-secondary/50 shadow-lg group hover:-translate-y-1">
+                    <div onclick="app.showView('advisor_profile', '${a.id}')" class="glass-card p-5 rounded-[2rem] flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-all border-white/10 hover:border-secondary/50 shadow-lg group hover:-translate-y-1">
                         <div class="w-16 h-16 rounded-full border-[2px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0 shadow-md">
                             <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl z-0 hidden">${abbr}</span>
                             <i class="fa-solid fa-circle-notch fa-spin text-white text-xl absolute z-10 spinner-icon"></i>
@@ -1796,7 +1809,6 @@
                 const cleanName = app.formatName(data.name || user.name);
                 const abbr = app.getAbbr(cleanName);
 
-                // Render Dynamic Custom Boxes
                 let customBoxesHtml = '';
                 if (app.settings.allowEdit) {
                     const studentCustomData = app.studentEdits[studentId] || {};
@@ -1821,7 +1833,6 @@
                     <div class="glass-card rounded-[2.5rem] p-5 sm:p-6 md:p-10 mb-8 relative overflow-hidden w-full max-w-full box-border">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
 
-                        <!-- User Profile Information -->
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
                             <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] sm:border-[4px] border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
@@ -1910,7 +1921,6 @@
                 const cleanName = app.formatName(app.profile.name);
                 const abbr = app.getAbbr(cleanName);
 
-                // Render Input fields for Custom Boxes
                 let customBoxesInputHtml = '';
                 const studentCustomData = app.studentEdits[sid] || {};
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
@@ -2418,7 +2428,7 @@
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                                 </div>
                                 <div>
@@ -2521,7 +2531,7 @@
             },
 
             exportAllDataCSV: function() {
-                let csvContent = "\uFEFF"; // BOM for Excel Thai support
+                let csvContent = "\uFEFF"; 
                 csvContent += "ลำดับ,รหัสนักศึกษา,ชื่อ-นามสกุล,ยอดเข้าชม,";
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 activeBoxes.forEach(b => csvContent += `"${b.label.replace(/"/g, '""')}",`);
@@ -2584,7 +2594,6 @@
                 viewLogs.forEach(log => {
                     const date = new Date(log.timestamp).toLocaleString('th-TH');
                     
-                    // Card Layout for Mobile
                     gridHtml += `
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
                         <div class="flex justify-between items-start w-full">
@@ -2602,7 +2611,6 @@
                         </div>
                     </div>`;
 
-                    // Table Row Layout for Desktop
                     tableHtml += `
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'guest'})</span></td>
@@ -2676,7 +2684,6 @@
                 loginLogs.forEach(log => {
                     const date = new Date(log.timestamp).toLocaleString('th-TH');
                     
-                    // Card Layout for Mobile
                     gridHtml += `
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
                         <div class="flex justify-between items-start w-full">
@@ -2694,7 +2701,6 @@
                         </div>
                     </div>`;
 
-                    // Table Layout for Desktop
                     tableHtml += `
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'student'})</span></td>
@@ -2726,41 +2732,6 @@
                         ${tableHtml}
                     </div>
                 </div>`;
-            },
-
-            clearAllLogs: async function(actionType) {
-                const textMsg = actionType === 'view_exhibit' ? 'ข้อมูลประวัติผู้เข้าชมจะไม่สามารถกู้คืนได้ และยอดวิวของทุกคนจะถูกรีเซ็ตเป็น 0' : 'ข้อมูลประวัตินี้จะไม่สามารถกู้คืนได้';
-                const result = await app.swal.fire({
-                    title: 'ยืนยันล้างประวัติทั้งหมด?',
-                    text: textMsg,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'ล้างข้อมูล',
-                    cancelButtonText: 'ยกเลิก'
-                });
-
-                if(result.isConfirmed) {
-                    app.swal.fire({title: 'กำลังล้างประวัติ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                    try {
-                        for(let log of app.accessLogs) {
-                            if (log.action === actionType) {
-                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'access_logs', log.id));
-                            }
-                        }
-                        
-                        // Clear all visits count when clearing view logs
-                        if (actionType === 'view_exhibit') {
-                            for(let u of predefinedUsers) {
-                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
-                            }
-                        }
-                        
-                        app.swal.fire({ title: 'สำเร็จ', text: 'ล้างประวัติเรียบร้อยแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
-                    } catch(e) {
-                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถล้างข้อมูลได้ทั้งหมด', 'error');
-                    }
-                }
             },
 
             renderAdminIframe: function() {
@@ -2905,7 +2876,6 @@
                 const colorDark = document.getElementById('qrColorDark').value;
                 const colorLightInput = document.getElementById('qrColorLight').value;
                 const isTransparent = document.getElementById('qrTransparent').checked;
-                
                 const colorLight = isTransparent ? "#ffffff" : colorLightInput;
 
                 const zip = new JSZip();
@@ -2956,7 +2926,6 @@
                 });
             },
 
-            // ================== PAGE: IFRAME VIEW ==================
             renderIframeView: function(idxStr) {
                 const idx = parseInt(idxStr);
                 const sites = app.settings.embeddedSites || [];
