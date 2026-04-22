@@ -193,7 +193,7 @@
                         <i class="fa-solid fa-square-plus w-5 text-center text-secondary"></i> จัดการกล่องข้อความ
                     </button>
                     <button onclick="app.showView('admin_users')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
-                        <i class="fa-solid fa-users text-secondary w-5 text-center"></i> จัดการข้อมูลสมาชิก
+                        <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
                     </button>
                     <button onclick="app.showView('admin_login_logs')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-right-to-bracket w-5 text-center text-secondary"></i> ประวัติการเข้าสู่ระบบ
@@ -322,6 +322,7 @@
             { id: 43, studentId: "65030216", name: "นางสาววนิดา วามะขัน" },
             { id: 44, studentId: "65030221", name: "นางสาววรัญญา ประสิทธิ์พิชิต" },
             { id: 45, studentId: "65030225", name: "นางสาววริษา วิบูลพันธ์" },
+            { id: 46, studentId: "65030231", name: "นายวุฒิชัย อุ่นวิเศษ" },
             { id: 47, studentId: "65030234", name: "นางสาวศศิกานต์ เจริญพันธุ์" },
             { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน" },
             { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา" },
@@ -1171,16 +1172,6 @@
                 const root = document.getElementById('appRoot');
                 window.scrollTo(0,0);
 
-                // Add Canonical logic
-                const canonicalUrl = param ? `https://iearchitecture65.github.io/MORANASATECT/?exhibit=${param}` : `https://iearchitecture65.github.io/MORANASATECT/`;
-                let canonicalLink = document.querySelector("link[rel='canonical']");
-                if (!canonicalLink) {
-                    canonicalLink = document.createElement("link");
-                    canonicalLink.setAttribute("rel", "canonical");
-                    document.head.appendChild(canonicalLink);
-                }
-                canonicalLink.setAttribute("href", canonicalUrl);
-
                 // Update Dynamic Page Title
                 let newDocTitle = "MORANASATECT - Thesis Exhibition";
                 if (viewName === 'public_exhibit') {
@@ -1246,7 +1237,6 @@
             },
 
             renderLogin: function() {
-                // เช็คกรณีระบบปิด (โค้ดเดิมของคุณ)
                 if (app.settings.isStudentLoginOpen === false) {
                     return `
                     <div class="max-w-md mx-auto glass-card rounded-[2rem] p-8 text-center mt-10 animate-slide-up border-t-4 border-t-red-500">
@@ -1259,9 +1249,8 @@
                     </div>`;
                 }
 
-                // หน้า Login ปกติ + เพิ่มส่วนรายชื่อโครงการ (Project Index) ด้านล่าง
                 return `
-                <div class="max-w-md mx-auto glass-card rounded-[2rem] overflow-hidden mt-10 mb-10 animate-slide-up border border-white/10 shadow-2xl relative">
+                <div class="max-w-md mx-auto glass-card rounded-[2rem] overflow-hidden mt-10 mb-20 animate-slide-up border border-white/10 shadow-2xl relative">
                     <div class="p-6 md:p-8 text-center bg-white/5 border-b border-white/10">
                         <i class="fa-solid fa-id-badge text-secondary text-4xl mb-3 opacity-90 drop-shadow-md"></i>
                         <h2 class="text-2xl font-extrabold text-white drop-shadow-sm">เข้าสู่ระบบ</h2>
@@ -1281,47 +1270,29 @@
                             <button onclick="app.showView('guest_register')" class="text-xs text-gray-400 hover:text-white underline transition-colors">สำหรับผู้เยี่ยมชมทั่วไป เข้าระบบที่นี่</button>
                         </div>
                     </div>
-                </div>
-                
-                ${this.renderProjectIndex()} 
-                `;
+                </div>`;
             },
 
-            renderProjectIndex: function() {
-                if (!this.thesisData || this.thesisData.length === 0) return '';
+            loginAdminDirect: async function(bypassPassword = null) {
+                let pass = bypassPassword;
+                if(typeof bypassPassword !== 'string') {
+                    const { value } = await app.swal.fire({
+                        title: 'รหัสผ่านผู้ดูแลระบบ',
+                        input: 'password',
+                        inputPlaceholder: 'ระบุรหัส 8 หลัก'
+                    });
+                    pass = value;
+                }
 
-                const listHtml = this.thesisData.map(d => {
-                    // ดึงชื่อโครงการภาษาไทย (บรรทัดแรก)
-                    const thaiTitle = d.title ? d.title.split('\n')[0] : 'วิทยานิพนธ์สถาปัตยกรรม';
-                    const cleanName = app.formatName(d.name);
-                    
-                    return `
-                    <a href="?exhibit=${d.studentId}" 
-                       onclick="event.preventDefault(); if(app.profile){ app.showView('public_exhibit', '${d.studentId}'); } else { app.pendingExhibitId='${d.studentId}'; app.showView('guest_register'); }"
-                       class="glass-card p-4 rounded-2xl border border-white/5 hover:border-secondary/50 transition-all flex flex-col gap-2 group shadow-sm">
-                        <div class="flex justify-between items-start">
-                            <span class="text-[10px] text-secondary font-black tracking-widest uppercase">${d.studentId}</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-600 group-hover:text-secondary transition-colors"></i>
-                        </div>
-                        <h4 class="text-white font-bold text-sm leading-snug group-hover:text-secondary transition-colors line-clamp-2">${thaiTitle}</h4>
-                        <p class="text-gray-500 text-[11px] font-medium">${cleanName}</p>
-                    </a>
-                    `;
-                }).join('');
-
-                return `
-                <div class="mt-16 mb-20 animate-fade-in">
-                    <div class="flex items-center gap-3 mb-8 px-4">
-                        <div class="h-px flex-1 bg-white/10"></div>
-                        <h3 class="text-white font-black text-sm uppercase tracking-[0.2em] opacity-80 text-center">
-                            <i class="fa-solid fa-layer-group text-secondary mr-2"></i> รายชื่อผลงานทั้งหมด
-                        </h3>
-                        <div class="h-px flex-1 bg-white/10"></div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-2">
-                        ${listHtml}
-                    </div>
-                </div>`;
+                if(pass === '65030900') {
+                    app.profile = { uid: pass, name: 'Admin', role: 'admin', id: 0 };
+                    localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
+                    app.logSystemAccess('admin', pass);
+                    app.updateMenuVisibility();
+                    app.routeBasedOnRole();
+                } else if (pass) {
+                    app.swal.fire('ผิดพลาด', 'รหัสผ่านไม่ถูกต้อง', 'error');
+                }
             },
 
             requestOTP: async function() {
@@ -2538,7 +2509,7 @@
                 }).then((result) => {
                     if (result.isDenied) {
                         app.swal.fire({
-                            title: 'ยืนยันลบทิ้ง?',
+                            title: 'ยืนยันลบข้อมูล?',
                             text: "ข้อความทั้งหมดที่นักศึกษาคนนี้พิมพ์ไว้จะหายไปทันที",
                             icon: 'warning',
                             showCancelButton: true,
@@ -2743,7 +2714,7 @@
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
                             <div>
