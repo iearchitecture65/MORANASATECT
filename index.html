@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MORANASATECT - Thesis Exhibition</title>
+    <title id="page_title">MORANASATECT - Thesis Exhibition</title>
     
     <!-- Open Graph / LINE Preview Tags -->
     <meta property="og:title" content="MORANASATECT - Thesis Exhibition">
@@ -18,6 +18,116 @@
     <!-- Website Icon (Favicon) -->
     <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
     <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
+
+    <!-- สคริปต์สำหรับดึงชื่อโครงการและชื่ออาจารย์มาแสดงเป็น Title ทันทีตั้งแต่เริ่มโหลดหน้าเว็บ -->
+    <script>
+        // ข้อมูลอาจารย์ที่ปรึกษา (เพิ่ม shortLink สำหรับใส่ลิงก์ย่อ Bitly)
+        window.advisorsData = [
+            { id: 1, name: "ศ.ดร.คุ้มพงศ์ หนูบรรจง", url: "https://siet.kmitl.ac.th/node/193", shortLink: "" },
+            { id: 2, name: "ดร.พรหมปพร นวลแสง", url: "https://siet.kmitl.ac.th/node/212", shortLink: "" },
+            { id: 3, name: "รศ.ดร.สมพล ดำรงเสถียร", url: "https://siet.kmitl.ac.th/node/49", shortLink: "" },
+            { id: 4, name: "รศ.สุรศักดิ์ กังขาว", url: "https://siet.kmitl.ac.th/node/196", shortLink: "" },
+            { id: 5, name: "รศ.ดร.พัสตราภรณ์ ทิพยโสธร", url: "https://siet.kmitl.ac.th/node/201", shortLink: "" },
+            { id: 6, name: "ผศ.อัครพงศ์ อนุพันธ์พงศ์", url: "https://siet.kmitl.ac.th/node/205", shortLink: "" },
+            { id: 7, name: "ผศ.ณธทัย จันเสน", url: "https://siet.kmitl.ac.th/node/93", shortLink: "" },
+            { id: 8, name: "ผศ.ชูเกียรติ แซ่ตั้ง", url: "https://siet.kmitl.ac.th/node/92", shortLink: "" },
+            { id: 9, name: "อ.รัฐภัทร์ อุปละ", url: "https://siet.kmitl.ac.th/node/216", shortLink: "" },
+            { id: 10, name: "อ.ทศพร โสดาบรรลุ", url: "https://siet.kmitl.ac.th/node/195", shortLink: "" },
+            { id: 11, name: "ผศ.สันติ กวินวงศ์ไพบูลย์", url: "https://siet.kmitl.ac.th/node/211", shortLink: "" }
+        ];
+
+        // ข้อมูลนักศึกษา 57 คน (เพิ่ม shortLink สำหรับใส่ลิงก์ย่อ Bitly/TinyURL)
+        window.predefinedUsers = [
+            { id: 1, studentId: "63030127", name: "นางสาวทัศน์ชากร ศรีสุวรรณ์", thesisTitle: "โครงการศูนย์ฝึกซ้อมกีฬายิงปืน เพื่อรองรับการเเข่งขันในระดับนานาชาติ", shortLink: "" },
+            { id: 2, studentId: "64030020", name: "นางสาวขวัญชนก เป็งสุนา", thesisTitle: "ท่าอากาศยานแพร่", shortLink: "" },
+            { id: 3, studentId: "64030042", name: "นายฐานิต นพเทา", thesisTitle: "ศูนย์การเรียนรู้ศรัทธาฉะเชิงเทรา", shortLink: "" },
+            { id: 4, studentId: "64030052", name: "นางสาวณัฐณิชา ทองดี", thesisTitle: "โครงการปรับปรุงพัฒนาหอดูดาวเฉลิมพระเกียรติ 7 รอบพระชนมพรรษา นครราชสีมา", shortLink: "" },
+            { id: 5, studentId: "64030078", name: "นางสาวธันยธรณ์ เศรษฐีธร", thesisTitle: "กางวางผังพัฒนาพื้นที่หน้าเขื่อนขุนด่านปราการชล เพื่อเป็นศูนย์กลางส่งเสริมมรดกทางศิลปวัฒนธรรม จังหวัดนครนายก", shortLink: "" },
+            { id: 6, studentId: "64030082", name: "นางสาวนฏกร ชัยชัชนันท์", thesisTitle: "โครงการออกแบบผังเพื่อพัฒนาเมืองขอนแก่นสู่ศูนย์กลางไมซ์แห่งภาคตะวันออกเฉียงเหนือ", shortLink: "" },
+            { id: 7, studentId: "64030089", name: "นางสาวนัสรีน วงษ์สมาน", thesisTitle: "พิพิธภัณฑ์ศิลปะและวัฒนธรรมอิสลามล้านนนา", shortLink: "" },
+            { id: 8, studentId: "64030118", name: "นางสาวปิ่นมุกข์ ศรีคง", thesisTitle: "โครงการออกแบบสนามบินน้ำและท่าเรือไฮโดรฟอยล์สมุย", shortLink: "" },
+            { id: 9, studentId: "64030135", name: "นางสาวพิรญาณ์ แซ่อึ้ง", thesisTitle: "โครงการวางผังและการออกแบบเพื่ออนุรักษ์และส่งเสริมการท่องเที่ยวย่านชุมชนตลาดเก่าท่าม่วง จังหวัดกาญจนบุรี", shortLink: "" },
+            { id: 10, studentId: "64030159", name: "นางสาวยุพเรศ คำนาแซง", thesisTitle: "โครงการศูนย์ส่งเสริมศิลปะวัฒนธรรม จังหวัดราชบุรี", shortLink: "" },
+            { id: 11, studentId: "64030163", name: "นางสาวรวิวรรณ มีเพียร", thesisTitle: "โครงการบูรณาการพื้นที่สร้างสรรค์เชิงอนุรักษ์บริเวณสวนรุกขชาติเชตวัน จังหวัดแพร่", shortLink: "" },
+            { id: 12, studentId: "64030171", name: "นางสาววชิรญาณ์ อารีเอื้อ", thesisTitle: "โครงการโรงเรียนสาธิตนานาชาติ มหาวิทยาลัยบูรพา จังหวัดชลบุรี", shortLink: "" },
+            { id: 13, studentId: "64030179", name: "นางสาววริษฐา อานันท์วัชรานนท์", thesisTitle: "ศูนย์บริการทางหลวงศรีราชา ทางหลวงพิเศษหมายเลข 7", shortLink: "" },
+            { id: 14, studentId: "64030239", name: "นายเจษฎาภรณ์ สิรุจฐนน", thesisTitle: "โครงการออกแบบเลโก้แฟลกชิปสโตร์", shortLink: "" },
+            { id: 15, studentId: "64030287", name: "นางสาวพรนภา ปั่น", thesisTitle: "ศูนย์สร้างสรรค์งานออกแบบ จังหวัดชลบุรี", shortLink: "" },
+            { id: 16, studentId: "64030325", name: "นางสาวอริสา พืมขุนทด", thesisTitle: "โครงการอนุรักษ์ระบบนิเวศทะเลสาบสงขลาและโลมาอิรวดี", shortLink: "" },
+            { id: 17, studentId: "65030001", name: "นางสาวกชกร ทรัพย์โคกสูง", thesisTitle: "ศูนย์ศึกษาและอนุรักษ์ธรรมชาติ อุทยานแห่งชาติผาแต้ม", shortLink: "" },
+            { id: 18, studentId: "65030004", name: "นางสาวกนกวรรณ จันทร์มาเมือง", thesisTitle: "ศูนย์การเรียนรู้เมืองเก่าสงขลา", shortLink: "" },
+            { id: 19, studentId: "65030008", name: "นางสาวกมลเนตร ชัยชนะ", thesisTitle: "โครงการพัฒนาพื้นที่บริเวณสถานีรถไฟบ้านปินเพื่อแหล่งท่องเที่ยวเชิงประวัติศาสตร์", shortLink: "" },
+            { id: 20, studentId: "65030009", name: "นางสาวกมลฤทัย สว่างแจ้ง", thesisTitle: "โครงการพิพิธภัณฑ์สิ่งแวดล้อม บางขุนเทียน กรุงเทพมหานคร", shortLink: "" },
+            { id: 21, studentId: "65030022", name: "นางสาวกุลภัสสร์ ธีระเพ็ญแสง", thesisTitle: "โครงการออกแบบสถาปัตยกรรมอาคารมิกซ์ยู เดอะเซ็นทรัลซูพีเรียแกรนด์ไนน์", shortLink: "" },
+            { id: 22, studentId: "65030030", name: "นางสาวจันทรัตน์ อ่อนละมูล", thesisTitle: "ท่าอากาศยานนานาชาติพิษณุโลก", shortLink: "" },
+            { id: 23, studentId: "65030036", name: "นายเฉลิมพร วันเพ็ญ", thesisTitle: "ศูนย์การเรียนรู้อัตลักษณ์และวิธีชิวิตชาวมอญ อำเภอสังขละบุรี จังหวัดกาญจนบุรี", shortLink: "" },
+            { id: 24, studentId: "65030038", name: "นางสาวชญาสินี วงศ์รักษา", thesisTitle: "โครงการอาคารเรียนรัฐศาสตร์ มหาวิทยาลัยวลัยลักษณ์", shortLink: "" },
+            { id: 25, studentId: "65030040", name: "นางสาวชนาภา ท้วมเกร็ด", thesisTitle: "ศูนย์พัฒนาเด็กเล็กอยู่วิทยา", shortLink: "" },
+            { id: 26, studentId: "65030043", name: "นายชยาวุธ ภวคุณกร", thesisTitle: "โรงพยาบาลซัมมิท", shortLink: "" },
+            { id: 27, studentId: "65030045", name: "นางสาวชยุตรา เสนากูล", thesisTitle: "โครงการศูนย์การเรียนรู้จิม ทอมป์สัน เพื่ออนุรักษ์และเผยแพร่ผ้าไทยล้านนา", shortLink: "" },
+            { id: 28, studentId: "65030048", name: "นางสาวชวพร ประสงค์ผล", thesisTitle: "ศูนย์การอนุรักษ์และศึกษาเขตรักษาพันธุ์สัตว์ป่าห้วยขาแข้ง", shortLink: "" },
+            { id: 29, studentId: "65030054", name: "นางสาวโชติกา อายุวรรณกร", thesisTitle: "สถาบันการศึกษาเฉพาะทางด้านอุตสาหกรรมบันเทิง วายจีเอนเตอร์เทรนต์เมนท์ มักกะสัน กรุงเทพฯ", shortLink: "" },
+            { id: 30, studentId: "65030057", name: "นายฐิติกานต์ ปุระเตนนท์", thesisTitle: "พิพิธภัณฑ์และอนุสรณ์สถานสมรภูมิบ้านร่มเกล้า กองทัพภาคที่ 3", shortLink: "" },
+            { id: 31, studentId: "65030063", name: "นางสาวณัชชา อภิเดช", thesisTitle: "ศูนย์เรียนรู้การแปรรูปพลาสติกทางทะเล จังหวัดชลบุรี", shortLink: "" },
+            { id: 32, studentId: "65030070", name: "นายณัฐนันท์ เตชัย", thesisTitle: "ศูนย์การเรียนรู้และวิจัยพันธ์ุพืชเศรษฐกิจ จังหวัดอุตรดิตถ์", shortLink: "" },
+            { id: 33, studentId: "65030093", name: "นายธนภัทร ไชยเมือง", thesisTitle: "ศูนย์บำบัดผู้ป่วยจิตเวช จังหวัดอุดรธานี", shortLink: "" },
+            { id: 34, studentId: "65030095", name: "นายธนภัทร พ้องเสียง", thesisTitle: "พิพิธภัณฑ์เกมและวิวัฒนาการของเทคโนโลยีการเล่น", shortLink: "" },
+            { id: 35, studentId: "65030115", name: "นายนนทวัฒน์ ชีพอุบัติ", thesisTitle: "โครงการโรงละคร มหาวิทยาลัยขอนแก่น", shortLink: "" },
+            { id: 36, studentId: "65030123", name: "นางสาวนันกานต์ ชูจันทร์", thesisTitle: "โครงการสนามกีฬาในร่ม แบงค็อกโดม", shortLink: "" },
+            { id: 37, studentId: "65030138", name: "นายปฏิภาณ บำเรอจิต", thesisTitle: "การพัฒนาผังชุมชนเพื่อส่งเสริมอัตลักษณ์ท้องถิ่น หนังใหญ่วัดขนอน จังหวัดราชบุรี", shortLink: "" },
+            { id: 38, studentId: "65030140", name: "นางสาวปณิตา พงษ์เรือง", thesisTitle: "โครงการออกแบบอาคารรองรับผู้โดยสารและพื้นที่สาธารณะเพื่อส่งเสริมการท่องเที่ยว เกาะล้าน ชลบุรี", shortLink: "" },
+            { id: 39, studentId: "65030145", name: "นางสาวปรียากร สายสิม", thesisTitle: "โครงการออกแบบอาคารเรียน คณะนิติศาสตร์ มหาวิทยาลัยมหาสารคาม", shortLink: "" },
+            { id: 40, studentId: "65030173", name: "นางสาวพุธิตา ปันฟอง", thesisTitle: "โครงการโรงเรียนสาธิตศรีนครินทรวิโรฒพัฒนาศักยภาพทางด้านการแสดง", shortLink: "" },
+            { id: 41, studentId: "65030193", name: "นายภูวิศ ชินทองเปลว", thesisTitle: "ศูนย์ฝึกเเละพัฒนาศิลปะการต่อสู้ ไทเกอร์มวยไทยยิม จังหวัดภูเก็ต", shortLink: "" },
+            { id: 42, studentId: "65030215", name: "นางสาววนิชยา ทองสุข", thesisTitle: "ศููนย์การเรียนรู้ทางทะเล สันติบุรี เกาะสมุย", shortLink: "" },
+            { id: 43, studentId: "65030216", name: "นางสาววนิดา วามะขัน", thesisTitle: "ศูนย์การป้องกันและการเรียนรู้ด้านอุทกภัยเพื่อลดความเสี่ยงจากภัยน้ำท่วม", shortLink: "" },
+            { id: 44, studentId: "65030221", name: "นางสาววรัญญา ประสิทธิ์พิชิต", thesisTitle: "คอมมูนิตี้มอลล์ วาร์ฟ 38 (เซ็นทรัล)", shortLink: "" },
+            { id: 45, studentId: "65030225", name: "นางสาววริษา วิบูลพันธ์", thesisTitle: "ศูนย์ศึกษาพื้นที่สูงเพื่อเกษตรนวัตกรรมโครงการหลวงแม่ลาน้อย", shortLink: "" },
+            { id: 46, studentId: "65030231", name: "นายวุฒิชัย อุ่นวิเศษ", thesisTitle: "ศูนย์นวัตกรรมชีวพืชอนาคต อีอีซี", shortLink: "" },
+            { id: 47, studentId: "65030234", name: "นางสาวศศิกานต์ เจริญพันธุ์", thesisTitle: "รีสอร์ตและศูนย์อนุรักษ์ช้าง", shortLink: "" },
+            { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน", thesisTitle: "โครงการพัฒนาเมืองเชิงสร้างสรรค์เพื่อส่งเสริมชุมชนเกาะสีชัง", shortLink: "" },
+            { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา", thesisTitle: "โครงการศูนย์การเรียนรู้สวนพฤกษศาสตร์มหาวิทยาลัยเทคโนโลยีสุรนารี", shortLink: "" },
+            { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว", thesisTitle: "ศูนย์การเรียนรู้และอนุรักษ์ฉลาม จังหวัดกระบี่", shortLink: "" },
+            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ", thesisTitle: "โครงการปรับปรุงภูมิทัศน์และพัฒนาเมืองเก่าเชียงแสนเพื่อการท่องเที่ยวเชิงประวัติศาสตร์วัฒนธรรมและวิถีชีวิต", shortLink: "" },
+            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา", thesisTitle: "ศูนย์ฝึกซ้อมและแข่งขันกีฬาทางน้ำระดับนานาชาติ จังหวัดกระบี่", shortLink: "" },
+            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง", thesisTitle: "ศูนย์ช่วยเหลือและเรียนรู้ภัยพิบัติชายฝั่ง ชุมชนบ้านขุนสมุทรจีน จังหวัดสมุทรปราการ", shortLink: "" },
+            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห", thesisTitle: "ศูนย์กลางอิสลามภาคใตั จังหวัดนราธิวาส", shortLink: "" },
+            { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด", thesisTitle: "พิพิธภัณฑ์พื้นที่ชุ่มน้ำ ทะเลน้อย จังหวัดพัทลุง", shortLink: "" },
+            { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง", thesisTitle: "สยามนิรมิต พัทยา", shortLink: "" },
+            { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล", thesisTitle: "โครงการออกแบบพิพิธภัณฑ์ และศูนย์บริการรถยนต์ BMW", shortLink: "" }
+        ];
+
+        // ดึงชื่อขึ้น Title ทันที
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const exhibitId = urlParams.get('exhibit');
+            const advisorId = urlParams.get('advisor');
+
+            let immediateTitle = "MORANASATECT - Thesis Exhibition";
+
+            if (exhibitId) {
+                const user = window.predefinedUsers.find(u => u.studentId === exhibitId);
+                if (user && user.thesisTitle) {
+                    immediateTitle = user.thesisTitle + " - MORANASATECT";
+                } else if (user) {
+                    immediateTitle = user.name + " - MORANASATECT";
+                }
+            } else if (advisorId) {
+                const advisor = window.advisorsData.find(a => a.id == advisorId);
+                if (advisor) {
+                    immediateTitle = advisor.name + " - MORANASATECT";
+                }
+            }
+
+            document.title = immediateTitle;
+
+            // เปลี่ยน Meta Tags และ Title ทันที (ไม่ต้องรอ DOM โหลดเสร็จ) เพื่อความรวดเร็วสูงสุด
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            const twTitle = document.querySelector('meta[name="twitter:title"]');
+            if(ogTitle) ogTitle.setAttribute('content', immediateTitle);
+            if(twTitle) twTitle.setAttribute('content', immediateTitle);
+        })();
+    </script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -275,82 +385,6 @@
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRyI-a9eEarynPfuWWbpTqHvz-vDHBGnE1UnvqvDOGIAA9nWybOkfS2jlI3xJRrpFAuR5nmWup9169/pub?gid=1223023440&single=true&output=csv";
         const QUOTA_API_URL = "https://script.google.com/macros/s/AKfycbxyIsym0jDtFwIzwpuuaqzre3UGF2Ws0S67aFf74EqaOY7VgKPJTyVCzL_NO7PZa4AD/exec";
 
-        // 57 Students Data
-        const predefinedUsers = [
-            { id: 1, studentId: "63030127", name: "นางสาวทัศน์ชากร ศรีสุวรรณ์" },
-            { id: 2, studentId: "64030020", name: "นางสาวขวัญชนก เป็งสุนา" },
-            { id: 3, studentId: "64030042", name: "นายฐานิต นพเทา" },
-            { id: 4, studentId: "64030052", name: "นางสาวณัฐณิชา ทองดี" },
-            { id: 5, studentId: "64030078", name: "นางสาวธันยธรณ์ เศรษฐีธร" },
-            { id: 6, studentId: "64030082", name: "นางสาวนฏกร ชัยชัชนันท์" },
-            { id: 7, studentId: "64030089", name: "นางสาวนัสรีน วงษ์สมาน" },
-            { id: 8, studentId: "64030118", name: "นางสาวปิ่นมุกข์ ศรีคง" },
-            { id: 9, studentId: "64030135", name: "นางสาวพิรญาณ์ แซ่อึ้ง" },
-            { id: 10, studentId: "64030159", name: "นางสาวยุพเรศ คำนาแซง" },
-            { id: 11, studentId: "64030163", name: "นางสาวรวิวรรณ มีเพียร" },
-            { id: 12, studentId: "64030171", name: "นางสาววชิรญาณ์ อารีเอื้อ" },
-            { id: 13, studentId: "64030179", name: "นางสาววริษฐา อานันท์วัชรานนท์" },
-            { id: 14, studentId: "64030239", name: "นายเจษฎาภรณ์ สิรุจฐนน" },
-            { id: 15, studentId: "64030287", name: "นางสาวพรนภา ปั่น" },
-            { id: 16, studentId: "64030325", name: "นางสาวอริสา พืมขุนทด" },
-            { id: 17, studentId: "65030001", name: "นางสาวกชกร ทรัพย์โคกสูง" },
-            { id: 18, studentId: "65030004", name: "นางสาวกนกวรรณ จันทร์มาเมือง" },
-            { id: 19, studentId: "65030008", name: "นางสาวกมลเนตร ชัยชนะ" },
-            { id: 20, studentId: "65030009", name: "นางสาวกมลฤทัย สว่างแจ้ง" },
-            { id: 21, studentId: "65030022", name: "นางสาวกุลภัสสร์ ธีระเพ็ญแสง" },
-            { id: 22, studentId: "65030030", name: "นางสาวจันทรัตน์ อ่อนละมูล" },
-            { id: 23, studentId: "65030036", name: "นายเฉลิมพร วันเพ็ญ" },
-            { id: 24, studentId: "65030038", name: "นางสาวชญาสินี วงศ์รักษา" },
-            { id: 25, studentId: "65030040", name: "นางสาวชนาภา ท้วมเกร็ด" },
-            { id: 26, studentId: "65030043", name: "นายชยาวุธ ภวคุณกร" },
-            { id: 27, studentId: "65030045", name: "นางสาวชยุตรา เสนากูล" },
-            { id: 28, studentId: "65030048", name: "นางสาวชวพร ประสงค์ผล" },
-            { id: 29, studentId: "65030054", name: "นางสาวโชติกา อายุวรรณกร" },
-            { id: 30, studentId: "65030057", name: "นายฐิติกานต์ ปุระเตนนท์" },
-            { id: 31, studentId: "65030063", name: "นางสาวณัชชา อภิเดช" },
-            { id: 32, studentId: "65030070", name: "นายณัฐนันท์ เตชัย" },
-            { id: 33, studentId: "65030093", name: "นายธนภัทร ไชยเมือง" },
-            { id: 34, studentId: "65030095", name: "นายธนภัทร พ้องเสียง" },
-            { id: 35, studentId: "65030115", name: "นายนนทวัฒน์ ชีพอุบัติ" },
-            { id: 36, studentId: "65030123", name: "นางสาวนันกานต์ ชูจันทร์" },
-            { id: 37, studentId: "65030138", name: "นายปฏิภาณ บำเรอจิต" },
-            { id: 38, studentId: "65030140", name: "นางสาวปณิตา พงษ์เรือง" },
-            { id: 39, studentId: "65030145", name: "นางสาวปรียากร สายสิม" },
-            { id: 40, studentId: "65030173", name: "นางสาวพุธิตา ปันฟอง" },
-            { id: 41, studentId: "65030193", name: "นายภูวิศ ชินทองเปลว" },
-            { id: 42, studentId: "65030215", name: "นางสาววนิชยา ทองสุข" },
-            { id: 43, studentId: "65030216", name: "นางสาววนิดา วามะขัน" },
-            { id: 44, studentId: "65030221", name: "นางสาววรัญญา ประสิทธิ์พิชิต" },
-            { id: 45, studentId: "65030225", name: "นางสาววริษา วิบูลพันธ์" },
-            { id: 46, studentId: "65030231", name: "นายวุฒิชัย อุ่นวิเศษ" },
-            { id: 47, studentId: "65030234", name: "นางสาวศศิกานต์ เจริญพันธุ์" },
-            { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน" },
-            { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา" },
-            { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว" },
-            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ" },
-            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา" },
-            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง" },
-            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห" },
-            { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด" },
-            { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง" },
-            { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล" }
-        ];
-
-        // Advisors Data
-        const advisorsData = [
-            { id: 1, name: "ศ.ดร.คุ้มพงศ์ หนูบรรจง", url: "https://siet.kmitl.ac.th/node/193" },
-            { id: 2, name: "ดร.พรหมปพร นวลแสง", url: "https://siet.kmitl.ac.th/node/212" },
-            { id: 3, name: "รศ.ดร.สมพล ดำรงเสถียร", url: "https://siet.kmitl.ac.th/node/49" },
-            { id: 4, name: "รศ.สุรศักดิ์ กังขาว", url: "https://siet.kmitl.ac.th/node/196" },
-            { id: 5, name: "รศ.ดร.พัสตราภรณ์ ทิพยโสธร", url: "https://siet.kmitl.ac.th/node/201" },
-            { id: 6, name: "ผศ.อัครพงศ์ อนุพันธ์พงศ์", url: "https://siet.kmitl.ac.th/node/205" },
-            { id: 7, name: "ผศ.ณธทัย จันเสน", url: "https://siet.kmitl.ac.th/node/93" },
-            { id: 8, name: "ผศ.ชูเกียรติ แซ่ตั้ง", url: "https://siet.kmitl.ac.th/node/92" },
-            { id: 9, name: "อ.รัฐภัทร์ อุปละ", url: "https://siet.kmitl.ac.th/node/216" },
-            { id: 10, name: "อ.ทศพร โสดาบรรลุ", url: "https://siet.kmitl.ac.th/node/195" },
-            { id: 11, name: "ผศ.สันติ กวินวงศ์ไพบูลย์", url: "https://siet.kmitl.ac.th/node/211" }
-        ];
-
         const guestRoles = ['ปี 1', 'ปี 2', 'ปี 3', 'ปี 4', 'ปี 5', 'ศิษย์เก่า', 'อาจารย์', 'เจ้าหน้าที่', 'บุคลากร', 'ผู้ปกครอง', 'บุคคลภายนอก'];
 
         // Global App State
@@ -395,6 +429,20 @@
                 },
                 buttonsStyling: false
             }),
+
+            // --- หัวใจสำคัญ SEO: อัปเดต Canonical เพื่อแก้ปัญหา "รูปแบบบัญญัติ" ---
+            updateSEO: function(viewName, param) {
+                let canonical = "https://iearchitecture65.github.io/MORANASATECT/";
+                if (viewName === 'public_exhibit' && param) {
+                    // ให้ Canonical ชี้ไปที่ไฟล์ในโฟลเดอร์ Exhibition ตรงๆ
+                    canonical += "Exhibition/" + param + ".html";
+                }
+                
+                let cLink = document.querySelector("link[rel='canonical']") || document.createElement("link");
+                cLink.setAttribute("rel", "canonical");
+                cLink.setAttribute("href", canonical);
+                if(!cLink.parentElement) document.head.appendChild(cLink);
+            },
 
             init: async function() {
                 const root = document.getElementById('appRoot');
@@ -453,6 +501,7 @@
                             if (iframeId) {
                                 app.showView('iframe_view', parseInt(iframeId));
                             } else if (exhibitId) {
+                                app.updateSEO('public_exhibit', exhibitId); // เพิ่มบรรทัดนี้
                                 if (app.profile) {
                                     app.logVisit(exhibitId);
                                     app.showView('public_exhibit', exhibitId);
@@ -461,6 +510,7 @@
                                     app.showView('guest_register');
                                 }
                             } else if (advisorIdParam) {
+                                app.updateSEO('advisor_profile', advisorIdParam); // เพิ่มบรรทัดนี้
                                 if (app.profile) {
                                     app.showView('advisor_profile', advisorIdParam);
                                 } else {
@@ -820,8 +870,16 @@
             },
 
             sharePublicLink: async function(studentId) {
-                const baseUrl = window.location.href.split('?')[0];
-                const link = `${baseUrl}?exhibit=${studentId}`;
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
+                let link = "";
+                
+                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ
+                if (user && user.shortLink) {
+                    link = user.shortLink;
+                } else {
+                    const baseUrl = window.location.href.split('?')[0];
+                    link = `${baseUrl}?exhibit=${studentId}`;
+                }
                 
                 const showFallbackCopy = () => {
                     app.swal.fire({
@@ -874,8 +932,16 @@
 
             // แก้ไข: เปลี่ยนจาก advisorName เป็น advisorId
             shareAdvisorLink: async function(advisorId) {
-                const baseUrl = window.location.href.split('?')[0];
-                const link = `${baseUrl}?advisor=${advisorId}`;
+                const advisor = window.advisorsData.find(a => a.id == advisorId);
+                let link = "";
+                
+                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ
+                if (advisor && advisor.shortLink) {
+                    link = advisor.shortLink;
+                } else {
+                    const baseUrl = window.location.href.split('?')[0];
+                    link = `${baseUrl}?advisor=${advisorId}`;
+                }
                 
                 const showFallbackCopy = () => {
                     app.swal.fire({
@@ -927,7 +993,7 @@
             },
 
             showDesignerInfo: function(studentId) {
-                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
                 const cleanName = app.formatName(data.name || user.name);
                 const abbr = app.getAbbr(cleanName);
@@ -1015,7 +1081,7 @@
             },
 
             showAdvisorInfo: function(advisorName) {
-                const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
+                const advisor = window.advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
                 const cleanAdvisorNameForAbbr = app.formatName(advisor ? advisor.name : advisorName);
                 const abbr = app.getAbbr(cleanAdvisorNameForAbbr);
 
@@ -1093,7 +1159,7 @@
                 if(result.isConfirmed) {
                     app.swal.fire({title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
-                        for(let u of predefinedUsers) {
+                        for(let u of window.predefinedUsers) {
                             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
                         }
                         app.swal.fire({ title: 'สำเร็จ', text: 'ล้างยอดเข้าชมทั้งหมดแล้ว', icon: 'success', timer: 1500, showConfirmButton: false});
@@ -1146,7 +1212,7 @@
                         }
                         
                         if (actionType === 'view_exhibit') {
-                            for(let u of predefinedUsers) {
+                            for(let u of window.predefinedUsers) {
                                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visits', u.studentId), { count: 0 });
                             }
                         }
@@ -1168,6 +1234,7 @@
 
                 app.view = viewName;
                 app.currentParam = param;
+                app.updateSEO(viewName, param);
                 app.closeMenu();
                 const root = document.getElementById('appRoot');
                 window.scrollTo(0,0);
@@ -1175,16 +1242,14 @@
                 // Update Dynamic Page Title
                 let newDocTitle = "MORANASATECT - Thesis Exhibition";
                 if (viewName === 'public_exhibit') {
-                    const data = app.thesisData.find(d => d.studentId === param);
-                    const user = predefinedUsers.find(u => u.studentId === param);
-                    if (data && data.title) {
-                        const cleanT = data.title.split('\n')[0];
-                        newDocTitle = `${cleanT} - MORANASATECT`;
+                    const user = window.predefinedUsers.find(u => u.studentId === param);
+                    if (user && user.thesisTitle) {
+                        newDocTitle = `${user.thesisTitle} - MORANASATECT`;
                     } else if (user) {
                         newDocTitle = `${app.formatName(user.name)} - MORANASATECT`;
                     }
                 } else if (viewName === 'advisor_profile') {
-                    const adv = advisorsData.find(a => a.id == param);
+                    const adv = window.advisorsData.find(a => a.id == param);
                     if (adv) newDocTitle = `${adv.name} - MORANASATECT`;
                 } else if (viewName === 'student_dash') {
                     newDocTitle = "หน้าจัดการของฉัน - MORANASATECT";
@@ -1246,7 +1311,8 @@
                             ผู้ดูแลระบบได้ทำการปิดระบบล็อกอินในขณะนี้
                         </p>
                         <button onclick="app.loginAdminDirect()" class="mt-4 text-[10px] text-gray-500 hover:text-white underline transition-colors">สำหรับผู้ดูแลระบบ</button>
-                    </div>`;
+                    </div>
+                    ${app.renderProjectIndex()}`;
                 }
 
                 return `
@@ -1269,6 +1335,27 @@
                         <div class="text-center mt-4">
                             <button onclick="app.showView('guest_register')" class="text-xs text-gray-400 hover:text-white underline transition-colors">สำหรับผู้เยี่ยมชมทั่วไป เข้าระบบที่นี่</button>
                         </div>
+                    </div>
+                </div>
+                ${app.renderProjectIndex()}`;
+            },
+
+            renderProjectIndex: function() {
+                const listHtml = window.predefinedUsers.map(u => `
+                    <a href="./Exhibition/${u.studentId}.html" 
+                       onclick="event.preventDefault(); if(app.profile){ app.showView('public_exhibit', '${u.studentId}'); } else { app.pendingExhibitId='${u.studentId}'; app.showView('guest_register'); }"
+                       class="glass-card p-4 rounded-2xl border border-white/5 hover:border-secondary/50 transition-all flex flex-col gap-2 group text-left shadow-sm">
+                        <span class="text-[10px] text-secondary font-black tracking-widest uppercase">${u.studentId}</span>
+                        <h4 class="text-white font-bold text-sm leading-snug group-hover:text-secondary transition-colors line-clamp-2">${u.thesisTitle}</h4>
+                        <p class="text-gray-500 text-[11px] font-medium">${u.name}</p>
+                    </a>
+                `).join('');
+
+                return `
+                <div class="hidden" aria-hidden="true">
+                    <h3 class="text-white font-black text-sm uppercase tracking-widest text-center mb-8">รายชื่อผลงานทั้งหมด</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${listHtml}
                     </div>
                 </div>`;
             },
@@ -1301,7 +1388,7 @@
                 if(idInput === '65030900') return app.loginAdminDirect('65030900');
                 if(idInput.length !== 8) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษา 8 หลัก', 'warning');
                 
-                const isStudent = predefinedUsers.find(u => u.studentId === idInput);
+                const isStudent = window.predefinedUsers.find(u => u.studentId === idInput);
                 if(!isStudent) return app.swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสนักศึกษานี้ในระบบ', 'error');
 
                 const btn = document.getElementById('btnReqOTP');
@@ -1391,7 +1478,7 @@
                 let code = '';
                 for(let i=1; i<=6; i++) code += document.getElementById(`otp-${i}`).value;
                 if(code === app.serverOtp) {
-                    const student = predefinedUsers.find(u => u.studentId === app.tempId);
+                    const student = window.predefinedUsers.find(u => u.studentId === app.tempId);
                     app.profile = { uid: student.studentId, name: student.name, role: 'student', id: student.id };
                     localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                     app.logSystemAccess('student', student.studentId);
@@ -1496,7 +1583,7 @@
                 }, twoHours);
                 
                 if (app.pendingExhibitId) {
-                    const targetStudent = predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
+                    const targetStudent = window.predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
                     if (targetStudent) {
                         app.logVisit(app.pendingExhibitId);
                         app.showView('public_exhibit', app.pendingExhibitId);
@@ -1663,7 +1750,7 @@
             // ================== PAGE: ADVISOR PROFILE ==================
             // แก้ไข: เปลี่ยนจาก advisorName เป็น advisorId
             renderAdvisorProfile: function(advisorId) {
-                const advisor = advisorsData.find(a => a.id == advisorId);
+                const advisor = window.advisorsData.find(a => a.id == advisorId);
                 if(!advisor) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลอาจารย์ที่ปรึกษา</div>`;
                 
                 const cleanAdvisorName = app.formatName(advisor.name);
@@ -1677,7 +1764,7 @@
                     studentsHtml = `<div class="text-center p-10 text-gray-500 font-bold bg-white/5 rounded-2xl border border-white/10 shadow-inner">ยังไม่มีนักศึกษาในที่ปรึกษา</div>`;
                 } else {
                     studentsHtml = students.map(s => {
-                        const u = predefinedUsers.find(user => user.studentId === s.studentId);
+                        const u = window.predefinedUsers.find(user => user.studentId === s.studentId);
                         const uid = u ? u.id : 0;
                         const sAbbr = app.getAbbr(app.formatName(s.name));
                         
@@ -1760,7 +1847,7 @@
             },
 
             renderAdminAdvisors: function() {
-                let listHtml = advisorsData.map(a => {
+                let listHtml = window.advisorsData.map(a => {
                     const cleanName = app.formatName(a.name);
                     const abbr = app.getAbbr(cleanName);
                     return `
@@ -1800,7 +1887,7 @@
 
             // ================== PAGE: PUBLIC EXHIBIT ==================
             renderPublicExhibit: function(studentId) {
-                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
                 
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
@@ -2032,7 +2119,7 @@
             },
 
             showMyViewCount: function(studentId, count) {
-                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 const cleanName = user ? app.formatName(user.name) : 'ไม่ทราบชื่อ';
                 
                 const logs = app.accessLogs.filter(log => log.action === 'view_exhibit' && log.target === studentId);
@@ -2347,10 +2434,10 @@
             },
 
             generateAdminUsersListHtml: function() {
-                let displayUsers = predefinedUsers;
+                let displayUsers = window.predefinedUsers;
                 if (app.adminUserSearchQuery && app.adminUserSearchQuery.trim() !== '') {
                     const q = app.adminUserSearchQuery.toLowerCase().trim();
-                    displayUsers = predefinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.studentId.includes(q));
+                    displayUsers = window.predefinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.studentId.includes(q));
                 }
 
                 if (displayUsers.length === 0) {
@@ -2469,7 +2556,7 @@
 
             manageUserData: function(studentId) {
                 const data = app.studentEdits[studentId] || {};
-                const user = predefinedUsers.find(u => u.studentId === studentId);
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 const cleanName = app.formatName(user.name);
                 
                 let content = '<div class="text-left space-y-3 mt-4 max-h-[50vh] overflow-y-auto custom-scrollbar">';
@@ -2537,7 +2624,7 @@
                 activeBoxes.forEach(b => csvContent += `"${b.label.replace(/"/g, '""')}",`);
                 csvContent += "\n";
 
-                predefinedUsers.forEach(u => {
+                window.predefinedUsers.forEach(u => {
                     const vCount = app.visitLogs[u.studentId] || 0;
                     const edits = app.studentEdits[u.studentId] || {};
                     
@@ -2882,8 +2969,8 @@
                 const container = document.getElementById('qr-generator-container');
                 const baseUrl = `${window.location.origin}${window.location.pathname}?exhibit=`;
 
-                for (let i = 0; i < predefinedUsers.length; i++) {
-                    const u = predefinedUsers[i];
+                for (let i = 0; i < window.predefinedUsers.length; i++) {
+                    const u = window.predefinedUsers[i];
                     container.innerHTML = ''; 
                     
                     const url = baseUrl + u.studentId;
