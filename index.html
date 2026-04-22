@@ -995,17 +995,17 @@
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
+                                <h3 id="advisor-popup-name" class="font-black text-white mb-4 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 
-                                <div class="flex flex-col items-center gap-2 w-full mt-3">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-medium px-4 py-2 rounded-lg text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 shadow-sm w-auto min-w-[220px]">
+                                <div class="flex flex-col items-center gap-2.5 w-full mt-3">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-normal px-4 py-2 rounded-lg text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 shadow-sm">
                                         ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
                                     </button>
-                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-medium px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-sm w-auto min-w-[220px]">
+                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-normal px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-sm">
                                         อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
                                 </div>
@@ -2162,17 +2162,17 @@
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cleanAdvisorNameForAbbr)}&background=fddf31&color=000'; }" 
+                                         onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
-                                <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
+                                <h3 id="advisor-popup-name" class="font-black text-white mb-4 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
                                 
-                                <div class="flex flex-col gap-2 w-full mt-2">
-                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-black px-6 py-3.5 rounded-xl text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg w-full">
+                                <div class="flex flex-col items-center gap-2.5 w-full mt-3">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-normal px-4 py-2 rounded-lg text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 shadow-sm w-auto min-w-[200px]">
                                         ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
                                     </button>
-                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
+                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-normal px-4 py-2 rounded-lg text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-sm w-auto min-w-[200px]">
                                         อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
                                 </div>
