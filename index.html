@@ -749,11 +749,11 @@
 
                 if (app.profile) {
                     if (app.profile.role === 'guest') {
-                        hamBtn.classList.add('hidden');
+                        if (hamBtn) hamBtn.classList.add('hidden');
                         if (guestLogoutBtn) guestLogoutBtn.classList.remove('hidden');
                         app.closeMenu();
                     } else {
-                        hamBtn.classList.remove('hidden');
+                        if (hamBtn) hamBtn.classList.remove('hidden');
                         if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
                         
                         if (secAdmin) secAdmin.classList.toggle('hidden', app.profile.role !== 'admin');
@@ -779,7 +779,7 @@
                         }
                     }
                 } else {
-                    hamBtn.classList.add('hidden');
+                    if (hamBtn) hamBtn.classList.add('hidden');
                     if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
                     app.closeMenu();
                 }
@@ -1471,6 +1471,7 @@
                 localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                 
                 app.logSystemAccess('guest', finalName);
+                app.updateMenuVisibility();
 
                 const twoHours = 2 * 60 * 60 * 1000;
                 app.guestTimeoutId = setTimeout(() => {
@@ -2417,7 +2418,7 @@
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT/${u.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                                 </div>
                                 <div>
