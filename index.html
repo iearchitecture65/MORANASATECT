@@ -182,6 +182,9 @@
                     <button onclick="app.showView('admin_settings')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-gear w-5 text-center text-secondary"></i> ตั้งค่าระบบ
                     </button>
+                    <button onclick="app.showView('admin_advisors')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                        <i class="fa-solid fa-chalkboard-user w-5 text-center text-secondary"></i> จัดการข้อมูลอาจารย์
+                    </button>
                     <button onclick="app.showView('admin_boxes')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-square-plus w-5 text-center text-secondary"></i> จัดการกล่องข้อความ
                     </button>
@@ -352,6 +355,7 @@
             view: 'loading',
             user: null,
             profile: null, 
+            currentParam: null,
             settings: {
                 isStudentLoginOpen: true,
                 isPublicGuestOpen: true,
@@ -468,7 +472,7 @@
                         } else if (app.view === 'student_dash') {
                             if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
                             if (oldBoxesStr !== newBoxesStr) app.refreshCurrentView(); 
-                        } else if (app.view === 'public_exhibit') {
+                        } else if (app.view === 'public_exhibit' || app.view === 'advisor_profile') {
                             if (oldBoxesStr !== newBoxesStr) app.refreshCurrentView(); 
                         }
                     }
@@ -478,7 +482,7 @@
                     app.studentEdits = {};
                     snap.forEach(doc => { app.studentEdits[doc.id] = doc.data(); });
                     
-                    if (app.view === 'public_exhibit') {
+                    if (app.view === 'public_exhibit' || app.view === 'advisor_profile') {
                         app.refreshCurrentView();
                     } else if (app.view === 'student_dash') {
                         if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
@@ -923,9 +927,15 @@
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
-                                <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
-                                    อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                </a>
+                                
+                                <div class="flex flex-col gap-2 w-full mt-2">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-black px-6 py-3.5 rounded-xl text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg w-full">
+                                        ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
+                                    </button>
+                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
+                                        อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
                             </div>
                         `,
                         showConfirmButton: false,
@@ -1036,6 +1046,7 @@
             // ================== VIEWS ==================
             showView: function(viewName, param = null) {
                 app.view = viewName;
+                app.currentParam = param;
                 app.closeMenu();
                 const root = document.getElementById('appRoot');
                 window.scrollTo(0,0);
@@ -1047,6 +1058,7 @@
                 else if (viewName === 'public_exhibit') root.innerHTML = app.renderPublicExhibit(param);
                 else if (viewName === 'student_dash') root.innerHTML = app.renderStudentDash();
                 else if (viewName === 'admin_settings') root.innerHTML = app.renderAdminSettings();
+                else if (viewName === 'admin_advisors') root.innerHTML = app.renderAdminAdvisors();
                 else if (viewName === 'admin_boxes') root.innerHTML = app.renderAdminBoxes();
                 else if (viewName === 'admin_users') root.innerHTML = app.renderAdminUsers();
                 else if (viewName === 'admin_logs') root.innerHTML = app.renderAdminLogs();
@@ -1054,6 +1066,7 @@
                 else if (viewName === 'admin_iframe') root.innerHTML = app.renderAdminIframe();
                 else if (viewName === 'admin_export') root.innerHTML = app.renderAdminExport();
                 else if (viewName === 'iframe_view') root.innerHTML = app.renderIframeView(param);
+                else if (viewName === 'advisor_profile') root.innerHTML = app.renderAdvisorProfile(param);
             },
 
             refreshCurrentView: function() {
@@ -1062,6 +1075,8 @@
                 else if(app.view === 'admin_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLogs();
                 else if(app.view === 'admin_login_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLoginLogs();
                 else if(app.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = app.renderPublicExhibit(app.pendingExhibitId || app.profile?.uid); 
+                else if(app.view === 'advisor_profile') document.getElementById('appRoot').innerHTML = app.renderAdvisorProfile(app.currentParam);
+                else if(app.view === 'admin_advisors') document.getElementById('appRoot').innerHTML = app.renderAdminAdvisors();
             },
 
             // ================== RENDERERS ==================
@@ -1488,6 +1503,139 @@
                 return html;
             },
 
+            // ================== PAGE: ADVISOR PROFILE ==================
+            renderAdvisorProfile: function(advisorName) {
+                const advisor = advisorsData.find(a => advisorName.includes(a.name) || a.name.includes(advisorName));
+                if(!advisor) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลอาจารย์ที่ปรึกษา</div>`;
+                
+                const cleanAdvisorName = app.formatName(advisor.name);
+                const abbr = app.getAbbr(cleanAdvisorName);
+
+                // กรองหานักศึกษาที่มีชื่ออาจารย์ที่ปรึกษาตรงกัน
+                let students = app.thesisData.filter(d => d.advisor && (d.advisor.includes(advisor.name) || advisor.name.includes(d.advisor)));
+                
+                // เรียงรหัสนักศึกษาจากน้อยไปมาก
+                students.sort((a, b) => parseInt(a.studentId) - parseInt(b.studentId));
+
+                let studentsHtml = '';
+                if (students.length === 0) {
+                    studentsHtml = `<div class="text-center p-10 text-gray-500 font-bold bg-white/5 rounded-2xl border border-white/10 shadow-inner">ยังไม่มีนักศึกษาในที่ปรึกษา</div>`;
+                } else {
+                    studentsHtml = students.map(s => {
+                        const u = predefinedUsers.find(user => user.studentId === s.studentId);
+                        const uid = u ? u.id : 0;
+                        const sAbbr = app.getAbbr(app.formatName(s.name));
+                        
+                        // ดึงชื่อโครงการภาษาไทย (บรรทัดแรก)
+                        let thaiTitle = s.title.split('\n')[0];
+                        const bracketMatch = s.title.match(/^(.*?)(\([^)]+\))$/);
+                        if (bracketMatch) thaiTitle = bracketMatch[1].trim();
+                        const engMatch = s.title.match(/([a-zA-Z0-9\s\-:,'".&]+)$/);
+                        if (engMatch && engMatch[1].trim().length > 3 && engMatch[1].trim() !== s.title.trim()) {
+                            thaiTitle = s.title.replace(engMatch[1], '').trim();
+                        }
+                        if(!thaiTitle) thaiTitle = 'ไม่มีชื่อโครงการ';
+
+                        return `
+                        <div onclick="app.showView('public_exhibit', '${s.studentId}')" class="flex items-center gap-4 bg-black/40 hover:bg-white/10 transition-all p-4 rounded-2xl border border-white/10 cursor-pointer shadow-sm group hover:-translate-y-1">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0 shadow-md">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl sm:text-2xl z-0 hidden">${sAbbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-xl absolute z-10 spinner-icon"></i>
+                                <img src="./MORANASATECT/${uid}.png" 
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT/${uid}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-transform duration-500 group-hover:scale-[1.2]">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] text-secondary font-bold tracking-widest mb-0.5">${s.studentId}</p>
+                                <h4 class="text-white font-bold text-sm sm:text-base truncate group-hover:text-secondary transition-colors">${s.name}</h4>
+                                <p class="text-xs text-gray-400 mt-1 line-clamp-2 leading-snug font-medium">${thaiTitle}</p>
+                            </div>
+                            <div class="shrink-0 text-white/20 group-hover:text-secondary transition-colors pl-2">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+
+                return `
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                    <button onclick="app.goHome()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
+                        <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                    </button>
+
+                    <div class="glass-card rounded-[2.5rem] p-5 sm:p-6 md:p-10 mb-8 relative overflow-hidden w-full max-w-full box-border">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
+
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
+                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] sm:border-[4px] border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl absolute z-10 spinner-icon"></i>
+                                <img src="./MORANASATECT01/${advisor.id}.png" 
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT01/${advisor.id}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
+                            </div>
+                            <div class="flex-1 mt-2 sm:mt-0">
+                                <p class="text-[10px] font-bold tracking-widest uppercase text-secondary mb-1">หน้าโปรไฟล์อาจารย์ที่ปรึกษา</p>
+                                <h2 class="text-2xl sm:text-3xl font-black text-white mb-4 drop-shadow-md">${advisor.name}</h2>
+                                <a href="${advisor.url}" target="_blank" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors border border-white/10 shadow-sm">
+                                    ดูประวัติการทำงานแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner">
+                                <i class="fa-solid fa-users text-secondary mr-2 text-lg"></i> นักศึกษาในการดูแล (${students.length} ท่าน)
+                            </h3>
+                            <div class="flex flex-col gap-3">
+                                ${studentsHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            renderAdminAdvisors: function() {
+                let listHtml = advisorsData.map(a => {
+                    const cleanName = app.formatName(a.name);
+                    const abbr = app.getAbbr(cleanName);
+                    return `
+                    <div onclick="app.showView('advisor_profile', '${a.name}')" class="glass-card p-5 rounded-[2rem] flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-all border-white/10 hover:border-secondary/50 shadow-lg group hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-full border-[2px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0 shadow-md">
+                            <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl z-0 hidden">${abbr}</span>
+                            <i class="fa-solid fa-circle-notch fa-spin text-white text-xl absolute z-10 spinner-icon"></i>
+                            <img src="./MORANASATECT01/${a.id}.png" 
+                                 onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                 onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT01/${a.id}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
+                                 class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-transform duration-300 group-hover:scale-[1.2]">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white font-extrabold text-sm sm:text-base truncate group-hover:text-secondary transition-colors">${a.name}</p>
+                            <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest uppercase flex items-center gap-1"><i class="fa-solid fa-users text-secondary"></i> ดูรายชื่อนักศึกษา</p>
+                        </div>
+                        <div class="shrink-0 text-white/20 group-hover:text-secondary transition-colors">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการข้อมูลอาจารย์</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Advisors Data</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${listHtml}
+                    </div>
+                </div>`;
+            },
+
             // ================== PAGE: PUBLIC EXHIBIT ==================
             renderPublicExhibit: function(studentId) {
                 const user = predefinedUsers.find(u => u.studentId === studentId);
@@ -1890,9 +2038,15 @@
                                 </div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">อาจารย์ที่ปรึกษา</p>
                                 <h3 id="advisor-popup-name" class="font-black text-white mb-6 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${advisor.name}</h3>
-                                <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
-                                    อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                </a>
+                                
+                                <div class="flex flex-col gap-2 w-full mt-2">
+                                    <button onclick="Swal.close(); app.showView('advisor_profile', '${advisor.name}')" class="bg-primary border border-secondary/50 text-secondary font-black px-6 py-3.5 rounded-xl text-sm hover:bg-secondary hover:text-black transition-colors flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg w-full">
+                                        ดูผลงานนักศึกษาในการดูแล <i class="fa-solid fa-users"></i>
+                                    </button>
+                                    <a href="${advisor.url}" target="_blank" class="bg-secondary text-primary font-black px-6 py-3.5 rounded-xl text-sm hover:scale-105 transition-transform flex items-center justify-center gap-2 uppercase tracking-widest shadow-[0_0_15px_rgba(253,223,49,0.3)] w-full">
+                                        อ่านประวัติแบบเต็ม <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
                             </div>
                         `,
                         showConfirmButton: false,
