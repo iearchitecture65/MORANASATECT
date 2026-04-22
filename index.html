@@ -3,17 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MORANASATECT - Thesis Exhibition</title>
     
-    <!-- Open Graph / LINE Preview Tags -->
-    <meta property="og:title" content="MORANASATECT - Thesis Exhibition">
-    <meta property="og:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
-    <meta property="og:image" content="./PREVIEW%20MORANASATECT.png">
+    <!-- Open Graph / LINE Preview Tags (Dynamic Script) -->
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="./PREVIEW%20MORANASATECT.png">
-    <meta name="twitter:title" content="MORANASATECT - Thesis Exhibition">
-    <meta name="twitter:description" content="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568">
+    <script>
+        // ข้อมูลเบื้องต้นสำหรับการแสดง Preview อัตโนมัติในไลน์/เฟสบุ๊ค
+        window.PREDEFINED_USERS = [
+            { id: 1, studentId: "63030127", name: "นางสาวทัศน์ชากร ศรีสุวรรณ์" },
+            { id: 2, studentId: "64030020", name: "นางสาวขวัญชนก เป็งสุนา" },
+            { id: 3, studentId: "64030042", name: "นายฐานิต นพเทา" },
+            { id: 4, studentId: "64030052", name: "นางสาวณัฐณิชา ทองดี" },
+            { id: 5, studentId: "64030078", name: "นางสาวธันยธรณ์ เศรษฐีธร" },
+            { id: 6, studentId: "64030082", name: "นางสาวนฏกร ชัยชัชนันท์" },
+            { id: 7, studentId: "64030089", name: "นางสาวนัสรีน วงษ์สมาน" },
+            { id: 8, studentId: "64030118", name: "นางสาวปิ่นมุกข์ ศรีคง" },
+            { id: 9, studentId: "64030135", name: "นางสาวพิรญาณ์ แซ่อึ้ง" },
+            { id: 10, studentId: "64030159", name: "นางสาวยุพเรศ คำนาแซง" },
+            { id: 11, studentId: "64030163", name: "นางสาวรวิวรรณ มีเพียร" },
+            { id: 12, studentId: "64030171", name: "นางสาววชิรญาณ์ อารีเอื้อ" },
+            { id: 13, studentId: "64030179", name: "นางสาววริษฐา อานันท์วัชรานนท์" },
+            { id: 14, studentId: "64030239", name: "นายเจษฎาภรณ์ สิรุจฐนน" },
+            { id: 15, studentId: "64030287", name: "นางสาวพรนภา ปั่น" },
+            { id: 16, studentId: "64030325", name: "นางสาวอริสา พืมขุนทด" },
+            { id: 17, studentId: "65030001", name: "นางสาวกชกร ทรัพย์โคกสูง" },
+            { id: 18, studentId: "65030004", name: "นางสาวกนกวรรณ จันทร์มาเมือง" },
+            { id: 19, studentId: "65030008", name: "นางสาวกมลเนตร ชัยชนะ" },
+            { id: 20, studentId: "65030009", name: "นางสาวกมลฤทัย สว่างแจ้ง" },
+            { id: 21, studentId: "65030022", name: "นางสาวกุลภัสสร์ ธีระเพ็ญแสง" },
+            { id: 22, studentId: "65030030", name: "นางสาวจันทรัตน์ อ่อนละมูล" },
+            { id: 23, studentId: "65030036", name: "นายเฉลิมพร วันเพ็ญ" },
+            { id: 24, studentId: "65030038", name: "นางสาวชญาสินี วงศ์รักษา" },
+            { id: 25, studentId: "65030040", name: "นางสาวชนาภา ท้วมเกร็ด" },
+            { id: 26, studentId: "65030043", name: "นายชยาวุธ ภวคุณกร" },
+            { id: 27, studentId: "65030045", name: "นางสาวชยุตรา เสนากูล" },
+            { id: 28, studentId: "65030048", name: "นางสาวชวพร ประสงค์ผล" },
+            { id: 29, studentId: "65030054", name: "นางสาวโชติกา อายุวรรณกร" },
+            { id: 30, studentId: "65030057", name: "นายฐิติกานต์ ปุระเตนนท์" },
+            { id: 31, studentId: "65030063", name: "นางสาวณัชชา อภิเดช" },
+            { id: 32, studentId: "65030070", name: "นายณัฐนันท์ เตชัย" },
+            { id: 33, studentId: "65030093", name: "นายธนภัทร ไชยเมือง" },
+            { id: 34, studentId: "65030095", name: "นายธนภัทร พ้องเสียง" },
+            { id: 35, studentId: "65030115", name: "นายนนทวัฒน์ ชีพอุบัติ" },
+            { id: 36, studentId: "65030123", name: "นางสาวนันกานต์ ชูจันทร์" },
+            { id: 37, studentId: "65030138", name: "นายปฏิภาณ บำเรอจิต" },
+            { id: 38, studentId: "65030140", name: "นางสาวปณิตา พงษ์เรือง" },
+            { id: 39, studentId: "65030145", name: "นางสาวปรียากร สายสิม" },
+            { id: 40, studentId: "65030173", name: "นางสาวพุธิตา ปันฟอง" },
+            { id: 41, studentId: "65030193", name: "นายภูวิศ ชินทองเปลว" },
+            { id: 42, studentId: "65030215", name: "นางสาววนิชยา ทองสุข" },
+            { id: 43, studentId: "65030216", name: "นางสาววนิดา วามะขัน" },
+            { id: 44, studentId: "65030221", name: "นางสาววรัญญา ประสิทธิ์พิชิต" },
+            { id: 45, studentId: "65030225", name: "นางสาววริษา วิบูลพันธ์" },
+            { id: 46, studentId: "65030231", name: "นายวุฒิชัย อุ่นวิเศษ" },
+            { id: 47, studentId: "65030234", name: "นางสาวศศิกานต์ เจริญพันธุ์" },
+            { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน" },
+            { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา" },
+            { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว" },
+            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ" },
+            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา" },
+            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง" },
+            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห" },
+            { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด" },
+            { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง" },
+            { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล" }
+        ];
+
+        window.ADVISORS_DATA = [
+            { id: 1, name: "ศ.ดร.คุ้มพงศ์ หนูบรรจง", url: "https://siet.kmitl.ac.th/node/193" },
+            { id: 2, name: "ดร.พรหมปพร นวลแสง", url: "https://siet.kmitl.ac.th/node/212" },
+            { id: 3, name: "รศ.ดร.สมพล ดำรงเสถียร", url: "https://siet.kmitl.ac.th/node/49" },
+            { id: 4, name: "รศ.สุรศักดิ์ กังขาว", url: "https://siet.kmitl.ac.th/node/196" },
+            { id: 5, name: "รศ.ดร.พัสตราภรณ์ ทิพยโสธร", url: "https://siet.kmitl.ac.th/node/201" },
+            { id: 6, name: "ผศ.อัครพงศ์ อนุพันธ์พงศ์", url: "https://siet.kmitl.ac.th/node/205" },
+            { id: 7, name: "ผศ.ณธทัย จันเสน", url: "https://siet.kmitl.ac.th/node/93" },
+            { id: 8, name: "ผศ.ชูเกียรติ แซ่ตั้ง", url: "https://siet.kmitl.ac.th/node/92" },
+            { id: 9, name: "อ.รัฐภัทร์ อุปละ", url: "https://siet.kmitl.ac.th/node/216" },
+            { id: 10, name: "อ.ทศพร โสดาบรรลุ", url: "https://siet.kmitl.ac.th/node/195" },
+            { id: 11, name: "ผศ.สันติ กวินวงศ์ไพบูลย์", url: "https://siet.kmitl.ac.th/node/211" }
+        ];
+
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const exhibitId = urlParams.get('exhibit');
+            const advisorParam = urlParams.get('advisor');
+            
+            let title = "MORANASATECT - Thesis Exhibition";
+            let desc = "นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568";
+            let imgUrlBase = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+            let img = imgUrlBase + "PREVIEW%20MORANASATECT.png";
+
+            if (exhibitId) {
+                const user = window.PREDEFINED_USERS.find(u => u.studentId === exhibitId);
+                if (user) {
+                    title = "MORANASATECT | ผลงานของ " + user.name;
+                    desc = "ร่วมชมนิทรรศการผลงานวิทยานิพนธ์ของ " + user.name + " (" + exhibitId + ")";
+                    img = imgUrlBase + "MORANASATECT/" + user.id + ".png";
+                }
+            } else if (advisorParam) {
+                const advName = decodeURIComponent(advisorParam);
+                const adv = window.ADVISORS_DATA.find(a => advName.includes(a.name) || a.name.includes(advName));
+                if (adv) {
+                    title = "MORANASATECT | " + adv.name;
+                    desc = "หน้าโปรไฟล์อาจารย์ที่ปรึกษา " + adv.name + " และรายชื่อนักศึกษาในการดูแล";
+                    img = imgUrlBase + "MORANASATECT01/" + adv.id + ".png";
+                }
+            }
+
+            document.write('<title>' + title + '</title>');
+            document.write('<meta property="og:title" content="' + title + '">');
+            document.write('<meta property="og:description" content="' + desc + '">');
+            document.write('<meta property="og:image" content="' + img + '">');
+            document.write('<meta name="twitter:title" content="' + title + '">');
+            document.write('<meta name="twitter:description" content="' + desc + '">');
+            document.write('<meta name="twitter:image" content="' + img + '">');
+        })();
+    </script>
 
     <!-- Website Icon (Favicon) -->
     <link rel="icon" type="image/png" href="./iconLOGO%20MORANASATECT.png">
@@ -277,81 +382,9 @@
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRyI-a9eEarynPfuWWbpTqHvz-vDHBGnE1UnvqvDOGIAA9nWybOkfS2jlI3xJRrpFAuR5nmWup9169/pub?gid=1223023440&single=true&output=csv";
         const QUOTA_API_URL = "https://script.google.com/macros/s/AKfycbxyIsym0jDtFwIzwpuuaqzre3UGF2Ws0S67aFf74EqaOY7VgKPJTyVCzL_NO7PZa4AD/exec";
 
-        // 57 Students Data
-        const predefinedUsers = [
-            { id: 1, studentId: "63030127", name: "นางสาวทัศน์ชากร ศรีสุวรรณ์" },
-            { id: 2, studentId: "64030020", name: "นางสาวขวัญชนก เป็งสุนา" },
-            { id: 3, studentId: "64030042", name: "นายฐานิต นพเทา" },
-            { id: 4, studentId: "64030052", name: "นางสาวณัฐณิชา ทองดี" },
-            { id: 5, studentId: "64030078", name: "นางสาวธันยธรณ์ เศรษฐีธร" },
-            { id: 6, studentId: "64030082", name: "นางสาวนฏกร ชัยชัชนันท์" },
-            { id: 7, studentId: "64030089", name: "นางสาวนัสรีน วงษ์สมาน" },
-            { id: 8, studentId: "64030118", name: "นางสาวปิ่นมุกข์ ศรีคง" },
-            { id: 9, studentId: "64030135", name: "นางสาวพิรญาณ์ แซ่อึ้ง" },
-            { id: 10, studentId: "64030159", name: "นางสาวยุพเรศ คำนาแซง" },
-            { id: 11, studentId: "64030163", name: "นางสาวรวิวรรณ มีเพียร" },
-            { id: 12, studentId: "64030171", name: "นางสาววชิรญาณ์ อารีเอื้อ" },
-            { id: 13, studentId: "64030179", name: "นางสาววริษฐา อานันท์วัชรานนท์" },
-            { id: 14, studentId: "64030239", name: "นายเจษฎาภรณ์ สิรุจฐนน" },
-            { id: 15, studentId: "64030287", name: "นางสาวพรนภา ปั่น" },
-            { id: 16, studentId: "64030325", name: "นางสาวอริสา พืมขุนทด" },
-            { id: 17, studentId: "65030001", name: "นางสาวกชกร ทรัพย์โคกสูง" },
-            { id: 18, studentId: "65030004", name: "นางสาวกนกวรรณ จันทร์มาเมือง" },
-            { id: 19, studentId: "65030008", name: "นางสาวกมลเนตร ชัยชนะ" },
-            { id: 20, studentId: "65030009", name: "นางสาวกมลฤทัย สว่างแจ้ง" },
-            { id: 21, studentId: "65030022", name: "นางสาวกุลภัสสร์ ธีระเพ็ญแสง" },
-            { id: 22, studentId: "65030030", name: "นางสาวจันทรัตน์ อ่อนละมูล" },
-            { id: 23, studentId: "65030036", name: "นายเฉลิมพร วันเพ็ญ" },
-            { id: 24, studentId: "65030038", name: "นางสาวชญาสินี วงศ์รักษา" },
-            { id: 25, studentId: "65030040", name: "นางสาวชนาภา ท้วมเกร็ด" },
-            { id: 26, studentId: "65030043", name: "นายชยาวุธ ภวคุณกร" },
-            { id: 27, studentId: "65030045", name: "นางสาวชยุตรา เสนากูล" },
-            { id: 28, studentId: "65030048", name: "นางสาวชวพร ประสงค์ผล" },
-            { id: 29, studentId: "65030054", name: "นางสาวโชติกา อายุวรรณกร" },
-            { id: 30, studentId: "65030057", name: "นายฐิติกานต์ ปุระเตนนท์" },
-            { id: 31, studentId: "65030063", name: "นางสาวณัชชา อภิเดช" },
-            { id: 32, studentId: "65030070", name: "นายณัฐนันท์ เตชัย" },
-            { id: 33, studentId: "65030093", name: "นายธนภัทร ไชยเมือง" },
-            { id: 34, studentId: "65030095", name: "นายธนภัทร พ้องเสียง" },
-            { id: 35, studentId: "65030115", name: "นายนนทวัฒน์ ชีพอุบัติ" },
-            { id: 36, studentId: "65030123", name: "นางสาวนันกานต์ ชูจันทร์" },
-            { id: 37, studentId: "65030138", name: "นายปฏิภาณ บำเรอจิต" },
-            { id: 38, studentId: "65030140", name: "นางสาวปณิตา พงษ์เรือง" },
-            { id: 39, studentId: "65030145", name: "นางสาวปรียากร สายสิม" },
-            { id: 40, studentId: "65030173", name: "นางสาวพุธิตา ปันฟอง" },
-            { id: 41, studentId: "65030193", name: "นายภูวิศ ชินทองเปลว" },
-            { id: 42, studentId: "65030215", name: "นางสาววนิชยา ทองสุข" },
-            { id: 43, studentId: "65030216", name: "นางสาววนิดา วามะขัน" },
-            { id: 44, studentId: "65030221", name: "นางสาววรัญญา ประสิทธิ์พิชิต" },
-            { id: 45, studentId: "65030225", name: "นางสาววริษา วิบูลพันธ์" },
-            { id: 46, studentId: "65030231", name: "นายวุฒิชัย อุ่นวิเศษ" },
-            { id: 47, studentId: "65030234", name: "นางสาวศศิกานต์ เจริญพันธุ์" },
-            { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน" },
-            { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา" },
-            { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว" },
-            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ" },
-            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา" },
-            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง" },
-            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห" },
-            { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด" },
-            { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง" },
-            { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล" }
-        ];
-
-        // Advisors Data
-        const advisorsData = [
-            { id: 1, name: "ศ.ดร.คุ้มพงศ์ หนูบรรจง", url: "https://siet.kmitl.ac.th/node/193" },
-            { id: 2, name: "ดร.พรหมปพร นวลแสง", url: "https://siet.kmitl.ac.th/node/212" },
-            { id: 3, name: "รศ.ดร.สมพล ดำรงเสถียร", url: "https://siet.kmitl.ac.th/node/49" },
-            { id: 4, name: "รศ.สุรศักดิ์ กังขาว", url: "https://siet.kmitl.ac.th/node/196" },
-            { id: 5, name: "รศ.ดร.พัสตราภรณ์ ทิพยโสธร", url: "https://siet.kmitl.ac.th/node/201" },
-            { id: 6, name: "ผศ.อัครพงศ์ อนุพันธ์พงศ์", url: "https://siet.kmitl.ac.th/node/205" },
-            { id: 7, name: "ผศ.ณธทัย จันเสน", url: "https://siet.kmitl.ac.th/node/93" },
-            { id: 8, name: "ผศ.ชูเกียรติ แซ่ตั้ง", url: "https://siet.kmitl.ac.th/node/92" },
-            { id: 9, name: "อ.รัฐภัทร์ อุปละ", url: "https://siet.kmitl.ac.th/node/216" },
-            { id: 10, name: "อ.ทศพร โสดาบรรลุ", url: "https://siet.kmitl.ac.th/node/195" },
-            { id: 11, name: "ผศ.สันติ กวินวงศ์ไพบูลย์", url: "https://siet.kmitl.ac.th/node/211" }
-        ];
+        // 57 Students Data & Advisors Data (นำข้อมูลจาก head)
+        const predefinedUsers = window.PREDEFINED_USERS;
+        const advisorsData = window.ADVISORS_DATA;
 
         const guestRoles = ['ปี 1', 'ปี 2', 'ปี 3', 'ปี 4', 'ปี 5', 'ศิษย์เก่า', 'อาจารย์', 'เจ้าหน้าที่', 'บุคลากร', 'ผู้ปกครอง', 'บุคคลภายนอก'];
 
@@ -432,18 +465,9 @@
                                 try {
                                     const parsed = JSON.parse(savedProfile);
                                     if (parsed.role === 'guest') {
-                                        const twoHours = 2 * 60 * 60 * 1000;
-                                        if (!parsed.loginTime || Date.now() - parsed.loginTime > twoHours) {
-                                            localStorage.removeItem('moranasatect_profile');
-                                            app.profile = null;
-                                            app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info');
-                                        } else {
-                                            app.profile = parsed;
-                                            const timeLeft = twoHours - (Date.now() - parsed.loginTime);
-                                            app.guestTimeoutId = setTimeout(() => {
-                                                app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info').then(() => app.logout());
-                                            }, Math.max(0, timeLeft));
-                                        }
+                                        // เอา Bypass สำหรับ Guest ออก ตามที่ร้องขอ ให้ไปเริ่มกรอกใหม่ทุกครั้ง
+                                        localStorage.removeItem('moranasatect_profile');
+                                        app.profile = null;
                                     } else {
                                         app.profile = parsed;
                                     }
@@ -1467,16 +1491,11 @@
                 const gid = 'G_' + Math.random().toString(36).substr(2, 6);
                 const loginTime = Date.now();
                 
+                // ไม่ทำการเก็บเซสชัน Guest ลง localStorage ตามที่ร้องขอ (กลับมาก็ต้องกรอกใหม่)
                 app.profile = { uid: gid, name: finalName, role: 'guest', id: 0, loginTime: loginTime };
-                localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                 
                 app.logSystemAccess('guest', finalName);
                 app.updateMenuVisibility();
-
-                const twoHours = 2 * 60 * 60 * 1000;
-                app.guestTimeoutId = setTimeout(() => {
-                    app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info').then(() => app.logout());
-                }, twoHours);
                 
                 if (app.pendingExhibitId) {
                     const targetStudent = predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
