@@ -88,10 +88,10 @@
             { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน", thesisTitle: "โครงการพัฒนาเมืองเชิงสร้างสรรค์เพื่อส่งเสริมชุมชนเกาะสีชัง", shortLink: "" },
             { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา", thesisTitle: "โครงการศูนย์การเรียนรู้สวนพฤกษศาสตร์มหาวิทยาลัยเทคโนโลยีสุรนารี", shortLink: "" },
             { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว", thesisTitle: "ศูนย์การเรียนรู้และอนุรักษ์ฉลาม จังหวัดกระบี่", shortLink: "" },
-            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ", thesisTitle: "โครงการปรับปรุงภูมิทัศน์และพัฒนาเมืองเก่าเชียงแสนเพื่อการท่องเที่ยวเชิงประวัติศาสตร์วัฒนธรรมและวิถีชีวิต", shortLink: "" },
-            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา", thesisTitle: "ศูนย์ฝึกซ้อมและแข่งขันกีฬาทางน้ำระดับนานาชาติ จังหวัดกระบี่", shortLink: "" },
-            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง", thesisTitle: "ศูนย์ช่วยเหลือและเรียนรู้ภัยพิบัติชายฝั่ง ชุมชนบ้านขุนสมุทรจีน จังหวัดสมุทรปราการ", shortLink: "" },
-            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห", thesisTitle: "ศูนย์กลางอิสลามภาคใตั จังหวัดนราธิวาส", shortLink: "" },
+            { id: 51, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา", thesisTitle: "โครงการปรับปรุงภูมิทัศน์และพัฒนาเมืองเก่าเชียงแสนเพื่อการท่องเที่ยวเชิงประวัติศาสตร์วัฒนธรรมและวิถีชีวิต", shortLink: "" },
+            { id: 52, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง", thesisTitle: "ศูนย์ฝึกซ้อมและแข่งขันกีฬาทางน้ำระดับนานาชาติ จังหวัดกระบี่", shortLink: "" },
+            { id: 53, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห", thesisTitle: "ศูนย์ช่วยเหลือและเรียนรู้ภัยพิบัติชายฝั่ง ชุมชนบ้านขุนสมุทรจีน จังหวัดสมุทรปราการ", shortLink: "" },
+            { id: 54, studentId: "65030290", name: "นายอัฟนาน สาเม๊าะ", thesisTitle: "ศูนย์กลางอิสลามภาคใตั จังหวัดนราธิวาส", shortLink: "" },
             { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด", thesisTitle: "พิพิธภัณฑ์พื้นที่ชุ่มน้ำ ทะเลน้อย จังหวัดพัทลุง", shortLink: "" },
             { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง", thesisTitle: "สยามนิรมิต พัทยา", shortLink: "" },
             { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล", thesisTitle: "โครงการออกแบบพิพิธภัณฑ์ และศูนย์บริการรถยนต์ BMW", shortLink: "" }
@@ -1009,16 +1009,29 @@
                     
                     lines.forEach(line => {
                         const lowerLine = line.toLowerCase();
-                        if (lowerLine.startsWith('ig') || lowerLine.startsWith('instagram')) {
-                            let igHandle = line.replace(/^(ig|instagram)[\s:\-\.]*/i, '').trim();
+                        let digitsOnly = line.replace(/\D/g, '');
+
+                        if (lowerLine.includes('ig') || lowerLine.includes('instagram')) {
+                            let igHandle = line.replace(/^.*?(ig|instagram)[\s:\-\.]*/i, '').trim();
                             let igLink = igHandle.includes('http') ? igHandle : `https://instagram.com/${igHandle.replace(/^[@\s]+/, '')}`;
                             contactHtml += `<a href="${igLink}" target="_blank" class="bg-gradient-to-r from-[#833ab4]/20 via-[#fd1d1d]/20 to-[#fcb045]/20 hover:from-[#833ab4]/40 hover:via-[#fd1d1d]/40 hover:to-[#fcb045]/40 text-[#ff7b9c] border border-[#E4405F]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-sm"></i> ${igHandle}</a>`;
-                        } else if (lowerLine.startsWith('fb') || lowerLine.startsWith('facebook')) {
-                            let fbHandle = line.replace(/^(fb|facebook)[\s:\-\.]*/i, '').trim();
+                        } else if (lowerLine.includes('fb') || lowerLine.includes('facebook')) {
+                            let fbHandle = line.replace(/^.*?(fb|facebook)[\s:\-\.]*/i, '').trim();
                             let fbLink = fbHandle.includes('http') ? fbHandle : `https://www.facebook.com/search/top/?q=${encodeURIComponent(fbHandle)}`;
                             contactHtml += `<a href="${fbLink}" target="_blank" class="bg-[#1877F2]/20 hover:bg-[#1877F2]/40 text-[#1877F2] border border-[#1877F2]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-facebook text-sm"></i> ${fbHandle}</a>`;
-                        } else if (lowerLine.startsWith('gmail') || lowerLine.startsWith('email') || lowerLine.includes('@gmail.com')) {
-                            let emailHandle = line.replace(/^(gmail|email)[\s:\-\.]*/i, '').trim();
+                        } else if (lowerLine.includes('line')) {
+                            let lineId = line.replace(/^.*?(line(?:\s*id)?|id\s*line)[\s:\-\.]*/i, '').trim();
+                            let lineLink = `https://line.me/ti/p/~${lineId}`;
+                            contactHtml += `<a href="${lineLink}" target="_blank" class="bg-[#06C755]/20 hover:bg-[#06C755]/40 text-[#06C755] border border-[#06C755]/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-brands fa-line text-sm"></i> ${lineId}</a>`;
+                        } else if (lowerLine.includes('tel') || lowerLine.includes('phone') || lowerLine.includes('เบอร์') || lowerLine.includes('โทร') || (digitsOnly.length >= 9 && digitsOnly.length <= 10 && digitsOnly.startsWith('0'))) {
+                            let phoneNum = line.replace(/^.*?(tel|phone|เบอร์โทรศัพท์|เบอร์โทร|เบอร์|โทรศัพท์|โทร|อื่นๆ\s*:)[\s:\-\.]*/i, '').trim();
+                            let phoneMatch = phoneNum.match(/(0[\d\-\s]{8,})/);
+                            if (phoneMatch) phoneNum = phoneMatch[1].trim();
+                            let cleanPhone = phoneNum.replace(/[^\d+]/g, '');
+                            let phoneLink = `tel:${cleanPhone}`;
+                            contactHtml += `<a href="${phoneLink}" class="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-phone text-sm"></i> ${phoneNum}</a>`;
+                        } else if (lowerLine.includes('gmail') || lowerLine.includes('email') || lowerLine.includes('อีเมล') || lowerLine.includes('เมล') || lowerLine.includes('@')) {
+                            let emailHandle = line.replace(/^.*?(gmail|email|อีเมล|เมล)[\s:\-\.]*/i, '').trim();
                             let emailLink = `mailto:${emailHandle}`;
                             contactHtml += `<a href="${emailLink}" target="_blank" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all hover:-translate-y-0.5 flex items-center gap-1.5"><i class="fa-solid fa-envelope text-sm"></i> ${emailHandle}</a>`;
                         } else if (line.includes('http')) {
@@ -1039,7 +1052,7 @@
                 let personalInfoHtml = '';
                 if (personalText.trim()) {
                     personalInfoHtml = `
-                    <div class="bg-black/40 p-3 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-center whitespace-pre-wrap border border-white/5 my-3 shadow-inner leading-relaxed">
+                    <div class="bg-black/40 p-4 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-left whitespace-pre-wrap border border-white/5 mt-4 shadow-inner leading-relaxed">
                         ${personalText.trim()}
                     </div>`;
                 }
@@ -1058,8 +1071,8 @@
                             <h3 id="designer-popup-name" class="font-black text-white mb-1 drop-shadow-md text-center whitespace-nowrap overflow-hidden w-full" style="font-size: 24px; line-height: 1.2;">${cleanName}</h3>
                             <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">${studentId}</p>
                             
-                            ${personalInfoHtml}
                             ${contactHtml}
+                            ${personalInfoHtml}
                         </div>
                     `,
                     showConfirmButton: false,
