@@ -88,10 +88,10 @@
             { id: 48, studentId: "65030249", name: "นายศุภาวุฒิ ไขดอน", thesisTitle: "โครงการพัฒนาเมืองเชิงสร้างสรรค์เพื่อส่งเสริมชุมชนเกาะสีชัง", shortLink: "" },
             { id: 49, studentId: "65030272", name: "นางสาวอชิรญา ทิพกันทา", thesisTitle: "โครงการศูนย์การเรียนรู้สวนพฤกษศาสตร์มหาวิทยาลัยเทคโนโลยีสุรนารี", shortLink: "" },
             { id: 50, studentId: "65030273", name: "นางสาวอติกานต์ เกษแก้ว", thesisTitle: "ศูนย์การเรียนรู้และอนุรักษ์ฉลาม จังหวัดกระบี่", shortLink: "" },
-            { id: 51, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา", thesisTitle: "โครงการปรับปรุงภูมิทัศน์และพัฒนาเมืองเก่าเชียงแสนเพื่อการท่องเที่ยวเชิงประวัติศาสตร์วัฒนธรรมและวิถีชีวิต", shortLink: "" },
-            { id: 52, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง", thesisTitle: "ศูนย์ฝึกซ้อมและแข่งขันกีฬาทางน้ำระดับนานาชาติ จังหวัดกระบี่", shortLink: "" },
-            { id: 53, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห", thesisTitle: "ศูนย์ช่วยเหลือและเรียนรู้ภัยพิบัติชายฝั่ง ชุมชนบ้านขุนสมุทรจีน จังหวัดสมุทรปราการ", shortLink: "" },
-            { id: 54, studentId: "65030290", name: "นายอัฟนาน สาเม๊าะ", thesisTitle: "ศูนย์กลางอิสลามภาคใตั จังหวัดนราธิวาส", shortLink: "" },
+            { id: 51, studentId: "65030280", name: "นายอัฟนาน สาเม๊าะ", thesisTitle: "โครงการปรับปรุงภูมิทัศน์และพัฒนาเมืองเก่าเชียงแสนเพื่อการท่องเที่ยวเชิงประวัติศาสตร์วัฒนธรรมและวิถีชีวิต", shortLink: "" },
+            { id: 52, studentId: "65030282", name: "นางสาวอรกัญญา ปัญญา", thesisTitle: "ศูนย์ฝึกซ้อมและแข่งขันกีฬาทางน้ำระดับนานาชาติ จังหวัดกระบี่", shortLink: "" },
+            { id: 53, studentId: "65030286", name: "นางสาวอริสา ประทีป ณ ถลาง", thesisTitle: "ศูนย์ช่วยเหลือและเรียนรู้ภัยพิบัติชายฝั่ง ชุมชนบ้านขุนสมุทรจีน จังหวัดสมุทรปราการ", shortLink: "" },
+            { id: 54, studentId: "65030288", name: "นางสาวอังคณา ใบตะเห", thesisTitle: "ศูนย์กลางอิสลามภาคใตั จังหวัดนราธิวาส", shortLink: "" },
             { id: 55, studentId: "65030292", name: "นางสาวอาทิตยา พริกเอียด", thesisTitle: "พิพิธภัณฑ์พื้นที่ชุ่มน้ำ ทะเลน้อย จังหวัดพัทลุง", shortLink: "" },
             { id: 56, studentId: "65030295", name: "นางสาวอารียา สุขเหลือง", thesisTitle: "สยามนิรมิต พัทยา", shortLink: "" },
             { id: 57, studentId: "65030298", name: "นายนราวิชญ์ สมันตกล", thesisTitle: "โครงการออกแบบพิพิธภัณฑ์ และศูนย์บริการรถยนต์ BMW", shortLink: "" }
@@ -1607,27 +1607,45 @@
             },
 
             playVideoPopup: function(url) {
+                let displayUrl = url;
+                if (displayUrl.includes('drive.google.com/file/d/')) {
+                    const match = displayUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                    if (match) displayUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+                } else if (displayUrl.includes('drive.google.com/uc?') || displayUrl.includes('drive.google.com/open?')) {
+                    try { displayUrl = `https://drive.google.com/file/d/${new URL(displayUrl).searchParams.get('id')}/preview`; } catch(e) {}
+                }
+
                 app.swal.fire({
                     html: `
-                        <div class="flex flex-col items-center justify-center w-full h-full">
-                            <div class="w-full relative shadow-2xl flex-shrink-0 bg-black" style="aspect-ratio: 16/9; max-height: calc(100dvh - 100px); max-width: 100vw;">
-                                <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-3xl sm:text-4xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0"></i>
-                                <iframe src="${url}" class="absolute top-0 left-0 w-full h-full z-10 border-0" allow="autoplay; fullscreen" allowfullscreen onload="this.previousElementSibling.style.display='none'"></iframe>
+                        <div class="flex flex-col w-full h-full bg-black/95 text-left rounded-[2rem] overflow-hidden border border-secondary/30 shadow-2xl">
+                            <!-- Header -->
+                            <div class="flex justify-between items-center p-4 border-b border-white/10 shrink-0 z-20 shadow-sm relative bg-white/5">
+                                <div class="flex items-center gap-2 px-2 text-white font-bold text-sm sm:text-base truncate">
+                                    <i class="fa-solid fa-video text-secondary shrink-0"></i>
+                                    <span class="truncate max-w-[200px] sm:max-w-md">วิดีโอผลงาน</span>
+                                </div>
+                                <button onclick="Swal.close()" class="flex items-center justify-center w-8 h-8 bg-white/10 text-white hover:bg-red-500 hover:text-white rounded-full transition-colors shrink-0 cursor-pointer pointer-events-auto" title="ปิดหน้าต่าง">
+                                    <i class="fa-solid fa-xmark text-lg"></i>
+                                </button>
                             </div>
-                            <button onclick="Swal.close()" class="mt-4 px-5 py-2 bg-white/10 hover:bg-red-500 text-white font-bold rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all cursor-pointer pointer-events-auto shadow-md hover:scale-105 active:scale-95 uppercase tracking-widest text-xs shrink-0">
-                                <i class="fa-solid fa-xmark mr-1.5 text-base"></i> ปิดหน้าต่าง
-                            </button>
+                            <!-- Body -->
+                            <div class="flex-1 overflow-hidden relative bg-black">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none opacity-50">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-3xl sm:text-4xl mb-3 text-gray-400"></i>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">กำลังโหลดเนื้อหา...</span>
+                                </div>
+                                <iframe src="${displayUrl}" class="absolute top-0 left-0 w-full h-full border-0 relative z-10 opacity-0 transition-opacity duration-500" allow="autoplay; fullscreen" allowfullscreen onload="this.classList.remove('opacity-0')"></iframe>
+                            </div>
                         </div>
                     `,
                     showCloseButton: false,
                     showConfirmButton: false,
-                    width: '100vw',
                     padding: '0',
                     background: 'transparent',
-                    backdrop: 'rgba(0,0,0,0.95)',
+                    backdrop: 'rgba(0,0,0,0.85)',
                     customClass: {
-                        popup: '!bg-transparent !border-0 !shadow-none !rounded-none !backdrop-blur-none !w-screen !h-screen !max-w-full !m-0 !p-0 flex justify-center items-center overflow-hidden',
-                        htmlContainer: '!m-0 !p-0 w-full h-full flex justify-center items-center'
+                        popup: '!bg-transparent !border-0 !shadow-none !backdrop-blur-sm w-[95vw] md:w-[85vw] lg:w-[75vw] max-w-5xl h-[85vh] sm:h-[90vh] !p-0 flex flex-col overflow-hidden',
+                        htmlContainer: '!m-0 !p-0 w-full h-full flex flex-col'
                     }
                 });
             },
