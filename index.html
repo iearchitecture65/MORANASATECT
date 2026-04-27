@@ -1051,9 +1051,11 @@
 
                 let personalInfoHtml = '';
                 if (personalText.trim()) {
+                    let cleanText = personalText.trim().replace(/^อื่นๆ\s*:\s*/i, '').trim();
                     personalInfoHtml = `
-                    <div class="bg-black/40 p-4 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-left whitespace-pre-wrap border border-white/5 mt-4 shadow-inner leading-relaxed">
-                        ${personalText.trim()}
+                    <div class="bg-black/40 px-4 py-2 rounded-xl text-xs sm:text-sm text-gray-300 w-full text-left border border-white/5 mt-3 shadow-inner">
+                        <span class="text-secondary font-bold text-[10px] uppercase tracking-widest block mb-0.5">อื่นๆ:</span>
+                        <div class="whitespace-pre-wrap leading-snug break-words">${cleanText}</div>
                     </div>`;
                 }
 
