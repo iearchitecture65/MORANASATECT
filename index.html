@@ -1635,8 +1635,13 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center justify-center w-full gap-4">
-                            <!-- กรอบวิดีโอ -->
-                            <div class="w-full relative bg-black rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 border border-white/10" style="aspect-ratio: 16/9; max-height: 75vh;">
+                            <!-- คำแนะนำด้านบน (ไม่มีกระพริบ) -->
+                            <div class="bg-black/60 text-secondary border border-secondary/30 px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold tracking-wide shadow-lg backdrop-blur-md shrink-0">
+                                <i class="fa-solid fa-circle-exclamation mr-1"></i> หากวิดีโอตกขอบหรือไม่แสดงผล ให้ปิดหน้าต่างแล้วเปิดใหม่
+                            </div>
+
+                            <!-- กรอบวิดีโอสีเหลือง -->
+                            <div class="w-full relative bg-black rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 border border-secondary/30" style="aspect-ratio: 16/9; max-height: 75vh;">
                                 
                                 <!-- Loading State -->
                                 <div id="${iframeId}-loader" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/95 backdrop-blur-sm transition-opacity duration-500">
