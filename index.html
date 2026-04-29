@@ -1632,15 +1632,20 @@
 
                 app.swal.fire({
                     html: `
-                        <div class="flex flex-col items-center justify-center w-full gap-3 sm:gap-4">
-                            <div class="w-full aspect-video bg-black/95 rounded-2xl sm:rounded-[2rem] overflow-hidden border border-secondary/30 shadow-2xl relative">
+                        <div class="flex flex-col items-center justify-center w-full h-full gap-3 sm:gap-4">
+                            <div class="bg-black/60 text-secondary border border-secondary/30 px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold tracking-wide shadow-lg backdrop-blur-md animate-pulse shrink-0">
+                                <i class="fa-solid fa-circle-exclamation mr-1"></i> หากวิดีโอตกขอบหรือไม่แสดงผล ให้ปิดหน้าต่างแล้วเปิดใหม่
+                            </div>
+                            
+                            <div class="w-full relative bg-black/95 rounded-2xl sm:rounded-[2rem] overflow-hidden border border-secondary/30 shadow-2xl" style="aspect-ratio: 16/9; max-height: 70vh;">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none opacity-50">
                                     <i class="fa-solid fa-circle-notch fa-spin text-3xl sm:text-4xl mb-3 text-gray-400"></i>
-                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">กำลังโหลดเนื้อหา...</span>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">กำลังจัดเตรียมวิดีโอ...</span>
                                 </div>
-                                <iframe src="${displayUrl}" class="absolute top-0 left-0 w-full h-full border-0 relative z-10 opacity-0 transition-opacity duration-500" allow="autoplay; fullscreen" allowfullscreen onload="this.classList.remove('opacity-0')"></iframe>
+                                <iframe src="${displayUrl}" class="absolute top-0 left-0 w-full h-full border-0 z-10 opacity-0 transition-opacity duration-700" allow="autoplay; fullscreen" allowfullscreen onload="setTimeout(() => this.classList.remove('opacity-0'), 300)"></iframe>
                             </div>
-                            <button onclick="Swal.close()" class="flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white rounded-full transition-all cursor-pointer pointer-events-auto border border-red-500/30 shadow-lg backdrop-blur-md active:scale-95">
+                            
+                            <button onclick="Swal.close()" class="flex items-center justify-center gap-2 px-8 py-3 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white rounded-full transition-all cursor-pointer pointer-events-auto border border-red-500/30 shadow-lg backdrop-blur-md active:scale-95 shrink-0 mt-2">
                                 <i class="fa-solid fa-xmark text-lg"></i> <span class="font-bold text-xs sm:text-sm tracking-widest uppercase">ปิดหน้าต่าง</span>
                             </button>
                         </div>
@@ -1651,8 +1656,8 @@
                     background: 'transparent',
                     backdrop: 'rgba(0,0,0,0.85)',
                     customClass: {
-                        popup: '!bg-transparent !border-0 !shadow-none !backdrop-blur-sm w-[95vw] md:w-[80vw] lg:w-[70vw] max-w-5xl !p-0',
-                        htmlContainer: '!m-0 !p-0 w-full'
+                        popup: '!bg-transparent !border-0 !shadow-none !backdrop-blur-sm w-[95vw] md:w-[80vw] lg:w-[70vw] max-w-5xl max-h-[100vh] !p-0 flex flex-col justify-center items-center',
+                        htmlContainer: '!m-0 !p-0 w-full flex flex-col justify-center items-center'
                     }
                 });
             },
