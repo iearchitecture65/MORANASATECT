@@ -869,6 +869,7 @@
 
             sharePublicLink: async function(studentId) {
                 const user = window.predefinedUsers.find(u => u.studentId === studentId);
+                const data = app.thesisData.find(d => d.studentId === studentId) || {};
                 let link = "";
                 
                 // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ
@@ -880,13 +881,18 @@
                     link = `${basePath}Exhibition/${studentId}.html`;
                 }
                 
+                // จัดเตรียมข้อความสำหรับแชร์
+                let thesisName = data.title ? data.title.replace(/\n/g, ' ') : (user ? user.thesisTitle : 'ไม่มีชื่อโครงการ');
+                const shareTextObj = `ชมนิทรรศการผลงานวิทยานิพนธ์\nMORANASATECT - Thesis Exhibition\n\n${thesisName}`;
+                const fullClipboardText = `${shareTextObj}\n${link}`;
+                
                 const showFallbackCopy = () => {
                     app.swal.fire({
                         title: 'แชร์ลิงก์ผลงาน',
                         html: `
-                            <input type="text" value="${link}" class="w-full p-4 rounded-xl text-center text-sm text-primary font-bold bg-white outline-none border-2 border-secondary" readonly id="copyLinkInput">
-                            <p class="text-xs text-gray-400 mt-3">คัดลอกลิงก์ด้านบนเพื่อแชร์ให้เพื่อนๆ</p>`,
-                        confirmButtonText: 'คัดลอกลิงก์',
+                            <textarea id="copyLinkInput" class="w-full p-4 rounded-xl text-sm text-primary font-bold bg-white outline-none border-2 border-secondary resize-none" rows="6" readonly>${fullClipboardText}</textarea>
+                            <p class="text-xs text-gray-400 mt-3">คัดลอกข้อความด้านบนเพื่อแชร์ให้เพื่อนๆ</p>`,
+                        confirmButtonText: 'คัดลอกข้อความ',
                         showCancelButton: true,
                         cancelButtonText: 'ปิดหน้าต่าง'
                     }).then((result) => {
@@ -895,7 +901,7 @@
                             if(input) {
                                 input.select();
                                 document.execCommand('copy');
-                                app.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
+                                app.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
                             }
                         }
                     });
@@ -903,27 +909,31 @@
 
                 if (navigator.share) {
                     try { 
-                        await navigator.share({ title: 'MORANASATECT Thesis Exhibition', text: 'ชมนิทรรศการผลงานวิทยานิพนธ์', url: link }); 
+                        await navigator.share({ 
+                            title: 'MORANASATECT - Thesis Exhibition', 
+                            text: shareTextObj, 
+                            url: link 
+                        }); 
                     } catch(e) {
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
                     try {
                         if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(link);
-                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                            await navigator.clipboard.writeText(fullClipboardText);
+                            app.swal.fire({ title: 'คัดลอกข้อความแล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } else {
                             throw new Error("Clipboard API not available");
                         }
                     } catch (err) {
                         try {
                             const textArea = document.createElement("textarea");
-                            textArea.value = link;
+                            textArea.value = fullClipboardText;
                             document.body.appendChild(textArea);
                             textArea.select();
                             document.execCommand('copy');
                             document.body.removeChild(textArea);
-                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                            app.swal.fire({ title: 'คัดลอกข้อความแล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } catch (err2) { showFallbackCopy(); }
                     }
                 }
