@@ -394,6 +394,7 @@
             settings: {
                 isStudentLoginOpen: true,
                 isPublicGuestOpen: true,
+                isSharingOpen: true,
                 allowEdit: true,
                 embeddedSites: [], 
                 customBoxes: []
@@ -537,6 +538,9 @@
                         if(data.isSystemOpen !== undefined && data.isStudentLoginOpen === undefined) {
                             data.isStudentLoginOpen = data.isSystemOpen;
                             data.isPublicGuestOpen = data.isSystemOpen;
+                        }
+                        if(data.isSharingOpen === undefined) {
+                            data.isSharingOpen = data.isSystemOpen !== false;
                         }
                         
                         const oldBoxesStr = JSON.stringify(app.settings.customBoxes);
@@ -868,10 +872,10 @@
             },
 
             sharePublicLink: async function(studentId) {
-                if (app.settings.isPublicGuestOpen === false) {
+                if (app.settings.isSharingOpen === false) {
                     return app.swal.fire({
-                        title: 'ระบบปิดการเข้าชม',
-                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมสำหรับบุคคลภายนอก ทำให้ไม่สามารถแชร์ลิงก์ได้ชั่วคราวครับ',
+                        title: 'ระบบปิดการแชร์',
+                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ',
                         icon: 'warning',
                         confirmButtonText: 'ตกลง'
                     });
@@ -937,25 +941,16 @@
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
-                    try {
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(fullClipboardText);
-                            app.swal.fire({ title: 'คัดลอกข้อความและลิงก์แล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
-                        } else {
-                            throw new Error("Clipboard API not available");
-                        }
-                    } catch (err) {
-                        showFallbackCopy();
-                    }
+                    showFallbackCopy(); // บังคับให้ PC เด้งหน้าจอ Copy ข้อความเสมอ
                 }
             },
 
             // แก้ไข: เปลี่ยนจาก advisorName เป็น advisorId
             shareAdvisorLink: async function(advisorId) {
-                if (app.settings.isPublicGuestOpen === false) {
+                if (app.settings.isSharingOpen === false) {
                     return app.swal.fire({
-                        title: 'ระบบปิดการเข้าชม',
-                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมสำหรับบุคคลภายนอก ทำให้ไม่สามารถแชร์ลิงก์ได้ชั่วคราวครับ',
+                        title: 'ระบบปิดการแชร์',
+                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ',
                         icon: 'warning',
                         confirmButtonText: 'ตกลง'
                     });
@@ -1004,16 +999,7 @@
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
-                    try {
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(fullClipboardText);
-                            app.swal.fire({ title: 'คัดลอกข้อความและลิงก์แล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
-                        } else {
-                            throw new Error("Clipboard API not available");
-                        }
-                    } catch (err) {
-                        showFallbackCopy();
-                    }
+                    showFallbackCopy(); // บังคับให้ PC เด้งหน้าจอ Copy ข้อความเสมอ
                 }
             },
 
@@ -1940,7 +1926,7 @@
                         </div>
                         
                         <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
-                            <button onclick="app.shareAdvisorLink('${advisor.id}')" class="${app.settings.isPublicGuestOpen !== false ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                            <button onclick="app.shareAdvisorLink('${advisor.id}')" class="${app.settings.isSharingOpen !== false ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                                 <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าโปรไฟล์นี้
                             </button>
                         </div>
@@ -1989,6 +1975,25 @@
 
             // ================== PAGE: PUBLIC EXHIBIT ==================
             renderPublicExhibit: function(studentId) {
+                const isPublicGuestOpen = app.settings.isPublicGuestOpen !== false;
+                const isAdmin = app.profile && app.profile.role === 'admin';
+                const isOwner = app.profile && app.profile.role === 'student' && app.profile.uid === studentId;
+
+                // หากระบบปิด และไม่ใช่แอดมินหรือเจ้าของผลงาน
+                if (!isPublicGuestOpen && !isAdmin && !isOwner) {
+                    return `
+                    <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto mt-20">
+                        <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500">
+                            <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
+                            <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
+                            <p class="text-blue-100 text-sm font-medium bg-black/20 p-4 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto">
+                                ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงานสำหรับบุคคลภายนอก คุณสามารถดูได้เฉพาะผลงานของตนเองผ่านปุ่ม "ดูผลงานของฉัน" เท่านั้นครับ
+                            </p>
+                            <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full text-xs font-bold transition-colors">กลับหน้าหลัก</button>
+                        </div>
+                    </div>`;
+                }
+
                 const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
                 
@@ -1997,7 +2002,7 @@
 
                 const cleanName = app.formatName(data.name || user.name);
                 const abbr = app.getAbbr(cleanName);
-                const isGuestOpen = app.settings.isPublicGuestOpen !== false;
+                const isSharingOpen = app.settings.isSharingOpen !== false;
 
                 let customBoxesHtml = '';
                 if (app.settings.allowEdit) {
@@ -2082,7 +2087,7 @@
                         <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-black/30 px-4 py-2 rounded-full border border-white/5 shadow-inner">
                             <i class="fa-solid fa-eye text-secondary"></i> เข้าชมผลงานชิ้นนี้แล้ว <span class="dynamic-visit-count text-white" data-sid="${studentId}">${visitCount}</span> ครั้ง
                         </div>
-                        <button onclick="app.sharePublicLink('${studentId}')" class="${isGuestOpen ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                        <button onclick="app.sharePublicLink('${studentId}')" class="${isSharingOpen ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                             <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าผลงานนี้
                         </button>
                     </div>
@@ -2110,7 +2115,7 @@
 
                 const cleanName = app.formatName(app.profile.name);
                 const abbr = app.getAbbr(cleanName);
-                const isGuestOpen = app.settings.isPublicGuestOpen !== false;
+                const isSharingOpen = app.settings.isSharingOpen !== false;
 
                 let customBoxesInputHtml = '';
                 const studentCustomData = app.studentEdits[sid] || {};
@@ -2195,9 +2200,9 @@
                              </div>
                         </div>
 
-                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer transition-colors ${isGuestOpen ? 'hover:bg-white/10 border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]' : 'border-white/5 opacity-60'}" onclick="app.sharePublicLink('${sid}')">
-                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 transition-transform ${isGuestOpen ? 'bg-secondary text-black shadow-[0_0_20px_rgba(253,223,49,0.5)] group-hover:-translate-y-2' : 'bg-gray-600 text-gray-400'}"><i class="fa-solid fa-share-nodes"></i></div>
-                            <p class="text-xs font-bold tracking-widest uppercase ${isGuestOpen ? 'text-white' : 'text-gray-400'}">แชร์ลิงก์ส่วนตัว</p>
+                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer transition-colors ${isSharingOpen ? 'hover:bg-white/10 border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]' : 'border-white/5 opacity-60'}" onclick="app.sharePublicLink('${sid}')">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 transition-transform ${isSharingOpen ? 'bg-secondary text-black shadow-[0_0_20px_rgba(253,223,49,0.5)] group-hover:-translate-y-2' : 'bg-gray-600 text-gray-400'}"><i class="fa-solid fa-share-nodes"></i></div>
+                            <p class="text-xs font-bold tracking-widest uppercase ${isSharingOpen ? 'text-white' : 'text-gray-400'}">แชร์ลิงก์ส่วนตัว</p>
                         </div>
                     </div>
 
@@ -2345,10 +2350,21 @@
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
                             <div>
                                 <p class="font-bold text-white text-sm">เปิดระบบเข้าชมสำหรับผู้เยี่ยมชมทั่วไป (Guest)</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ผู้เยี่ยมชมที่เข้าผ่านลิงก์หรือคิวอาร์โค้ด จะเห็นเพียงหน้าระบบปิดให้บริการ</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด บุคคลภายนอก และนักศึกษา จะไม่สามารถเข้าดูผลงานของคนอื่นได้ (นักศึกษาดูได้เฉพาะของตัวเองเท่านั้น)</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                 <input type="checkbox" ${app.settings.isPublicGuestOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isPublicGuestOpen', this.checked)" class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div>
+                                <p class="font-bold text-white text-sm">เปิดระบบการแชร์ผลงาน (Share)</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ปุ่มแชร์ผลงานและหน้าโปรไฟล์ทั้งหมดจะกลายเป็นสีเทา และไม่สามารถกดแชร์ได้ชั่วคราว</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${app.settings.isSharingOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isSharingOpen', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
