@@ -1788,9 +1788,10 @@
                             </div>
                         </div>`;
                     } else {
-                        let aspectClassIframe = 'w-full min-h-[70vh] sm:min-h-[85vh] flex-1';
+                        // กลับมาใช้สัดส่วน 4/3 เหมือนเดิม สำหรับหน้าผลงานนักศึกษา
+                        let aspectClassIframe = 'w-full aspect-[4/3] sm:h-[75vh] sm:aspect-auto';
                         let inlineStyleIframe = '';
-                        let outerDivClass = 'w-full flex flex-col';
+                        let outerDivClass = 'w-full';
 
                         if (lineClean.includes('chatpresentation2หน้า')) {
                             aspectClassIframe = 'w-full';
@@ -1803,7 +1804,7 @@
 
                         html += `
                         <div class="${outerDivClass}">
-                            <div class="relative flex-1 ${aspectClassIframe} rounded-2xl sm:rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto" ${inlineStyleIframe ? `style="${inlineStyleIframe}"` : ''}>
+                            <div class="relative ${aspectClassIframe} rounded-2xl sm:rounded-3xl shadow-xl border border-white/10 bg-black overflow-hidden pointer-events-auto" ${inlineStyleIframe ? `style="${inlineStyleIframe}"` : ''}>
                                 <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
                                     <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                                     <span class="text-[10px] font-bold tracking-widest uppercase">Loading Image...</span>
@@ -3100,18 +3101,18 @@
                 if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto"><i class="fa-solid fa-link-slash text-4xl mb-3"></i><br>ไม่พบหน้าเว็บนี้</div>`;
 
                 return `
-                <div class="animate-fade-in flex-1 flex flex-col w-full h-full min-h-[80vh] mt-4 sm:mt-6 px-2 sm:px-0 pb-4">
+                <div class="animate-fade-in flex flex-col w-full mt-2 sm:mt-4 px-2 sm:px-0" style="height: calc(100dvh - 120px);">
                     <div class="flex items-center gap-4 mb-4 bg-black/60 p-4 rounded-3xl border border-white/10 backdrop-blur-xl shadow-lg shrink-0">
                         <div class="min-w-0 pl-2">
                             <h2 class="text-white font-bold text-sm sm:text-base truncate"><i class="fa-solid fa-arrow-up-right-from-square text-secondary mr-2"></i>${site.title}</h2>
                         </div>
                     </div>
-                    <div class="flex-1 w-full bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative flex items-center justify-center pointer-events-auto min-h-[70vh]">
+                    <div class="flex-1 w-full bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
                             <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                             <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
                         </div>
-                        <iframe src="${site.url}" onload="this.classList.remove('opacity-0')" class="w-full h-full relative z-10 border-0 opacity-0 transition-opacity duration-700 rounded-3xl" allowfullscreen></iframe>
+                        <iframe src="${site.url}" onload="this.classList.remove('opacity-0')" class="absolute top-0 left-0 w-full h-full z-10 border-0 opacity-0 transition-opacity duration-700" allowfullscreen></iframe>
                     </div>
                 </div>`;
             }
