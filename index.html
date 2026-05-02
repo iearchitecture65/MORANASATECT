@@ -1310,7 +1310,7 @@
                 else if(app.view === 'admin_users') document.getElementById('appRoot').innerHTML = app.renderAdminUsers();
                 else if(app.view === 'admin_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLogs();
                 else if(app.view === 'admin_login_logs') document.getElementById('appRoot').innerHTML = app.renderAdminLoginLogs();
-                else if(app.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = app.renderPublicExhibit(app.pendingExhibitId || app.profile?.uid); 
+                else if(app.view === 'public_exhibit') document.getElementById('appRoot').innerHTML = app.renderPublicExhibit(app.currentParam); 
                 else if(app.view === 'advisor_profile') document.getElementById('appRoot').innerHTML = app.renderAdvisorProfile(app.currentParam);
                 else if(app.view === 'admin_advisors') document.getElementById('appRoot').innerHTML = app.renderAdminAdvisors();
                 else if(app.view === 'admin_boxes') document.getElementById('appRoot').innerHTML = app.renderAdminBoxes();
@@ -1530,13 +1530,16 @@
             renderGuestRegister: function() {
                 if (app.settings.isPublicGuestOpen === false) {
                     return `
-                    <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
-                        <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500">
+                    <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
+                        <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
                             <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
-                            <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 drop-shadow-sm">ระบบปิดให้บริการ</h2>
-                            <p class="text-blue-100 text-sm font-medium mb-8 bg-black/20 p-4 rounded-xl border border-white/10 shadow-inner">
-                                ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้
-                            </p>
+                            <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดให้บริการ</h2>
+                            <div class="text-blue-100 text-sm font-medium bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto leading-relaxed">
+                                <p>ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้</p>
+                            </div>
+                            <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
+                                กลับหน้าหลัก
+                            </button>
                         </div>
                     </div>`;
                 }
@@ -1981,21 +1984,43 @@
 
                 // หากระบบปิด และไม่ใช่แอดมินหรือเจ้าของผลงาน
                 if (!isPublicGuestOpen && !isAdmin && !isOwner) {
-                    return `
-                    <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto mt-20">
-                        <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500">
-                            <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
-                            <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
-                            <p class="text-blue-100 text-sm font-medium bg-black/20 p-4 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto">
-                                ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงานสำหรับบุคคลภายนอก คุณสามารถดูได้เฉพาะผลงานของตนเองผ่านปุ่ม "ดูผลงานของฉัน" เท่านั้นครับ
-                            </p>
-                            <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full text-xs font-bold transition-colors">กลับหน้าหลัก</button>
-                        </div>
-                    </div>`;
+                    if (app.profile && app.profile.role === 'student') {
+                        return `
+                        <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
+                            <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
+                                <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
+                                <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
+                                <div class="text-blue-100 text-sm font-medium bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto leading-relaxed">
+                                    <p>ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงาน</p>
+                                    <p>สำหรับบุคคลภายนอก</p>
+                                    <br>
+                                    <p>คุณสามารถดูได้เฉพาะผลงานของตนเอง</p>
+                                    <p>ผ่านปุ่ม "ดูผลงานของฉัน" เท่านั้นครับ</p>
+                                </div>
+                                <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
+                                    กลับหน้าหลัก
+                                </button>
+                            </div>
+                        </div>`;
+                    } else {
+                        return `
+                        <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
+                            <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
+                                <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
+                                <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
+                                <div class="text-blue-100 text-sm font-medium bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto leading-relaxed">
+                                    <p>ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้</p>
+                                </div>
+                                <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
+                                    กลับหน้าหลัก
+                                </button>
+                            </div>
+                        </div>`;
+                    }
                 }
 
                 const user = window.predefinedUsers.find(u => u.studentId === studentId);
-                if(!user) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div>`;
+                if(!user) return `<div class="flex-1 flex flex-col items-center justify-center w-full min-h-[60vh]"><div class="text-center text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลรหัสนักศึกษานี้</div></div>`;
                 
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
                 const visitCount = app.visitLogs[studentId] || 0;
