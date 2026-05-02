@@ -236,10 +236,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(253, 223, 49, 0.4); border-radius: 10px; }
 
-        .bg-blob-1 { background: radial-gradient(circle, rgba(253,223,49,0.15) 0%, rgba(0,0,0,0) 70%); }
-        .bg-blob-2 { background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); }
-        .bg-blob-3 { background: radial-gradient(circle, rgba(253,223,49,0.08) 0%, rgba(0,0,0,0) 70%); }
-
         .swal2-popup {
             background: rgba(20, 20, 20, 0.95) !important;
             border: 1px solid rgba(253, 223, 49, 0.3) !important;
@@ -272,9 +268,9 @@
 
     <!-- Background Blobs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="absolute -top-20 -left-20 w-[400px] h-[400px] bg-blob-1 animate-blob"></div>
-        <div class="absolute top-40 -right-20 w-[300px] h-[300px] bg-blob-2 animate-blob" style="animation-delay: 2s; animation-direction: alternate-reverse;"></div>
-        <div class="absolute -bottom-20 left-1/4 w-[500px] h-[500px] bg-blob-3 animate-blob" style="animation-delay: 4s;"></div>
+        <div class="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] animate-blob"></div>
+        <div class="absolute top-[30%] -right-[10%] w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px] animate-blob" style="animation-delay: 2s; animation-direction: alternate-reverse;"></div>
+        <div class="absolute -bottom-[10%] left-[20%] w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[150px] animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
     <!-- Header & Menu -->
@@ -289,14 +285,19 @@
         <div class="pointer-events-auto relative flex flex-col items-end gap-2">
             <div class="flex items-center gap-2">
                 <!-- Login Button for Unlogged Users -->
-                <button id="navLoginBtn" onclick="app.showView('login')" class="text-white hover:text-secondary transition-all duration-300 transform bg-black/40 hover:bg-black/60 px-4 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center gap-2">
+                <button id="navLoginBtn" onclick="app.showView('login')" class="hidden text-white hover:text-secondary transition-all duration-300 transform bg-black/40 hover:bg-black/60 px-4 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center gap-2">
                     <span class="text-xs font-bold hidden sm:inline tracking-widest uppercase">เข้าสู่ระบบ</span>
                     <i class="fa-solid fa-right-to-bracket text-lg"></i>
                 </button>
 
                 <!-- Hamburger Menu Button (Now visible for guests too) -->
-                <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center">
+                <button id="navHamburger" onclick="app.toggleMenu()" class="hidden text-white hover:text-secondary transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center">
                     <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
+                </button>
+
+                <!-- Guest Logout Button -->
+                <button id="navGuestLogout" onclick="app.logout()" class="hidden text-red-400 hover:text-red-300 transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center" title="ออกจากระบบ">
+                    <i class="fa-solid fa-right-from-bracket text-xl drop-shadow-md"></i>
                 </button>
             </div>
 
@@ -923,6 +924,7 @@
             updateMenuVisibility: function() {
                 const hamBtn = document.getElementById('navHamburger');
                 const loginBtn = document.getElementById('navLoginBtn');
+                const guestLogoutBtn = document.getElementById('navGuestLogout');
                 
                 const secPublic = document.getElementById('menuPublicSection');
                 const secAdmin = document.getElementById('menuAdminSection');
@@ -935,10 +937,11 @@
                 
                 if (!hamBtn) return;
 
-                // --- ซ่อนปุ่ม Header อัตโนมัติเมื่ออยู่หน้า Login / OTP / Guest Register ---
-                if (['login', 'otp', 'guest_register'].includes(app.view)) {
+                // --- ซ่อนปุ่ม Header อัตโนมัติเมื่ออยู่หน้า Loading / Login / OTP / Guest Register ---
+                if (['loading', 'login', 'otp', 'guest_register'].includes(app.view)) {
                     if (loginBtn) loginBtn.classList.add('hidden');
                     if (hamBtn) hamBtn.classList.add('hidden');
+                    if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
                     app.closeMenu(); // ปิดเมนูทุกครั้ง
                     return; 
                 }
@@ -1054,8 +1057,8 @@
             },
 
             formatThesisTitle: function(title, isCard = false) {
-                const thaiSize = isCard ? "text-[10px] md:text-xs" : "text-xl md:text-2xl";
-                const engSize = isCard ? "text-[8px] md:text-[9px] mt-0.5" : "text-sm md:text-base mt-2";
+                const thaiSize = isCard ? "text-xs md:text-sm" : "text-xl md:text-2xl";
+                const engSize = isCard ? "text-[9px] md:text-[10px] mt-0.5" : "text-sm md:text-base mt-2";
                 
                 if (!title) return `<span class="${thaiSize} font-black block">กำลังจัดทำวิทยานิพนธ์</span>`;
                 let parts = title.split('\n');
@@ -1468,6 +1471,15 @@
                 app.updateSEO(viewName, param);
                 app.closeMenu();
                 
+                // ปรับเปลี่ยน URL ให้ตรงกับหน้าที่แสดงอยู่ เพื่อให้สามารถแชร์ลิงก์ได้
+                let newUrl = window.location.pathname;
+                if (viewName === 'login') newUrl += '?login=student';
+                else if (viewName === 'guest_register') newUrl += '?login=guest';
+                else if (viewName === 'public_exhibit' && param) newUrl += '?exhibit=' + param;
+                else if (viewName === 'advisor_profile' && param) newUrl += '?advisor=' + param;
+                else if (viewName === 'iframe_view' && param !== null) newUrl += '?iframe=' + param;
+                try { window.history.replaceState(null, '', newUrl); } catch(e){}
+
                 // อัปเดตการแสดงผลเมนูด้านบนทุกครั้งที่เปลี่ยนหน้า
                 app.updateMenuVisibility();
                 
@@ -1629,9 +1641,8 @@
                     <div class="relative w-full flex flex-col items-center justify-center text-center py-8 md:py-12 mb-6 overflow-hidden">
                         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-80 sm:h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
-                        <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 h-[352px] sm:h-[384px] md:h-[480px] object-contain mb-4 drop-shadow-lg animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
-
                         ${!filterParam ? `
+                        <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 h-14 sm:h-16 md:h-20 object-contain mb-4 drop-shadow-lg animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
                         <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[85%] sm:w-[70%] md:w-[60%] max-w-[450px] object-contain mb-4 animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
                         ` : `
                         <h1 class="relative z-10 text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-white drop-shadow-md mb-2 animate-slide-up leading-tight tracking-tight px-4" style="animation-delay: 0.1s">
@@ -2236,24 +2247,28 @@
                     if (bookLinkMatch) {
                         thesisBookHtml = `
                         <div class="mt-12 pt-8 border-t border-white/10 flex justify-center w-full">
-                            <a href="${bookLinkMatch[1]}" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 px-8 py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg transition-transform transform active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 w-full sm:w-auto overflow-hidden">
+                            <a href="${bookLinkMatch[1]}" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 px-8 py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg transition-transform transform active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 w-full sm:w-auto">
                                 <i class="fa-solid fa-book-open-reader text-2xl"></i> ดูเล่มวิทยานิพนธ์ฉบับเต็ม
                             </a>
                         </div>`;
                     }
                 }
 
-                return `
-                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0 overflow-x-hidden">
-                    <button onclick="app.goHome()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
+                const backBtnHtml = (app.historyStack && app.historyStack.length > 0) ? `
+                    <button onclick="app.goBack()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
                         <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
                     </button>
+                ` : '';
+
+                return `
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                    ${backBtnHtml}
 
                     <div class="glass-card rounded-[2.5rem] p-5 sm:p-6 md:p-10 mb-8 relative overflow-hidden w-full max-w-full box-border">
-                        <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
+                        <div class="absolute -top-20 -right-20 w-64 h-64 bg-secondary/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
 
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
-                            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[3px] sm:border-[4px] border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
+                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] sm:border-[4px] border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
@@ -2371,14 +2386,18 @@
                     }).join('');
                 }
 
-                return `
-                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                const backBtnHtml = (app.historyStack && app.historyStack.length > 0) ? `
                     <button onclick="app.goBack()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
                         <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
                     </button>
+                ` : '';
+
+                return `
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                    ${backBtnHtml}
 
                     <div class="glass-card rounded-[2.5rem] p-5 sm:p-6 md:p-10 mb-8 relative overflow-hidden w-full max-w-full box-border">
-                        <div class="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full -z-10 mix-blend-screen"></div>
+                        <div class="absolute -top-20 -right-20 w-64 h-64 bg-secondary/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
 
                         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-8 mb-8 border-b border-white/10 pb-8 text-center sm:text-left">
                             <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-[3px] sm:border-[4px] border-white overflow-hidden shrink-0 shadow-[0_0_25px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
@@ -2488,7 +2507,7 @@
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full overflow-hidden">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-black/40 backdrop-blur-xl p-5 sm:p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden w-full max-w-full">
-                        <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <div class="absolute -top-20 -right-20 w-64 h-64 bg-secondary/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
                         
                         <div class="relative z-10 flex items-center gap-4 sm:gap-6 w-full min-w-0">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
@@ -2531,12 +2550,13 @@
                     ${customBoxesInputHtml}
 
                     <div class="glass-card p-5 sm:p-8 rounded-3xl relative overflow-hidden w-full max-w-full">
-                        <h3 class="text-white font-bold text-base md:text-xl mb-6 border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                        <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+                        <h3 class="text-white font-bold text-base md:text-xl mb-6 border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center gap-2 relative z-10">
                             <span><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ</span>
                             <span class="text-[10px] sm:text-xs text-gray-400 font-normal sm:ml-2">(ไม่อนุญาตให้แก้ไข)</span>
                         </h3>
                         
-                        <div class="space-y-1 text-sm text-gray-300 w-full max-w-full min-w-0">
+                        <div class="space-y-1 text-sm text-gray-300 w-full max-w-full min-w-0 relative z-10">
                             ${allDetailsHtml || '<div class="text-center text-gray-500 p-10"><i class="fa-solid fa-folder-open text-4xl mb-3 block"></i>ไม่พบข้อมูลวิทยานิพนธ์</div>'}
                         </div>
 
