@@ -323,7 +323,7 @@
                     <button onclick="app.showView('student_dash')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-sliders w-5 text-center text-secondary"></i> หน้าจัดการของฉัน
                     </button>
-                    <button onclick="app.showView('public_exhibit', app.profile?.uid)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
+                    <button onclick="app.openExhibit(app.profile?.uid, true)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white">
                         <i class="fa-solid fa-display w-5 text-center text-secondary"></i> ดูผลงานของฉัน
                     </button>
                 </div>
@@ -502,8 +502,7 @@
                             } else if (exhibitId) {
                                 app.updateSEO('public_exhibit', exhibitId); // เพิ่มบรรทัดนี้
                                 if (app.profile) {
-                                    app.logVisit(exhibitId);
-                                    app.showView('public_exhibit', exhibitId);
+                                    app.openExhibit(exhibitId, false);
                                 } else {
                                     app.pendingExhibitId = exhibitId;
                                     app.showView('guest_register');
@@ -675,8 +674,24 @@
                 return arr;
             },
 
-            logVisit: async function(studentId) {
+            openExhibit: function(studentId, isFromDashboardMenu = false) {
+                if (app.profile) {
+                    app.logVisit(studentId, isFromDashboardMenu);
+                }
+                app.showView('public_exhibit', studentId);
+            },
+
+            logVisit: async function(studentId, isFromDashboardMenu = false) {
                 if(!app.user || !app.profile) return;
+                
+                // 1. Admin ไม่บันทึกการเข้าชม
+                if (app.profile.role === 'admin') return;
+                
+                // 2. นักศึกษาดูผลงานตัวเองจากปุ่มใน Dashboard หรือ เมนู ไม่บันทึก (แต่ถ้าเข้าจากลิงก์ จะไม่เข้าเงื่อนไขนี้และถูกบันทึก)
+                if (app.profile.role === 'student' && app.profile.uid === studentId && isFromDashboardMenu) {
+                    return;
+                }
+
                 try {
                     const ref = doc(db, 'artifacts', appId, 'public', 'data', 'visits', studentId);
                     const snap = await getDoc(ref);
@@ -1373,7 +1388,7 @@
             renderProjectIndex: function() {
                 const listHtml = window.predefinedUsers.map(u => `
                     <a href="./Exhibition/${u.studentId}.html" 
-                       onclick="event.preventDefault(); if(app.profile){ app.showView('public_exhibit', '${u.studentId}'); } else { app.pendingExhibitId='${u.studentId}'; app.showView('guest_register'); }"
+                       onclick="event.preventDefault(); if(app.profile){ app.openExhibit('${u.studentId}', false); } else { app.pendingExhibitId='${u.studentId}'; app.showView('guest_register'); }"
                        class="glass-card p-4 rounded-2xl border border-white/5 hover:border-secondary/50 transition-all flex flex-col gap-2 group text-left shadow-sm">
                         <span class="text-[10px] text-secondary font-black tracking-widest uppercase">${u.studentId}</span>
                         <h4 class="text-white font-bold text-sm leading-snug group-hover:text-secondary transition-colors line-clamp-2">${u.thesisTitle}</h4>
@@ -1624,8 +1639,7 @@
                 if (app.pendingExhibitId) {
                     const targetStudent = window.predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
                     if (targetStudent) {
-                        app.logVisit(app.pendingExhibitId);
-                        app.showView('public_exhibit', app.pendingExhibitId);
+                        app.openExhibit(app.pendingExhibitId, false);
                     } else {
                         app.swal.fire({
                             title: 'ไม่พบผลงาน',
@@ -1869,7 +1883,7 @@
                         if(!thaiTitle) thaiTitle = 'ไม่มีชื่อโครงการ';
 
                         return `
-                        <div onclick="app.showView('public_exhibit', '${s.studentId}')" class="flex items-center gap-4 bg-black/40 hover:bg-white/10 transition-all p-4 rounded-2xl border border-white/10 cursor-pointer shadow-sm group hover:-translate-y-1">
+                        <div onclick="app.openExhibit('${s.studentId}', false)" class="flex items-center gap-4 bg-black/40 hover:bg-white/10 transition-all p-4 rounded-2xl border border-white/10 cursor-pointer shadow-sm group hover:-translate-y-1">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0 shadow-md">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl sm:text-2xl z-0 hidden">${sAbbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl absolute z-10 spinner-icon"></i>
@@ -2690,7 +2704,7 @@
                             <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 min-w-[45%] py-3 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-pen-to-square"></i> จัดการ
                             </button>
-                            <button onclick="app.showView('public_exhibit', '${u.studentId}')" class="w-full py-3 bg-secondary text-primary rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 mt-1">
+                            <button onclick="app.openExhibit('${u.studentId}', false)" class="w-full py-3 bg-secondary text-primary rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 mt-1">
                                 <i class="fa-solid fa-eye"></i> ดูผลงาน
                             </button>
                         </div>
@@ -2731,7 +2745,7 @@
                             </button>
                         </td>
                         <td class="p-4 text-center">
-                            <button onclick="app.showView('public_exhibit', '${u.studentId}')" class="bg-white/10 w-9 h-9 rounded-full text-sm hover:bg-secondary hover:text-black transition-colors shadow-sm mx-auto flex items-center justify-center" title="ดูผลงาน">
+                            <button onclick="app.openExhibit('${u.studentId}', false)" class="bg-white/10 w-9 h-9 rounded-full text-sm hover:bg-secondary hover:text-black transition-colors shadow-sm mx-auto flex items-center justify-center" title="ดูผลงาน">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </button>
                         </td>
