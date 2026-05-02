@@ -609,7 +609,7 @@
                         const headers = parsed[0];
                         const dataRows = parsed.slice(1);
                         
-                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4'];
+                        const prefixes = ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3', '4.1', '5.1', '5.2', '5.3', '5.4', '9.1'];
                         const headerMap = {};
                         prefixes.forEach(p => headerMap[p] = []);
 
@@ -640,12 +640,13 @@
                             obj.facebook = obj['5.1'];
                             obj.instagram = obj['5.2'];
                             obj.otherContact = [obj['5.3'], obj['5.4']].filter(Boolean).join('\n');
+                            obj.thesisBook = obj['9.1'];
                             
                             obj.raw = {
                                 '1.1': obj['1.1'], '1.2': obj['1.2'], '1.3': obj['1.3'],
                                 '2.1': obj['2.1'], '2.2': obj['2.2'], '2.3': obj['2.3'], '2.4': obj['2.4'],
                                 '3.1': obj['3.1'], '3.2': obj['3.2'], '3.3': obj['3.3'],
-                                '4.1': obj['4.1']
+                                '4.1': obj['4.1'], '9.1': obj['9.1']
                             };
                             return obj;
                         }).filter(r => r.studentId);
@@ -2062,6 +2063,19 @@
                     });
                 }
 
+                let thesisBookHtml = '';
+                if (data.thesisBook) {
+                    let bookLinkMatch = data.thesisBook.match(/(https?:\/\/[^\s]+)/);
+                    if (bookLinkMatch) {
+                        thesisBookHtml = `
+                        <div class="mt-12 pt-8 border-t border-white/10 flex justify-center w-full">
+                            <a href="${bookLinkMatch[1]}" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 px-8 py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg transition-transform transform active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 w-full sm:w-auto">
+                                <i class="fa-solid fa-book-open-reader text-2xl"></i> ดูเล่มวิทยานิพนธ์ฉบับเต็ม
+                            </a>
+                        </div>`;
+                    }
+                }
+
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="glass-card rounded-[2.5rem] p-5 sm:p-6 md:p-10 mb-8 relative overflow-hidden w-full max-w-full box-border">
@@ -2120,6 +2134,8 @@
                                 ${app.renderMediaFrames(data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs, 'image')}
                             </div>` : ''}
                         </div>
+                        
+                        ${thesisBookHtml}
                     </div>
                     
                     <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
@@ -2194,7 +2210,7 @@
                     '1.1': '1.1 รหัสนักศึกษา', '1.2': '1.2 ชื่อ-นามสกุล', '1.3': '1.3 ข้อมูลติดต่อ',
                     '2.1': '2.1 ชื่อผลงานวิทยานิพนธ์', '2.2': '2.2 อาจารย์ที่ปรึกษา', '2.3': '2.3 หมวดหมู่', '2.4': '2.4 บทคัดย่อ / คำอธิบาย',
                     '3.1': '3.1 ลิงก์รูปภาพปก', '3.2': '3.2 ลิงก์รูปภาพพอร์ตโฟลิโอ 1', '3.3': '3.3 ลิงก์รูปภาพพอร์ตโฟลิโอ 2',
-                    '4.1': '4.1 ลิงก์วิดีโอผลงาน'
+                    '4.1': '4.1 ลิงก์วิดีโอผลงาน', '9.1': '9.1 เล่มวิทยานิพนธ์'
                 };
                 if(data.raw) {
                     Object.keys(labels).forEach(k => {
