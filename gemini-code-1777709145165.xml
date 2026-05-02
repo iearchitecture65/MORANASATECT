@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- หน้าแรกของเว็บไซต์ (อยู่ที่ Root) -->
+  <url>
+    <loc>https://iearchitecture65.github.io/MORANASATECT/</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- หน้าวิทยานิพนธ์ของคุณ (อยู่ในโฟลเดอร์ Exhibition) -->
+  <url>
+    <loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/65030138.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- หากมีหน้าอื่นๆ ในโฟลเดอร์เดียวกัน สามารถเพิ่มต่อได้เลย -->
+  <url>
+    <loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/65030XXX.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
