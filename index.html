@@ -495,6 +495,19 @@
                 const root = document.getElementById('appRoot');
                 if(root) root.innerHTML = app.renderLoading();
 
+                // ฟังก์ชันบังคับโหลดรูปภาพที่สำคัญล่วงหน้า พร้อมตั้งเวลาจำกัดไม่ให้รอนานเกิน 2 วินาที
+                const preloadImportantImages = () => {
+                    const images = ['./LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png'];
+                    const promises = images.map(src => new Promise(resolve => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve; // หากโหลดพังก็ให้ข้ามไปเลยเพื่อไม่ให้ระบบค้าง
+                        img.src = src;
+                    }));
+                    const timeout = new Promise(resolve => setTimeout(resolve, 2000));
+                    return Promise.race([Promise.all(promises), timeout]);
+                };
+
                 try {
                     const initAuth = async () => {
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -507,7 +520,9 @@
                             await signInAnonymously(auth);
                         }
                     };
-                    await initAuth();
+                    
+                    // สั่งล็อกอินและโหลดรูปภาพไปพร้อมๆ กันก่อนเข้าหน้าเว็บหลัก
+                    await Promise.all([initAuth(), preloadImportantImages()]);
                     
                     onAuthStateChanged(auth, async (user) => {
                         app.user = user;
@@ -1624,7 +1639,7 @@
                     <div class="relative w-full flex flex-col items-center justify-center text-center py-8 md:py-12 mb-6 overflow-hidden">
                         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-80 sm:h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
-                        <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 h-44 sm:h-48 md:h-60 object-contain mb-4 drop-shadow-lg animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
+                        <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 h-[352px] sm:h-[384px] md:h-[480px] object-contain mb-4 drop-shadow-lg animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
 
                         ${!filterParam ? `
                         <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[85%] sm:w-[70%] md:w-[60%] max-w-[450px] object-contain mb-4 animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
