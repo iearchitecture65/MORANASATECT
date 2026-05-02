@@ -298,11 +298,6 @@
                 <button id="navHamburger" onclick="app.toggleMenu()" class="text-white hover:text-secondary hidden transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center">
                     <i class="fa-solid fa-bars text-2xl drop-shadow-md"></i>
                 </button>
-
-                <!-- Guest Logout Button -->
-                <button id="navGuestLogout" onclick="app.logout()" class="hidden text-red-400 hover:text-red-300 transition-all duration-300 transform bg-black/40 hover:bg-black/60 p-3 w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-center" title="ออกจากระบบ">
-                    <i class="fa-solid fa-right-from-bracket text-xl drop-shadow-md"></i>
-                </button>
             </div>
 
             <!-- Dropdown Menu -->
@@ -928,7 +923,6 @@
             updateMenuVisibility: function() {
                 const hamBtn = document.getElementById('navHamburger');
                 const loginBtn = document.getElementById('navLoginBtn');
-                const guestLogoutBtn = document.getElementById('navGuestLogout');
                 
                 const secPublic = document.getElementById('menuPublicSection');
                 const secAdmin = document.getElementById('menuAdminSection');
@@ -941,11 +935,11 @@
                 
                 if (!hamBtn) return;
 
-                // --- ซ่อนปุ่ม Header อัตโนมัติเมื่ออยู่หน้า Login ---
-                if (app.view === 'login') {
+                // --- ซ่อนปุ่ม Header อัตโนมัติเมื่ออยู่หน้า Login / OTP / Guest Register ---
+                if (['login', 'otp', 'guest_register'].includes(app.view)) {
                     if (loginBtn) loginBtn.classList.add('hidden');
                     if (hamBtn) hamBtn.classList.add('hidden');
-                    if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
+                    app.closeMenu(); // ปิดเมนูทุกครั้ง
                     return; 
                 }
 
@@ -977,15 +971,12 @@
                     if (hamBtn) hamBtn.classList.remove('hidden');
 
                     if (app.profile.role === 'guest') {
-                        if (guestLogoutBtn) guestLogoutBtn.classList.remove('hidden');
                         if (secAdmin) secAdmin.classList.add('hidden');
                         if (secStudent) secStudent.classList.add('hidden');
                         if (secPublic) secPublic.classList.remove('hidden');
                         if (logoutDivider) logoutDivider.classList.remove('hidden');
                         if (menuLogoutBtn) menuLogoutBtn.classList.remove('hidden');
                     } else {
-                        if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
-                        
                         // แอดมิน หรือ นักศึกษา
                         if (secAdmin) secAdmin.classList.toggle('hidden', app.profile.role !== 'admin');
                         if (secStudent) secStudent.classList.toggle('hidden', app.profile.role !== 'student');
@@ -1006,7 +997,6 @@
                     // หากยังไม่ได้ Login (คนนอก)
                     if (loginBtn) loginBtn.classList.remove('hidden');
                     if (hamBtn) hamBtn.classList.remove('hidden'); // แสดงแฮมเบอร์เกอร์ให้เห็น Public Menu
-                    if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
                     
                     if (secAdmin) secAdmin.classList.add('hidden');
                     if (secStudent) secStudent.classList.add('hidden');
@@ -2232,7 +2222,7 @@
                         
                         if (val) {
                             customBoxesHtml += `
-                            <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed">
+                            <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed overflow-hidden break-words">
                                 <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
                                 ${val}
                             </div>`;
@@ -2246,7 +2236,7 @@
                     if (bookLinkMatch) {
                         thesisBookHtml = `
                         <div class="mt-12 pt-8 border-t border-white/10 flex justify-center w-full">
-                            <a href="${bookLinkMatch[1]}" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 px-8 py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg transition-transform transform active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 w-full sm:w-auto">
+                            <a href="${bookLinkMatch[1]}" target="_blank" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 px-8 py-4 rounded-2xl text-sm sm:text-base font-bold shadow-lg transition-transform transform active:scale-95 hover:-translate-y-1 flex items-center justify-center gap-3 w-full sm:w-auto overflow-hidden">
                                 <i class="fa-solid fa-book-open-reader text-2xl"></i> ดูเล่มวิทยานิพนธ์ฉบับเต็ม
                             </a>
                         </div>`;
@@ -2254,7 +2244,7 @@
                 }
 
                 return `
-                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0 overflow-x-hidden">
                     <button onclick="app.goHome()" class="mb-6 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
                         <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
                     </button>
@@ -2271,22 +2261,22 @@
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
-                            <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full">
-                                <div class="mb-5 leading-tight drop-shadow-lg break-words whitespace-normal">
+                            <div class="flex-1 mt-2 sm:mt-0 min-w-0 w-full max-w-full overflow-hidden">
+                                <div class="mb-5 leading-tight drop-shadow-lg break-words whitespace-normal overflow-wrap-anywhere">
                                     ${app.formatThesisTitle(data.title)}
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 sm:gap-4 text-gray-300 text-xs md:text-sm font-medium">
                                     
-                                    <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left">
+                                    <div onclick="app.showDesignerInfo('${studentId}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left max-w-full overflow-hidden">
                                         <i class="fa-solid fa-user-pen text-secondary group-hover:scale-110 transition-transform shrink-0"></i>
-                                        <span class="break-words leading-tight">ผู้ออกแบบ: ${cleanName}</span>
+                                        <span class="break-words leading-tight truncate">ผู้ออกแบบ: ${cleanName}</span>
                                         <i class="fa-solid fa-circle-info text-[10px] text-gray-500 shrink-0"></i>
                                     </div>
                                     
                                     ${data.advisor ? `
-                                    <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left">
+                                    <div onclick="app.showAdvisorInfo('${data.advisor}')" class="bg-black/40 hover:bg-white/10 transition-colors px-4 py-2.5 rounded-xl border border-white/10 flex items-center justify-center sm:justify-start gap-2 cursor-pointer shadow-sm group w-full sm:w-auto text-left max-w-full overflow-hidden">
                                         <i class="fa-solid fa-chalkboard-user text-secondary group-hover:scale-110 transition-transform shrink-0"></i>
-                                        <span class="break-words leading-tight">อ.ที่ปรึกษา: ${data.advisor}</span>
+                                        <span class="break-words leading-tight truncate">อ.ที่ปรึกษา: ${data.advisor}</span>
                                         <i class="fa-solid fa-circle-info text-[10px] text-gray-500 shrink-0"></i>
                                     </div>` : ''}
 
@@ -2297,14 +2287,14 @@
                         ${customBoxesHtml}
 
                         ${data.description ? `
-                        <div class="mb-12">
+                        <div class="mb-12 max-w-full overflow-hidden break-words">
                             <h3 class="text-white font-bold mb-4 flex items-center text-sm uppercase tracking-widest bg-black/40 p-3 rounded-xl border border-white/10 inline-flex shadow-inner">
                                 <i class="fa-solid fa-align-left text-secondary mr-2 text-lg"></i> บทคัดย่อ / คำอธิบาย
                             </h3>
-                            <p class="text-gray-300 text-sm whitespace-pre-wrap bg-white/5 p-6 rounded-2xl leading-relaxed border border-white/10 shadow-lg">${data.description}</p>
+                            <p class="text-gray-300 text-sm whitespace-pre-wrap bg-white/5 p-6 rounded-2xl leading-relaxed border border-white/10 shadow-lg break-words overflow-wrap-anywhere">${data.description}</p>
                         </div>` : ''}
 
-                        <div class="flex flex-col gap-10 w-full min-w-0 max-w-full">
+                        <div class="flex flex-col gap-10 w-full min-w-0 max-w-full overflow-hidden">
                             ${data.videoUrl ? `
                             <div class="animate-slide-up w-full min-w-0 max-w-full">
                                 ${app.renderMediaFrames(data.videoUrl, 'video')}
@@ -2323,8 +2313,8 @@
                         <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-black/30 px-4 py-2 rounded-full border border-white/5 shadow-inner">
                             <i class="fa-solid fa-eye text-secondary"></i> เข้าชมผลงานชิ้นนี้แล้ว <span class="dynamic-visit-count text-white" data-sid="${studentId}">${visitCount}</span> ครั้ง
                         </div>
-                        <button onclick="app.sharePublicLink('${studentId}')" class="${isSharingOpen ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
-                            <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าผลงานนี้
+                        <button onclick="app.sharePublicLink('${studentId}')" class="${isSharingOpen ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto max-w-[90%] overflow-hidden">
+                            <i class="fa-solid fa-share-nodes text-lg shrink-0"></i> <span class="truncate">แชร์หน้าผลงานนี้</span>
                         </button>
                     </div>
                 </div>`;
@@ -2431,9 +2421,9 @@
                 if(!value) return '';
                 let formattedValue = value.split('\n').map(v => `<p class="mb-1">${v}</p>`).join('');
                 return `
-                <div class="bg-black/30 p-4 rounded-xl border border-white/5 mb-3">
-                    <b class="text-secondary block mb-2 text-[10px] sm:text-xs uppercase tracking-widest border-b border-white/10 pb-2"><i class="fa-solid fa-caret-right mr-1"></i> ${label}</b>
-                    <div class="whitespace-pre-wrap leading-relaxed text-gray-200 text-xs sm:text-sm font-medium">${formattedValue}</div>
+                <div class="bg-black/30 p-4 rounded-xl border border-white/5 mb-3 w-full max-w-full overflow-hidden break-words">
+                    <b class="text-secondary block mb-2 text-[10px] sm:text-xs uppercase tracking-widest border-b border-white/10 pb-2 truncate"><i class="fa-solid fa-caret-right mr-1"></i> ${label}</b>
+                    <div class="whitespace-pre-wrap leading-relaxed text-gray-200 text-xs sm:text-sm font-medium overflow-wrap-anywhere break-words">${formattedValue}</div>
                 </div>`;
             },
 
@@ -2460,19 +2450,19 @@
                         if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
                         
                         fieldsHtml += `
-                        <div class="mb-6">
+                        <div class="mb-6 max-w-full">
                             <label class="block text-[11px] text-secondary font-bold uppercase tracking-widest mb-2 pl-2"><i class="fa-solid fa-pen-nib mr-1"></i> ${b.label}</label>
                             <textarea id="custom_box_${b.id}" class="glass-input w-full p-4 rounded-2xl min-h-[120px] text-sm placeholder:text-gray-600 transition-shadow leading-relaxed" placeholder="${b.placeholder || 'พิมพ์ข้อความที่นี่...'}">${val}</textarea>
                         </div>`;
                     });
 
                     customBoxesInputHtml = `
-                    <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden border-t-4 border-t-secondary mb-8">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg"><i class="fa-solid fa-square-plus"></i></div>
-                            <h3 class="text-white font-bold text-lg md:text-xl">ข้อมูลเพิ่มเติมสำหรับหน้าผลงาน</h3>
+                    <div class="glass-card p-5 sm:p-8 rounded-3xl relative overflow-hidden border-t-4 border-t-secondary mb-8 w-full max-w-full">
+                        <div class="flex items-center gap-3 mb-4 max-w-full overflow-hidden">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-square-plus"></i></div>
+                            <h3 class="text-white font-bold text-lg md:text-xl truncate">ข้อมูลเพิ่มเติมสำหรับหน้าผลงาน</h3>
                         </div>
-                        <p class="text-[11px] text-gray-400 mb-5 bg-black/40 p-4 rounded-xl border border-white/5 leading-relaxed">ข้อมูลส่วนนี้จะถูกนำไปแสดงผลเด่นอยู่ด้านบนสุดของหน้าผลงานของคุณทันที สามารถเว้นว่างไว้ได้หากไม่ต้องการแสดง</p>
+                        <p class="text-[11px] text-gray-400 mb-5 bg-black/40 p-4 rounded-xl border border-white/5 leading-relaxed break-words">ข้อมูลส่วนนี้จะถูกนำไปแสดงผลเด่นอยู่ด้านบนสุดของหน้าผลงานของคุณทันที สามารถเว้นว่างไว้ได้หากไม่ต้องการแสดง</p>
                         
                         ${fieldsHtml}
                         
@@ -2496,11 +2486,11 @@
                 }
 
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full overflow-hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-black/40 backdrop-blur-xl p-5 sm:p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden w-full max-w-full">
                         <div class="absolute -right-10 -top-10 text-9xl text-white/5"><i class="fa-solid fa-graduation-cap"></i></div>
                         
-                        <div class="relative z-10 flex items-center gap-4 sm:gap-6">
+                        <div class="relative z-10 flex items-center gap-4 sm:gap-6 w-full min-w-0">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[2px] sm:border-[3px] border-white overflow-hidden shrink-0 shadow-[0_0_15px_rgba(253,223,49,0.3)] bg-secondary relative flex items-center justify-center p-0">
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
@@ -2509,49 +2499,52 @@
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
-                            <div>
-                                <p class="text-secondary font-black text-2xl md:text-3xl mb-1 drop-shadow-md">${cleanName}</p>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase"><i class="fa-solid fa-user-graduate mr-1 text-gray-500"></i> STUDENT DASHBOARD</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-secondary font-black text-xl md:text-3xl mb-1 drop-shadow-md truncate w-full">${cleanName}</p>
+                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase truncate w-full"><i class="fa-solid fa-user-graduate mr-1 text-gray-500"></i> STUDENT DASHBOARD</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div onclick="app.showMyViewCount('${sid}', '${vCount}')" class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden group cursor-pointer hover:bg-white/10 transition-colors border-secondary/30 shadow-[0_0_15px_rgba(253,223,49,0.1)]">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-8 w-full max-w-full">
+                        <div onclick="app.showMyViewCount('${sid}', '${vCount}')" class="glass-card p-5 sm:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden group cursor-pointer hover:bg-white/10 transition-colors border-secondary/30 shadow-[0_0_15px_rgba(253,223,49,0.1)] w-full">
                             <div class="absolute right-[-10px] bottom-[-10px] text-white/5 text-7xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-eye"></i></div>
                             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2 z-10 relative">ยอดเข้าชม (คลิกเพื่อดู)</p>
-                            <p class="text-4xl md:text-5xl font-black text-secondary drop-shadow-lg z-10 relative"><span class="dynamic-visit-count" data-sid="${sid}">${vCount}</span> <span class="text-sm font-medium text-gray-500">ครั้ง</span></p>
+                            <p class="text-3xl md:text-5xl font-black text-secondary drop-shadow-lg z-10 relative truncate"><span class="dynamic-visit-count" data-sid="${sid}">${vCount}</span> <span class="text-sm font-medium text-gray-500">ครั้ง</span></p>
                         </div>
                         
-                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden">
+                        <div class="glass-card p-5 sm:p-8 rounded-3xl flex flex-col justify-center relative overflow-hidden w-full">
                              <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-3 z-10 relative">สถานะข้อมูล (อิงจากชีต)</p>
                              <div class="flex items-center gap-3 z-10 relative">
                                  ${isComplete ? 
-                                     `<div class="w-12 h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check"></i></div> <span class="text-xl font-bold text-white drop-shadow-md">สมบูรณ์</span>` : 
-                                     `<div class="w-12 h-12 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-clock"></i></div> <span class="text-xl font-bold text-white drop-shadow-md">รออัปเดต</span>`}
+                                     `<div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-xl sm:text-2xl shrink-0"><i class="fa-solid fa-check"></i></div> <span class="text-lg sm:text-xl font-bold text-white drop-shadow-md truncate">สมบูรณ์</span>` : 
+                                     `<div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center text-xl sm:text-2xl shrink-0"><i class="fa-solid fa-clock"></i></div> <span class="text-lg sm:text-xl font-bold text-white drop-shadow-md truncate">รออัปเดต</span>`}
                              </div>
                         </div>
 
-                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer transition-colors ${isSharingOpen ? 'hover:bg-white/10 border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]' : 'border-white/5 opacity-60'}" onclick="app.sharePublicLink('${sid}')">
-                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 transition-transform ${isSharingOpen ? 'bg-secondary text-black shadow-[0_0_20px_rgba(253,223,49,0.5)] group-hover:-translate-y-2' : 'bg-gray-600 text-gray-400'}"><i class="fa-solid fa-share-nodes"></i></div>
-                            <p class="text-xs font-bold tracking-widest uppercase ${isSharingOpen ? 'text-white' : 'text-gray-400'}">แชร์ลิงก์ส่วนตัว</p>
+                        <div class="glass-card p-5 sm:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer transition-colors ${isSharingOpen ? 'hover:bg-white/10 border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]' : 'border-white/5 opacity-60'} w-full" onclick="app.sharePublicLink('${sid}')">
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-4 transition-transform ${isSharingOpen ? 'bg-secondary text-black shadow-[0_0_20px_rgba(253,223,49,0.5)] group-hover:-translate-y-2' : 'bg-gray-600 text-gray-400'}"><i class="fa-solid fa-share-nodes"></i></div>
+                            <p class="text-[10px] sm:text-xs font-bold tracking-widest uppercase ${isSharingOpen ? 'text-white' : 'text-gray-400'}">แชร์ลิงก์ส่วนตัว</p>
                         </div>
                     </div>
 
                     ${customBoxesInputHtml}
 
-                    <div class="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
-                        <h3 class="text-white font-bold text-lg md:text-xl mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ <span class="text-xs text-gray-400 font-normal ml-2">(ไม่อนุญาตให้แก้ไข)</span></h3>
+                    <div class="glass-card p-5 sm:p-8 rounded-3xl relative overflow-hidden w-full max-w-full">
+                        <h3 class="text-white font-bold text-base md:text-xl mb-6 border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                            <span><i class="fa-solid fa-database text-secondary mr-2"></i>ข้อมูลที่ดึงมาจากระบบ</span>
+                            <span class="text-[10px] sm:text-xs text-gray-400 font-normal sm:ml-2">(ไม่อนุญาตให้แก้ไข)</span>
+                        </h3>
                         
-                        <div class="space-y-1 text-sm text-gray-300">
+                        <div class="space-y-1 text-sm text-gray-300 w-full max-w-full min-w-0">
                             ${allDetailsHtml || '<div class="text-center text-gray-500 p-10"><i class="fa-solid fa-folder-open text-4xl mb-3 block"></i>ไม่พบข้อมูลวิทยานิพนธ์</div>'}
                         </div>
 
                         <div class="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4 justify-center">
-                            <button onclick="app.showMediaPopup('video')" class="bg-black/60 border border-secondary/50 text-secondary px-8 py-4 rounded-xl hover:bg-secondary hover:text-black font-bold transition-transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg">
+                            <button onclick="app.showMediaPopup('video')" class="bg-black/60 border border-secondary/50 text-secondary px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:bg-secondary hover:text-black font-bold transition-transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg w-full sm:w-auto text-sm sm:text-base">
                                 <i class="fa-solid fa-video text-xl"></i> พรีวิววิดีโอผลงาน
                             </button>
-                            <button onclick="app.showMediaPopup('image')" class="bg-black/60 border border-secondary/50 text-secondary px-8 py-4 rounded-xl hover:bg-secondary hover:text-black font-bold transition-transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg">
+                            <button onclick="app.showMediaPopup('image')" class="bg-black/60 border border-secondary/50 text-secondary px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:bg-secondary hover:text-black font-bold transition-transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg w-full sm:w-auto text-sm sm:text-base">
                                 <i class="fa-solid fa-images text-xl"></i> พรีวิวรูปภาพผลงาน
                             </button>
                         </div>
@@ -2565,7 +2558,7 @@
                 
                 const logs = app.accessLogs.filter(log => log.action === 'view_exhibit' && log.target === studentId);
                 
-                let listHtml = '<div class="max-h-[45vh] sm:max-h-[50vh] overflow-y-auto custom-scrollbar mt-3 pt-3 border-t border-white/10 flex flex-col gap-2 text-left">';
+                let listHtml = '<div class="max-h-[45vh] sm:max-h-[50vh] overflow-y-auto custom-scrollbar mt-3 pt-3 border-t border-white/10 flex flex-col gap-2 text-left w-full">';
                 if (logs.length === 0) {
                     listHtml += '<p class="text-center text-gray-500 text-xs py-4">ยังไม่มีข้อมูลการเข้าชมแบบบันทึกประวัติ</p>';
                 } else {
@@ -2575,10 +2568,10 @@
                         const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
                         
                         listHtml += `
-                            <div class="bg-white/5 p-2.5 rounded-xl border border-white/10 flex justify-between items-center gap-3">
+                            <div class="bg-white/5 p-2.5 rounded-xl border border-white/10 flex justify-between items-center gap-3 w-full">
                                 <div class="min-w-0 flex-1">
-                                    <p class="text-white text-xs font-bold truncate">${log.name || 'ไม่ทราบชื่อ'}</p>
-                                    <p class="text-[9px] text-secondary mt-0.5">${log.role || 'Visitor'}</p>
+                                    <p class="text-white text-xs font-bold truncate w-full">${log.name || 'ไม่ทราบชื่อ'}</p>
+                                    <p class="text-[9px] text-secondary mt-0.5 w-full">${log.role || 'Visitor'}</p>
                                 </div>
                                 <div class="text-[9px] sm:text-[10px] text-gray-500 text-right shrink-0">
                                     <div>${dateStr}</div>
@@ -2592,11 +2585,11 @@
 
                 app.swal.fire({
                     html: `
-                        <div class="flex flex-col items-center pt-2 pb-1">
+                        <div class="flex flex-col items-center pt-2 pb-1 w-full max-w-full">
                             <i class="fa-solid fa-eye text-secondary text-3xl sm:text-4xl mb-1.5"></i>
                             <h2 class="text-white font-extrabold text-lg sm:text-xl mb-1">ยอดเข้าชมผลงาน</h2>
-                            <div class="mb-0.5"><span class="text-white font-bold text-sm sm:text-base">${cleanName}</span></div>
-                            <p class="text-[10px] sm:text-xs text-gray-400 mb-2">มีผู้เข้าเยี่ยมชมหน้าผลงานของคุณทั้งหมด</p>
+                            <div class="mb-0.5 w-full"><span class="text-white font-bold text-sm sm:text-base truncate block w-full">${cleanName}</span></div>
+                            <p class="text-[10px] sm:text-xs text-gray-400 mb-2 w-full truncate">มีผู้เข้าเยี่ยมชมหน้าผลงานของคุณทั้งหมด</p>
                             <div>
                                 <span class="text-4xl sm:text-5xl font-black text-secondary drop-shadow-md leading-none">${count}</span> 
                                 <span class="text-xs text-gray-400 font-bold ml-1">ครั้ง</span>
