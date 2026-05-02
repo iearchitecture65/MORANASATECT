@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <!-- หน้าแรกของนิทรรศการ -->
   <url>
     <loc>https://iearchitecture65.github.io/MORANASATECT/</loc>
     <lastmod>2026-05-02</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- รายชื่อหน้าวิทยานิพนธ์ของนักศึกษา -->
   <url><loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/63030127.html</loc><priority>0.8</priority></url>
   <url><loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/64030020.html</loc><priority>0.8</priority></url>
   <url><loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/64030042.html</loc><priority>0.8</priority></url>
@@ -67,5 +62,4 @@
   <url><loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/65030292.html</loc><priority>0.8</priority></url>
   <url><loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/65030295.html</loc><priority>0.8</priority></url>
   <url><loc>https://iearchitecture65.github.io/MORANASATECT/Exhibition/65030298.html</loc><priority>0.8</priority></url>
-
 </urlset>
