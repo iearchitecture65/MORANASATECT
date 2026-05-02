@@ -868,6 +868,15 @@
             },
 
             sharePublicLink: async function(studentId) {
+                if (app.settings.isPublicGuestOpen === false) {
+                    return app.swal.fire({
+                        title: 'ระบบปิดการเข้าชม',
+                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมสำหรับบุคคลภายนอก ทำให้ไม่สามารถแชร์ลิงก์ได้ชั่วคราวครับ',
+                        icon: 'warning',
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+
                 const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
                 let link = "";
@@ -882,8 +891,17 @@
                 }
                 
                 // จัดเตรียมข้อความสำหรับแชร์
-                let thesisName = data.title ? data.title.replace(/\n/g, ' ') : (user ? user.thesisTitle : 'ไม่มีชื่อโครงการ');
-                const shareTextObj = `ชมนิทรรศการผลงานวิทยานิพนธ์\nMORANASATECT - Thesis Exhibition\n\n${thesisName}`;
+                let rawTitle = data.title || (user ? user.thesisTitle : 'ไม่มีชื่อโครงการ');
+                let thaiTitle = rawTitle.split('\n')[0];
+                const bracketMatch = thaiTitle.match(/^(.*?)(\([^)]+\))$/);
+                if (bracketMatch) thaiTitle = bracketMatch[1].trim();
+                const engMatch = thaiTitle.match(/([a-zA-Z0-9\s\-:,'".&]+)$/);
+                if (engMatch && engMatch[1].trim().length > 3 && engMatch[1].trim() !== thaiTitle.trim()) {
+                    thaiTitle = thaiTitle.replace(engMatch[1], '').trim();
+                }
+                if(!thaiTitle) thaiTitle = 'ไม่มีชื่อโครงการ';
+
+                const shareTextObj = `ชมนิทรรศการผลงานวิทยานิพนธ์\nMORANASATECT - Thesis Exhibition\n\n${thaiTitle}`;
                 const fullClipboardText = `${shareTextObj}\n${link}`;
                 
                 const showFallbackCopy = () => {
@@ -907,12 +925,13 @@
                     });
                 };
 
-                if (navigator.share) {
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                if (navigator.share && isMobile) {
                     try { 
                         await navigator.share({ 
                             title: 'MORANASATECT - Thesis Exhibition', 
-                            text: shareTextObj, 
-                            url: link 
+                            text: fullClipboardText
                         }); 
                     } catch(e) {
                         if (e.name !== 'AbortError') showFallbackCopy();
@@ -921,26 +940,27 @@
                     try {
                         if (navigator.clipboard && navigator.clipboard.writeText) {
                             await navigator.clipboard.writeText(fullClipboardText);
-                            app.swal.fire({ title: 'คัดลอกข้อความแล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                            app.swal.fire({ title: 'คัดลอกข้อความและลิงก์แล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } else {
                             throw new Error("Clipboard API not available");
                         }
                     } catch (err) {
-                        try {
-                            const textArea = document.createElement("textarea");
-                            textArea.value = fullClipboardText;
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(textArea);
-                            app.swal.fire({ title: 'คัดลอกข้อความแล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
-                        } catch (err2) { showFallbackCopy(); }
+                        showFallbackCopy();
                     }
                 }
             },
 
             // แก้ไข: เปลี่ยนจาก advisorName เป็น advisorId
             shareAdvisorLink: async function(advisorId) {
+                if (app.settings.isPublicGuestOpen === false) {
+                    return app.swal.fire({
+                        title: 'ระบบปิดการเข้าชม',
+                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมสำหรับบุคคลภายนอก ทำให้ไม่สามารถแชร์ลิงก์ได้ชั่วคราวครับ',
+                        icon: 'warning',
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+
                 const advisor = window.advisorsData.find(a => a.id == advisorId);
                 let link = "";
                 
@@ -952,13 +972,15 @@
                     link = `${baseUrl}?advisor=${advisorId}`;
                 }
                 
+                const fullClipboardText = `แชร์ลิงก์อาจารย์ที่ปรึกษา\nMORANASATECT - Thesis Exhibition\n\n${advisor ? advisor.name : ''}\n${link}`;
+                
                 const showFallbackCopy = () => {
                     app.swal.fire({
                         title: 'แชร์ลิงก์อาจารย์ที่ปรึกษา',
                         html: `
-                            <input type="text" value="${link}" class="w-full p-4 rounded-xl text-center text-sm text-primary font-bold bg-white outline-none border-2 border-secondary" readonly id="copyLinkInput">
-                            <p class="text-xs text-gray-400 mt-3">คัดลอกลิงก์ด้านบนเพื่อแชร์</p>`,
-                        confirmButtonText: 'คัดลอกลิงก์',
+                            <textarea id="copyLinkInput" class="w-full p-4 rounded-xl text-center text-sm text-primary font-bold bg-white outline-none border-2 border-secondary resize-none" rows="5" readonly>${fullClipboardText}</textarea>
+                            <p class="text-xs text-gray-400 mt-3">คัดลอกข้อความด้านบนเพื่อแชร์</p>`,
+                        confirmButtonText: 'คัดลอกข้อความ',
                         showCancelButton: true,
                         cancelButtonText: 'ปิดหน้าต่าง'
                     }).then((result) => {
@@ -967,36 +989,30 @@
                             if(input) {
                                 input.select();
                                 document.execCommand('copy');
-                                app.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
+                                app.swal.fire({ title: 'คัดลอกสำเร็จ!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton: false });
                             }
                         }
                     });
                 };
 
-                if (navigator.share) {
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                if (navigator.share && isMobile) {
                     try { 
-                        await navigator.share({ title: 'MORANASATECT - Advisor', text: 'หน้าโปรไฟล์อาจารย์ที่ปรึกษา', url: link }); 
+                        await navigator.share({ title: 'MORANASATECT - Advisor', text: fullClipboardText }); 
                     } catch(e) {
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
                     try {
                         if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(link);
-                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
+                            await navigator.clipboard.writeText(fullClipboardText);
+                            app.swal.fire({ title: 'คัดลอกข้อความและลิงก์แล้ว!', text: 'นำไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
                         } else {
                             throw new Error("Clipboard API not available");
                         }
                     } catch (err) {
-                        try {
-                            const textArea = document.createElement("textarea");
-                            textArea.value = link;
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(textArea);
-                            app.swal.fire({ title: 'คัดลอกลิงก์แล้ว!', text: 'นำลิงก์ไปแชร์ได้เลย', iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', timer: 1500, showConfirmButton:false });
-                        } catch (err2) { showFallbackCopy(); }
+                        showFallbackCopy();
                     }
                 }
             },
@@ -1924,7 +1940,7 @@
                         </div>
                         
                         <div class="text-center mt-12 mb-4 flex flex-col items-center gap-5">
-                            <button onclick="app.shareAdvisorLink('${advisor.id}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                            <button onclick="app.shareAdvisorLink('${advisor.id}')" class="${app.settings.isPublicGuestOpen !== false ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                                 <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าโปรไฟล์นี้
                             </button>
                         </div>
@@ -1981,6 +1997,7 @@
 
                 const cleanName = app.formatName(data.name || user.name);
                 const abbr = app.getAbbr(cleanName);
+                const isGuestOpen = app.settings.isPublicGuestOpen !== false;
 
                 let customBoxesHtml = '';
                 if (app.settings.allowEdit) {
@@ -2065,7 +2082,7 @@
                         <div class="text-[10px] text-gray-400 font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-black/30 px-4 py-2 rounded-full border border-white/5 shadow-inner">
                             <i class="fa-solid fa-eye text-secondary"></i> เข้าชมผลงานชิ้นนี้แล้ว <span class="dynamic-visit-count text-white" data-sid="${studentId}">${visitCount}</span> ครั้ง
                         </div>
-                        <button onclick="app.sharePublicLink('${studentId}')" class="bg-secondary text-primary font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105 transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
+                        <button onclick="app.sharePublicLink('${studentId}')" class="${isGuestOpen ? 'bg-secondary text-primary font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] hover:scale-105' : 'bg-gray-600 text-gray-400 font-bold opacity-50 cursor-not-allowed'} px-10 py-4 rounded-full transition-transform text-sm uppercase tracking-widest flex items-center justify-center gap-3 mx-auto">
                             <i class="fa-solid fa-share-nodes text-lg"></i> แชร์หน้าผลงานนี้
                         </button>
                     </div>
@@ -2093,6 +2110,7 @@
 
                 const cleanName = app.formatName(app.profile.name);
                 const abbr = app.getAbbr(cleanName);
+                const isGuestOpen = app.settings.isPublicGuestOpen !== false;
 
                 let customBoxesInputHtml = '';
                 const studentCustomData = app.studentEdits[sid] || {};
@@ -2177,9 +2195,9 @@
                              </div>
                         </div>
 
-                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer hover:bg-white/10 transition-colors border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]" onclick="app.sharePublicLink('${sid}')">
-                            <div class="w-16 h-16 rounded-full bg-secondary text-black flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-2 transition-transform shadow-[0_0_20px_rgba(253,223,49,0.5)]"><i class="fa-solid fa-share-nodes"></i></div>
-                            <p class="text-xs font-bold text-white tracking-widest uppercase">แชร์ลิงก์ส่วนตัว</p>
+                        <div class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-center items-center cursor-pointer transition-colors ${isGuestOpen ? 'hover:bg-white/10 border-secondary/30 group shadow-[0_0_15px_rgba(253,223,49,0.1)]' : 'border-white/5 opacity-60'}" onclick="app.sharePublicLink('${sid}')">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 transition-transform ${isGuestOpen ? 'bg-secondary text-black shadow-[0_0_20px_rgba(253,223,49,0.5)] group-hover:-translate-y-2' : 'bg-gray-600 text-gray-400'}"><i class="fa-solid fa-share-nodes"></i></div>
+                            <p class="text-xs font-bold tracking-widest uppercase ${isGuestOpen ? 'text-white' : 'text-gray-400'}">แชร์ลิงก์ส่วนตัว</p>
                         </div>
                     </div>
 
@@ -2393,6 +2411,9 @@
                                 <input type="checkbox" ${b.isActive ? 'checked' : ''} onchange="app.toggleCustomBox(${idx}, this.checked)" class="sr-only peer">
                                 <div class="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
+                            <button onclick="app.editCustomBox(${idx})" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-blue-500/20">
+                                <i class="fa-solid fa-pen text-sm"></i>
+                            </button>
                             <button onclick="app.deleteCustomBox(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
                                 <i class="fa-solid fa-trash text-sm"></i>
                             </button>
@@ -2452,6 +2473,46 @@
                 app.refreshCurrentView(); 
                 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
+            },
+
+            editCustomBox: async function(idx) {
+                const boxes = [...(app.settings.customBoxes || [])];
+                const b = boxes[idx];
+                if(!b) return;
+
+                const { value: formValues } = await app.swal.fire({
+                    title: 'แก้ไขกล่องข้อความ',
+                    html: `
+                        <div class="text-left space-y-4">
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ชื่อหัวข้อกล่อง</label>
+                                <input id="editBoxLabel" class="glass-input w-full p-3 rounded-xl text-sm" value="${b.label}">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ข้อความแนะนำ (Placeholder)</label>
+                                <input id="editBoxPlaceholder" class="glass-input w-full p-3 rounded-xl text-sm" value="${b.placeholder || ''}">
+                            </div>
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonText: 'ยกเลิก',
+                    preConfirm: () => {
+                        return {
+                            label: document.getElementById('editBoxLabel').value.trim(),
+                            placeholder: document.getElementById('editBoxPlaceholder').value.trim()
+                        }
+                    }
+                });
+
+                if (formValues && formValues.label) {
+                    boxes[idx].label = formValues.label;
+                    boxes[idx].placeholder = formValues.placeholder;
+                    app.settings.customBoxes = boxes;
+                    app.refreshCurrentView();
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
+                }
             },
 
             toggleCustomBox: async function(idx, isActive) {
@@ -2918,9 +2979,16 @@
                             <p class="text-[10px] text-gray-500 truncate bg-black/50 p-2 rounded-lg border border-white/5 font-mono">${s.url}</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
-                            <span class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full">
+                            <span id="iframeBadge_${idx}" class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full transition-colors hidden sm:inline-block">
                                 ${s.showToStudents ? 'แสดงให้ นศ.' : 'ซ่อนจาก นศ.'}
                             </span>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${s.showToStudents ? 'checked' : ''} onchange="app.toggleEmbeddedSite(${idx}, this.checked)" class="sr-only peer">
+                                <div class="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                            <button onclick="app.editEmbeddedSite(${idx})" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-blue-500/20">
+                                <i class="fa-solid fa-pen text-sm"></i>
+                            </button>
                             <button onclick="app.deleteEmbeddedSite(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
                                 <i class="fa-solid fa-trash text-sm"></i>
                             </button>
@@ -2994,6 +3062,63 @@
                     document.getElementById('iframeTitle').value = '';
                     document.getElementById('iframeUrl').value = '';
                 } catch(e){}
+            },
+
+            toggleEmbeddedSite: async function(idx, showToStudents) {
+                const sites = [...(app.settings.embeddedSites || [])];
+                if (sites[idx]) {
+                    sites[idx].showToStudents = showToStudents;
+                    app.settings.embeddedSites = sites; 
+                    app.updateMenuVisibility();
+                    
+                    const badge = document.getElementById(`iframeBadge_${idx}`);
+                    if (badge) {
+                        badge.className = `text-[9px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full transition-colors hidden sm:inline-block ${showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'}`;
+                        badge.innerText = showToStudents ? 'แสดงให้ นศ.' : 'ซ่อนจาก นศ.';
+                    }
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
+                }
+            },
+
+            editEmbeddedSite: async function(idx) {
+                const sites = [...(app.settings.embeddedSites || [])];
+                const s = sites[idx];
+                if(!s) return;
+
+                const { value: formValues } = await app.swal.fire({
+                    title: 'แก้ไขเมนูเว็บฝัง',
+                    html: `
+                        <div class="text-left space-y-4">
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ชื่อเมนู</label>
+                                <input id="editIframeTitle" class="glass-input w-full p-3 rounded-xl text-sm" value="${s.title}">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">URL เว็บไซต์</label>
+                                <input id="editIframeUrl" type="url" class="glass-input w-full p-3 rounded-xl text-sm font-mono" value="${s.url}">
+                            </div>
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonText: 'ยกเลิก',
+                    preConfirm: () => {
+                        return {
+                            title: document.getElementById('editIframeTitle').value.trim(),
+                            url: document.getElementById('editIframeUrl').value.trim()
+                        }
+                    }
+                });
+
+                if (formValues && formValues.title && formValues.url) {
+                    sites[idx].title = formValues.title;
+                    sites[idx].url = formValues.url;
+                    app.settings.embeddedSites = sites;
+                    app.updateMenuVisibility();
+                    app.refreshCurrentView();
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
+                }
             },
 
             deleteEmbeddedSite: async function(idx) {
@@ -3111,7 +3236,7 @@
                 if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto"><i class="fa-solid fa-link-slash text-4xl mb-3"></i><br>ไม่พบหน้าเว็บนี้</div>`;
 
                 return `
-                <div class="animate-fade-in flex flex-col w-full mt-2 sm:mt-4 px-2 sm:px-0" style="height: calc(100dvh - 120px);">
+                <div class="animate-fade-in flex-1 flex flex-col w-full mt-2 sm:mt-4 px-2 sm:px-0" style="height: calc(100dvh - 120px);">
                     <div class="flex items-center gap-4 mb-4 bg-black/60 p-4 rounded-3xl border border-white/10 backdrop-blur-xl shadow-lg shrink-0">
                         <div class="min-w-0 pl-2">
                             <h2 class="text-white font-bold text-sm sm:text-base truncate"><i class="fa-solid fa-arrow-up-right-from-square text-secondary mr-2"></i>${site.title}</h2>
