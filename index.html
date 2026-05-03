@@ -1719,9 +1719,10 @@
                         </h1>
                         `}
 
-                        <div class="w-16 sm:w-24 h-px bg-white/20 relative z-10 animate-slide-up mt-2 mb-1" style="animation-delay: 0.15s"></div>
+                        <!-- เส้นขาวบางๆ ติดกับข้อความรวมผลงาน -->
+                        <div class="w-16 sm:w-24 h-px bg-white/40 relative z-10 animate-slide-up mb-2 mt-2" style="animation-delay: 0.15s"></div>
 
-                        <div class="relative z-10 flex flex-row items-center justify-center gap-2 animate-slide-up px-6 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full shadow-lg mt-2" style="animation-delay: 0.2s">
+                        <div class="relative z-10 flex flex-row items-center justify-center gap-2 animate-slide-up px-6 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full shadow-lg" style="animation-delay: 0.2s">
                             <i class="fa-solid fa-layer-group text-secondary text-[10px] sm:text-xs"></i>
                             <h2 class="text-[9px] sm:text-[10px] text-gray-300 font-bold tracking-widest uppercase mt-[1px]">
                                 ${headerSubtitle}
@@ -3314,6 +3315,59 @@
                         <div class="flex items-center gap-3 w-full sm:w-auto min-w-0">
                             <div class="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
                                 <i class="fa-solid ${log.role === 'guest' ? 'fa-user-tag text-green-400' : (log.role === 'student' ? 'fa-user-graduate text-blue-400' : 'fa-user text-gray-400')}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-white text-sm font-bold truncate">${log.name}</p>
+                                <p class="text-[10px] text-gray-500 font-medium truncate mt-0.5"><span class="uppercase tracking-widest text-secondary mr-2">${log.role}</span> เข้าชมผลงาน: <span class="text-white ml-1">${targetName}</span></p>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-gray-400 text-left sm:text-right w-full sm:w-auto shrink-0 bg-black/30 sm:bg-transparent px-3 py-2 sm:p-0 rounded-lg sm:rounded-none">
+                            <span class="mr-2 sm:block sm:mr-0">${ds}</span>
+                            <span class="font-mono text-gray-300">${ts} น.</span>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                if(logs.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีประวัติการเข้าชม</p></div>`;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
+                            <div>
+                                <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติเข้าชมผลงาน</p>
+                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Exhibit Access Logs</p>
+                            </div>
+                        </div>
+                        <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> ล้างข้อมูล
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                            <h3 class="text-white font-bold text-sm uppercase tracking-widest"><i class="fa-solid fa-history text-secondary mr-2"></i>รายการทั้งหมด (${logs.length})</h3>
+                        </div>
+                        <div class="flex flex-col gap-2 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+                            ${listHtml}
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            renderAdminLoginLogs: function() {
+                const logs = app.accessLogs.filter(l => l.action === 'login');
+                let listHtml = logs.map(log => {
+                    const d = new Date(log.timestamp);
+                    const ds = d.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
+                    const ts = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    
+                    return `
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full group hover:bg-white/10 transition-colors">
+                        <div class="flex items-center gap-3 w-full sm:w-auto min-w-0">
+                            <div class="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
+                                <i class="fa-solid ${log.role === 'admin' ? 'fa-shield-halved text-red-400' : (log.role === 'student' ? 'fa-user-graduate text-blue-400' : 'fa-user-tag text-green-400')}"></i>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="text-white text-sm font-bold truncate">${log.name}</p>
