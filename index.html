@@ -1720,9 +1720,17 @@
                         `}
 
                         <!-- รูปแบนเนอร์อาจารย์ที่ปรึกษา -->
-                        <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-6 mt-4 mx-auto flex justify-center" style="animation-delay: 0.12s">
+                        <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-4 mt-4 mx-auto flex justify-center" style="animation-delay: 0.12s">
                             <img src="./adviser.png" alt="Advisors" 
                                  onclick="if(!app.isMenuOpen) app.toggleMenu(); const adv = document.getElementById('advisorAccordion'); if(adv && adv.classList.contains('hidden')) app.toggleMenuAccordion('advisorAccordion'); window.scrollTo({top: 0, behavior: 'smooth'});"
+                                 class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-2xl hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
+                                 onerror="this.style.display='none'">
+                        </div>
+
+                        <!-- รูปแบนเนอร์นักศึกษา -->
+                        <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-6 mx-auto flex justify-center" style="animation-delay: 0.13s">
+                            <img src="./student.png" alt="Students" 
+                                 onclick="const target = document.getElementById('studentGridTarget'); if(target) { const headerOffset = 80; const elementPosition = target.getBoundingClientRect().top; const offsetPosition = elementPosition + window.pageYOffset - headerOffset; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }"
                                  class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-2xl hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
                                  onerror="this.style.display='none'">
                         </div>
@@ -1730,7 +1738,7 @@
                         <!-- เส้นขาวบางๆ ติดกับข้อความรวมผลงาน -->
                         <div class="w-16 sm:w-24 h-px bg-white/40 relative z-10 animate-slide-up mb-2 mx-auto" style="animation-delay: 0.15s"></div>
 
-                        <div class="relative z-10 flex flex-row items-center justify-center gap-2 animate-slide-up px-6 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full shadow-lg" style="animation-delay: 0.2s">
+                        <div id="studentGridTarget" class="relative z-10 flex flex-row items-center justify-center gap-2 animate-slide-up px-6 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full shadow-lg" style="animation-delay: 0.2s">
                             <i class="fa-solid fa-layer-group text-secondary text-[10px] sm:text-xs"></i>
                             <h2 class="text-[9px] sm:text-[10px] text-gray-300 font-bold tracking-widest uppercase mt-[1px]">
                                 ${headerSubtitle}
