@@ -449,6 +449,10 @@
                 isSharingOpen: true,
                 allowEdit: true,
                 isHomeMenuForStudentOpen: true, // เพิ่มค่าเริ่มต้นให้แสดงเมนูหน้าหลักสำหรับนักศึกษา
+                sessionDurationHours: 2, // ระยะเวลาเซสชันเริ่มต้น (ชั่วโมง)
+                sessionApplyGuest: true, // เปิดใช้งานกับ Guest หรือไม่
+                sessionApplyStudent: false, // เปิดใช้งานกับ Student หรือไม่
+                sessionApplyAdmin: false, // เปิดใช้งานกับ Admin หรือไม่
                 embeddedSites: [], 
                 customBoxes: []
             },
@@ -459,6 +463,7 @@
             adminUserSearchQuery: '',
             historyStack: [],
             guestTimeoutId: null,
+            sessionTimeoutId: null, // เพิ่มตัวแปรสำหรับจัดการเซสชันรวม
             
             tempId: '',
             serverOtp: '',
@@ -494,6 +499,51 @@
                 cLink.setAttribute("rel", "canonical");
                 cLink.setAttribute("href", canonical);
                 if(!cLink.parentElement) document.head.appendChild(cLink);
+            },
+
+            // --- ฟังก์ชันสำหรับตรวจสอบและตั้งเวลาเซสชัน (Dynamic Session Timeout) ---
+            setupSessionTimeout: function() {
+                // ล้าง Timeout เดิมออกก่อน (ถ้ามี)
+                if (app.guestTimeoutId) {
+                    clearTimeout(app.guestTimeoutId);
+                    app.guestTimeoutId = null;
+                }
+                if (app.sessionTimeoutId) {
+                    clearTimeout(app.sessionTimeoutId);
+                    app.sessionTimeoutId = null;
+                }
+                
+                if (!app.profile || !app.profile.loginTime) return;
+
+                let applySession = false;
+                // ตรวจสอบจากตั้งค่า ว่ากลุ่มผู้ใช้งานปัจจุบันตรงกับเงื่อนไขที่ให้เปิดใช้เซสชันหรือไม่
+                if (app.profile.role === 'guest' && app.settings.sessionApplyGuest !== false) applySession = true;
+                if (app.profile.role === 'student' && app.settings.sessionApplyStudent === true) applySession = true;
+                if (app.profile.role === 'admin' && app.settings.sessionApplyAdmin === true) applySession = true;
+
+                if (applySession) {
+                    const durationHours = app.settings.sessionDurationHours !== undefined ? parseFloat(app.settings.sessionDurationHours) : 2;
+                    const durationMs = durationHours * 60 * 60 * 1000;
+                    const timeLeft = durationMs - (Date.now() - app.profile.loginTime);
+
+                    if (timeLeft <= 0) {
+                        // หากเวลาหมดไปแล้ว ให้เคลียร์ข้อมูลและบังคับล็อกเอาต์
+                        localStorage.removeItem('moranasatect_profile');
+                        app.profile = null;
+                        app.swal.fire('หมดเวลาเข้าใช้งาน', 'เซสชันของคุณหมดอายุ กรุณาเข้าสู่ระบบใหม่ครับ', 'info').then(() => {
+                            app.logout();
+                            window.location.reload();
+                        });
+                    } else {
+                        // ตั้งเวลาให้ล็อกเอาต์ตามระยะเวลาที่เหลือ
+                        app.sessionTimeoutId = setTimeout(() => {
+                            app.swal.fire('หมดเวลาเข้าใช้งาน', 'เซสชันของคุณหมดอายุ กรุณาเข้าสู่ระบบใหม่ครับ', 'info').then(() => {
+                                app.logout();
+                                window.location.reload();
+                            });
+                        }, timeLeft);
+                    }
+                }
             },
 
             init: async function() {
@@ -545,22 +595,12 @@
                             if (savedProfile) {
                                 try {
                                     const parsed = JSON.parse(savedProfile);
-                                    if (parsed.role === 'guest') {
-                                        const twoHours = 2 * 60 * 60 * 1000;
-                                        if (!parsed.loginTime || Date.now() - parsed.loginTime > twoHours) {
-                                            localStorage.removeItem('moranasatect_profile');
-                                            app.profile = null;
-                                            app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info');
-                                        } else {
-                                            app.profile = parsed;
-                                            const timeLeft = twoHours - (Date.now() - parsed.loginTime);
-                                            app.guestTimeoutId = setTimeout(() => {
-                                                app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info').then(() => app.logout());
-                                            }, Math.max(0, timeLeft));
-                                        }
-                                    } else {
-                                        app.profile = parsed;
-                                    }
+                                    app.profile = parsed;
+                                    // เผื่อผู้ใช้ล็อกอินค้างไว้ตั้งแต่ก่อนมีระบบ sessionTimeout ให้เพิ่ม loginTime ปัจจุบันเข้าไป
+                                    if (!app.profile.loginTime) app.profile.loginTime = Date.now();
+                                    
+                                    // เรียกใช้ฟังก์ชันตรวจสอบเวลาเซสชัน (โดยใช้ค่าเริ่มต้นก่อน และจะถูกอัปเดตอัตโนมัติเมื่อดึง settings จาก Firebase เสร็จ)
+                                    app.setupSessionTimeout();
                                 } catch(e) { app.profile = null; }
                             }
 
@@ -616,12 +656,19 @@
                         if(data.isHomeMenuForStudentOpen === undefined) {
                             data.isHomeMenuForStudentOpen = true; // ค่าเริ่มต้น
                         }
+                        // ค่าเริ่มต้นสำหรับระบบ Session Timeout เผื่อยังไม่มีข้อมูลในระบบ
+                        if(data.sessionDurationHours === undefined) data.sessionDurationHours = 2;
+                        if(data.sessionApplyGuest === undefined) data.sessionApplyGuest = true;
+                        if(data.sessionApplyStudent === undefined) data.sessionApplyStudent = false;
+                        if(data.sessionApplyAdmin === undefined) data.sessionApplyAdmin = false;
                         
                         const oldBoxesStr = JSON.stringify(app.settings.customBoxes);
                         app.settings = { ...app.settings, ...data };
                         const newBoxesStr = JSON.stringify(app.settings.customBoxes);
                         
                         app.updateMenuVisibility();
+                        // อัปเดตและเช็คเวลาเซสชันใหม่เมื่อได้รับค่า Setting จากระบบส่วนกลาง
+                        app.setupSessionTimeout();
                         
                         if (app.view === 'login' || app.view === 'guest_register' || app.view === 'home') {
                             app.showView(app.view);
@@ -868,6 +915,10 @@
                 if (app.guestTimeoutId) {
                     clearTimeout(app.guestTimeoutId);
                     app.guestTimeoutId = null;
+                }
+                if (app.sessionTimeoutId) {
+                    clearTimeout(app.sessionTimeoutId);
+                    app.sessionTimeoutId = null;
                 }
                 app.profile = null;
                 localStorage.removeItem('moranasatect_profile');
@@ -1750,10 +1801,11 @@
                 }
 
                 if(pass === '65030900') {
-                    app.profile = { uid: pass, name: 'Admin', role: 'admin', id: 0 };
+                    app.profile = { uid: pass, name: 'Admin', role: 'admin', id: 0, loginTime: Date.now() };
                     localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                     app.logSystemAccess('admin', pass);
                     app.updateMenuVisibility();
+                    app.setupSessionTimeout(); // บังคับตั้งเวลาเซสชันใหม่
                     app.routeBasedOnRole();
                 } else if (pass) {
                     app.swal.fire('ผิดพลาด', 'รหัสผ่านไม่ถูกต้อง', 'error');
@@ -1859,10 +1911,11 @@
                 for(let i=1; i<=6; i++) code += document.getElementById(`otp-${i}`).value;
                 if(code === app.serverOtp) {
                     const student = window.predefinedUsers.find(u => u.studentId === app.tempId);
-                    app.profile = { uid: student.studentId, name: student.name, role: 'student', id: student.id };
+                    app.profile = { uid: student.studentId, name: student.name, role: 'student', id: student.id, loginTime: Date.now() };
                     localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                     app.logSystemAccess('student', student.studentId);
                     app.updateMenuVisibility();
+                    app.setupSessionTimeout(); // บังคับตั้งเวลาเซสชันใหม่
                     app.swal.fire({ 
                         iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', 
                         title: 'เข้าสู่ระบบสำเร็จ', 
@@ -1967,10 +2020,8 @@
                 app.logSystemAccess('guest', finalName);
                 app.updateMenuVisibility();
 
-                const twoHours = 2 * 60 * 60 * 1000;
-                app.guestTimeoutId = setTimeout(() => {
-                    app.swal.fire('หมดเวลาเข้าชม', 'เซสชันของคุณหมดอายุ (2 ชั่วโมง) กรุณาลงทะเบียนใหม่ครับ', 'info').then(() => app.logout());
-                }, twoHours);
+                // ปรับเปลี่ยนให้ใช้ระบบการตั้งเวลาเซสชัน (Dynamic Session Timeout)
+                app.setupSessionTimeout();
                 
                 if (app.pendingExhibitId) {
                     const targetStudent = window.predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
@@ -2699,6 +2750,37 @@
                     </div>
 
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-8 space-y-6">
+                        
+                        <!-- เพิ่มตั้งค่าเวลาเซสชัน -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner mb-6">
+                            <div class="w-full">
+                                <p class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-clock text-secondary mr-2"></i>ตั้งค่าเวลาเซสชัน (Session Timeout)</p>
+                                <p class="text-[10px] text-gray-400 mb-4 leading-relaxed">กำหนดเวลาหมดอายุของการเข้าสู่ระบบ (ชั่วโมง) และเลือกกลุ่มผู้ใช้งานที่ต้องการให้มีผล</p>
+                                
+                                <div class="flex items-center gap-3 mb-4">
+                                    <label class="text-xs text-gray-300 font-bold w-24">ระยะเวลา (ชม.)</label>
+                                    <input type="number" step="0.5" min="0.5" id="sessionDurationHours" value="${app.settings.sessionDurationHours !== undefined ? app.settings.sessionDurationHours : 2}" 
+                                        class="glass-input w-24 p-2 rounded-lg text-center text-sm font-bold"
+                                        onchange="app.updateSetting('sessionDurationHours', parseFloat(this.value) || 2)">
+                                </div>
+
+                                <div class="flex flex-wrap gap-4 mt-2 border-t border-white/5 pt-4">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" ${app.settings.sessionApplyGuest !== false ? 'checked' : ''} onchange="app.updateSetting('sessionApplyGuest', this.checked)" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                        <span class="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">ผู้เยี่ยมชม (Guest)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" ${app.settings.sessionApplyStudent ? 'checked' : ''} onchange="app.updateSetting('sessionApplyStudent', this.checked)" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                        <span class="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">นักศึกษา (Student)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="checkbox" ${app.settings.sessionApplyAdmin ? 'checked' : ''} onchange="app.updateSetting('sessionApplyAdmin', this.checked)" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                        <span class="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">แอดมิน (Admin)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
                             <div>
                                 <p class="font-bold text-white text-sm">เปิดระบบเข้าใช้งานสำหรับนักศึกษา</p>
@@ -3151,192 +3233,99 @@
                             }
                         });
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        app.exportAllDataCSV();
+                         app.downloadUserDataExcel(studentId, data);
                     }
                 });
             },
 
-            exportAllDataCSV: function() {
-                let csvContent = "\uFEFF"; 
-                csvContent += "ลำดับ,รหัสนักศึกษา,ชื่อ-นามสกุล,ยอดเข้าชม,";
+            downloadUserDataExcel: function(studentId, data) {
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
-                activeBoxes.forEach(b => csvContent += `"${b.label.replace(/"/g, '""')}",`);
-                csvContent += "\n";
-
-                window.predefinedUsers.forEach(u => {
-                    const vCount = app.visitLogs[u.studentId] || 0;
-                    const edits = app.studentEdits[u.studentId] || {};
-                    
-                    let row = `"${u.id}","${u.studentId}","${u.name}",${vCount},`;
-                    activeBoxes.forEach(b => {
-                        let val = edits[b.id] || '';
-                        if (b.id === 'default_text' && !val && edits.text) val = edits.text;
-                        row += `"${val.replace(/"/g, '""').replace(/\n/g, ' ')}",`;
-                    });
-                    csvContent += row + "\n";
+                
+                let csvContent = "\uFEFF"; 
+                csvContent += "หัวข้อ,ข้อความ\n";
+                
+                activeBoxes.forEach(b => {
+                    let val = data[b.id] || '';
+                    if (b.id === 'default_text' && !val && data.text) val = data.text;
+                    val = val.replace(/"/g, '""'); 
+                    csvContent += `"${b.label}","${val}"\n`;
                 });
-
+                
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                saveAs(blob, "MORANASATECT_Student_Data.csv");
+                saveAs(blob, `Data_${studentId}_${app.formatName(user.name)}.csv`);
             },
 
-            renderAdminLogs: function() {
-                let viewLogs = [];
-                if (app.accessLogs && app.accessLogs.length > 0) {
-                    viewLogs = app.accessLogs.filter(log => log.action === 'view_exhibit');
-                }
-
-                if (viewLogs.length === 0) {
+            renderAdminAdvisors: function() {
+                let advisorHtml = window.advisorsData.map((adv, idx) => {
+                    const cleanName = app.formatName(adv.name);
+                    const abbr = app.getAbbr(cleanName);
                     return `
-                    <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
-                                <div>
-                                    <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติเข้าชมผลงาน</p>
-                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visitor Logs</p>
-                                </div>
-                            </div>
-                            <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
-                                <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
-                            </button>
+                    <div class="bg-black/40 p-4 sm:p-6 rounded-3xl border border-white/10 shadow-lg flex flex-col sm:flex-row items-center gap-5">
+                        <div class="w-16 h-16 rounded-full border-[2px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
+                            <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl z-0 hidden">${abbr}</span>
+                            <i class="fa-solid fa-circle-notch fa-spin text-white text-lg absolute z-10 spinner-icon"></i>
+                            <img src="./MORANASATECT01/${adv.id}.png" 
+                                 onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                 onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${adv.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                 class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                         </div>
-                        <div class="glass-card rounded-[2.5rem] p-10 text-center text-gray-500 font-bold">
-                            ยังไม่มีประวัติการเข้าชมผลงาน
+                        <div class="flex-1 text-center sm:text-left min-w-0 w-full">
+                            <h3 class="text-white font-bold text-base md:text-lg truncate">${adv.name}</h3>
+                            <a href="${adv.url}" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 truncate block mt-1"><i class="fa-solid fa-link mr-1"></i> ${adv.url}</a>
+                            <p class="text-[10px] text-gray-500 mt-2 tracking-widest font-bold uppercase truncate">ID: ${adv.id}</p>
                         </div>
+                        <button onclick="app.showView('advisor_profile', '${adv.id}')" class="bg-secondary text-primary font-bold px-4 py-2 rounded-xl text-xs hover:scale-105 transition-transform flex items-center gap-2 shrink-0">
+                            <i class="fa-solid fa-eye"></i> ดูโปรไฟล์
+                        </button>
                     </div>`;
-                }
-
-                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-4">';
-                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                            <th class="p-4 rounded-tl-xl">ผู้เข้าชม</th>
-                            <th class="p-4">รหัส / ผลงานที่เข้าดู</th>
-                            <th class="p-4 text-center rounded-tr-xl">เวลา</th>
-                        </tr>
-                    </thead><tbody class="divide-y divide-white/5">`;
-                
-                viewLogs.forEach(log => {
-                    const date = new Date(log.timestamp).toLocaleString('th-TH');
-                    
-                    gridHtml += `
-                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
-                        <div class="flex justify-between items-start w-full">
-                            <div class="min-w-0 flex-1 pr-2">
-                                <p class="text-white text-sm font-bold truncate">${log.name || 'ไม่ทราบชื่อ'}</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5 uppercase tracking-widest">${log.role || 'guest'}</p>
-                            </div>
-                            <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
-                                ${date}
-                            </div>
-                        </div>
-                        <div class="bg-black/30 p-3 rounded-xl border border-white/5 mt-1">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-1">ผลงานที่เข้าดู</span>
-                            <span class="text-secondary font-bold text-sm break-all">${log.target || '-'}</span>
-                        </div>
-                    </div>`;
-
-                    tableHtml += `
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'guest'})</span></td>
-                        <td class="p-4 text-sm text-secondary font-bold">${log.target || '-'}</td>
-                        <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
-                    </tr>`;
-                });
-                
-                gridHtml += '</div>';
-                tableHtml += `</tbody></table></div>`;
+                }).join('');
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
-                            <div>
-                                <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติเข้าชมผลงาน</p>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visitor Logs</p>
-                            </div>
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการข้อมูลอาจารย์</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Advisors Data</p>
                         </div>
-                        <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
-                            <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
-                        </button>
                     </div>
-
-                    <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
-                        ${gridHtml}
-                        ${tableHtml}
+                    <div class="glass-card rounded-[2.5rem] p-4 sm:p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${advisorHtml}
+                        </div>
                     </div>
                 </div>`;
             },
 
-            renderAdminLoginLogs: function() {
-                let loginLogs = [];
-                if (app.accessLogs && app.accessLogs.length > 0) {
-                    loginLogs = app.accessLogs.filter(log => log.action === 'login');
-                }
-
-                if (loginLogs.length === 0) {
+            renderAdminLogs: function() {
+                const logs = app.accessLogs.filter(l => l.action === 'view_exhibit');
+                let listHtml = logs.map(log => {
+                    const d = new Date(log.timestamp);
+                    const ds = d.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
+                    const ts = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const targetUser = window.predefinedUsers.find(u => u.studentId === log.target);
+                    const targetName = targetUser ? app.formatName(targetUser.name) : log.target;
+                    
                     return `
-                    <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
-                                <div>
-                                    <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติการเข้าสู่ระบบ</p>
-                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Login Logs</p>
-                                </div>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full group hover:bg-white/10 transition-colors">
+                        <div class="flex items-center gap-3 w-full sm:w-auto min-w-0">
+                            <div class="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
+                                <i class="fa-solid ${log.role === 'guest' ? 'fa-user-tag text-green-400' : (log.role === 'student' ? 'fa-user-graduate text-blue-400' : 'fa-user text-gray-400')}"></i>
                             </div>
-                            <button onclick="app.clearAllLogs('login')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
-                                <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
-                            </button>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-white text-sm font-bold truncate">${log.name}</p>
+                                <p class="text-[10px] text-gray-500 font-medium truncate mt-0.5">สถานะ: <span class="uppercase tracking-widest text-secondary">${log.role}</span></p>
+                            </div>
                         </div>
-                        <div class="glass-card rounded-[2.5rem] p-10 text-center text-gray-500 font-bold">
-                            ยังไม่มีประวัติการเข้าสู่ระบบ
+                        <div class="text-[10px] text-gray-400 text-left sm:text-right w-full sm:w-auto shrink-0 bg-black/30 sm:bg-transparent px-3 py-2 sm:p-0 rounded-lg sm:rounded-none">
+                            <span class="mr-2 sm:block sm:mr-0">${ds}</span>
+                            <span class="font-mono text-gray-300">${ts} น.</span>
                         </div>
                     </div>`;
-                }
+                }).join('');
 
-                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-4">';
-                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                            <th class="p-4 rounded-tl-xl">ผู้ใช้งาน</th>
-                            <th class="p-4 text-center">บทบาท</th>
-                            <th class="p-4 text-center rounded-tr-xl">เวลาเข้าสู่ระบบ</th>
-                        </tr>
-                    </thead><tbody class="divide-y divide-white/5">`;
-                
-                loginLogs.forEach(log => {
-                    const date = new Date(log.timestamp).toLocaleString('th-TH');
-                    let roleBadge = '';
-                    if(log.role === 'admin') roleBadge = '<span class="bg-red-500/20 text-red-400 px-2 py-1 rounded-md text-[10px] border border-red-500/30">Admin</span>';
-                    else if(log.role === 'student') roleBadge = '<span class="bg-secondary/20 text-secondary px-2 py-1 rounded-md text-[10px] border border-secondary/30">Student</span>';
-                    else roleBadge = '<span class="bg-gray-500/20 text-gray-300 px-2 py-1 rounded-md text-[10px] border border-gray-500/30">Guest</span>';
-
-                    gridHtml += `
-                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
-                        <div class="flex justify-between items-start w-full">
-                            <div class="min-w-0 flex-1 pr-2">
-                                <p class="text-white text-sm font-bold truncate">${log.name || log.uid}</p>
-                                <div class="mt-1">${roleBadge}</div>
-                            </div>
-                            <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
-                                ${date}
-                            </div>
-                        </div>
-                    </div>`;
-
-                    tableHtml += `
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-4 text-sm text-white font-medium">${log.name || log.uid}</td>
-                        <td class="p-4 text-center">${roleBadge}</td>
-                        <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
-                    </tr>`;
-                });
-                
-                gridHtml += '</div>';
-                tableHtml += `</tbody></table></div>`;
+                if(logs.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีประวัติการเข้าสู่ระบบ</p></div>`;
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
@@ -3345,17 +3334,21 @@
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
                             <div>
                                 <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติการเข้าสู่ระบบ</p>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Login Logs</p>
+                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Login Access Logs</p>
                             </div>
                         </div>
                         <button onclick="app.clearAllLogs('login')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
-                            <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
+                            <i class="fa-solid fa-trash-can"></i> ล้างข้อมูล
                         </button>
                     </div>
 
-                    <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
-                        ${gridHtml}
-                        ${tableHtml}
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                            <h3 class="text-white font-bold text-sm uppercase tracking-widest"><i class="fa-solid fa-history text-secondary mr-2"></i>รายการทั้งหมด (${logs.length})</h3>
+                        </div>
+                        <div class="flex flex-col gap-2 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+                            ${listHtml}
+                        </div>
                     </div>
                 </div>`;
             },
@@ -3366,12 +3359,13 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
                         <div class="min-w-0 flex-1">
                             <p class="font-bold text-white text-sm truncate mb-1"><i class="fa-solid fa-link text-secondary mr-2 text-xs"></i>${s.title}</p>
-                            <p class="text-[10px] text-blue-400 truncate hover:underline cursor-pointer" onclick="window.open('${s.url}', '_blank')">${s.url}</p>
+                            <a href="${s.url}" target="_blank" class="text-[10px] text-blue-400 hover:underline truncate block w-full max-w-[300px]">${s.url}</a>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
-                            <span class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full">
-                                ${s.showToStudents ? 'นักศึกษาเห็นได้' : 'เฉพาะ Admin'}
-                            </span>
+                            <label class="flex items-center gap-2 cursor-pointer border border-white/10 px-3 py-1.5 rounded-xl bg-black/40 hover:bg-white/5 transition-colors">
+                                <input type="checkbox" ${s.showToStudents ? 'checked' : ''} onchange="app.toggleIframeRole(${idx}, this.checked)" class="w-3 h-3 rounded text-secondary focus:ring-secondary accent-secondary">
+                                <span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest">ให้นักศึกษาเห็น</span>
+                            </label>
                             <button onclick="app.deleteIframe(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
                                 <i class="fa-solid fa-trash text-sm"></i>
                             </button>
@@ -3379,12 +3373,12 @@
                     </div>
                 `).join('');
 
-                if(sites.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีการเพิ่มเมนูเว็บฝัง</p></div>`;
+                if(sites.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีลิงก์เว็บฝัง</p></div>`;
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-bars-staggered"></i></div>
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-link"></i></div>
                         <div>
                             <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการเมนูเว็บฝัง (Iframe)</p>
                             <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Embedded Sites Manager</p>
@@ -3395,26 +3389,29 @@
                         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                             <div class="lg:col-span-2">
                                 <div class="bg-black/40 p-6 rounded-3xl border border-white/10 sticky top-4 shadow-inner">
-                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มเมนูใหม่</h3>
+                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มลิงก์ใหม่</h3>
                                     
                                     <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อเมนู</label>
-                                    <input type="text" id="newIframeTitle" placeholder="เช่น แบบสอบถาม, โหวตผลงาน" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
+                                    <input type="text" id="newIframeTitle" placeholder="เช่น โหวตผลงานยอดนิยม" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
-                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ลิงก์ URL (ต้องเป็น https://)</label>
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">URL (ลิงก์เว็บ)</label>
                                     <input type="url" id="newIframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
-                                    <label class="flex items-center gap-3 mb-6 p-3 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
-                                        <input type="checkbox" id="newIframeShowStudents" checked class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
-                                        <span class="text-xs text-white font-bold">แสดงให้นักศึกษาเห็นด้วย</span>
+                                    <label class="flex items-center gap-3 cursor-pointer p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors mb-6">
+                                        <input type="checkbox" id="newIframeRole" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-white uppercase tracking-widest">แสดงให้นักศึกษาเห็นด้วย</span>
+                                            <span class="text-[9px] text-gray-400 font-medium">ค่าเริ่มต้นจะเห็นเฉพาะ Admin</span>
+                                        </div>
                                     </label>
-
+                                    
                                     <button onclick="app.addIframe()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-link text-lg"></i> เพิ่มเข้าเมนู
+                                        <i class="fa-solid fa-square-plus text-lg"></i> เพิ่มลิงก์
                                     </button>
                                 </div>
                             </div>
                             <div class="lg:col-span-3">
-                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายการเมนูฝังทั้งหมด</h3>
+                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายการเว็บฝังทั้งหมด</h3>
                                 <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                                     ${listHtml}
                                 </div>
@@ -3423,30 +3420,39 @@
                     </div>
                 </div>`;
             },
-
+            
             addIframe: async function() {
                 const title = document.getElementById('newIframeTitle').value.trim();
-                const url = document.getElementById('newIframeUrl').value.trim();
-                const showToStudents = document.getElementById('newIframeShowStudents').checked;
-
-                if (!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
-                if (!url.startsWith('http')) return app.swal.fire('แจ้งเตือน', 'URL ต้องขึ้นต้นด้วย http:// หรือ https://', 'warning');
-
+                let url = document.getElementById('newIframeUrl').value.trim();
+                const showToStudents = document.getElementById('newIframeRole').checked;
+                
+                if(!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+                if(!url.startsWith('http')) url = 'https://' + url;
+                
                 const sites = [...(app.settings.embeddedSites || []), { title, url, showToStudents }];
                 app.settings.embeddedSites = sites;
-                app.updateMenuVisibility();
                 app.refreshCurrentView();
-
+                app.updateMenuVisibility();
+                
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
+            },
+
+            toggleIframeRole: async function(idx, show) {
+                const sites = [...(app.settings.embeddedSites || [])];
+                if (sites[idx]) {
+                    sites[idx].showToStudents = show;
+                    app.settings.embeddedSites = sites;
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
+                }
             },
 
             deleteIframe: async function(idx) {
                 const sites = [...(app.settings.embeddedSites || [])];
                 sites.splice(idx, 1);
                 app.settings.embeddedSites = sites;
-                app.updateMenuVisibility();
                 app.refreshCurrentView();
-
+                app.updateMenuVisibility();
+                
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
             },
 
@@ -3456,113 +3462,117 @@
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-qrcode"></i></div>
                         <div>
-                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">สร้าง QR Code / นามบัตร</p>
-                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Export Tools</p>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">สร้าง QR Code ผลงานทั้งหมด</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Export QR Codes as ZIP</p>
                         </div>
                     </div>
 
-                    <div class="glass-card rounded-[2.5rem] p-6 md:p-10 text-center">
-                        <i class="fa-solid fa-download text-5xl text-secondary mb-6 drop-shadow-md"></i>
-                        <h3 class="text-white font-black text-xl mb-4">ดาวน์โหลดข้อมูลระบบทั้งหมด</h3>
-                        <p class="text-sm text-gray-400 mb-8 max-w-lg mx-auto bg-black/30 p-4 rounded-xl border border-white/5 leading-relaxed">
-                            ระบบจะทำการสร้าง QR Code สำหรับผลงานของนักศึกษาทุกคน และจัดเก็บในรูปแบบไฟล์ .zip รวมถึงดึงข้อมูลต่างๆ เป็นไฟล์ Excel (CSV)
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-12 text-center relative overflow-hidden">
+                        <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
+                        
+                        <div class="w-32 h-32 mx-auto bg-black/40 rounded-full border-4 border-white/10 flex items-center justify-center mb-6 relative">
+                            <i class="fa-solid fa-qrcode text-5xl text-secondary drop-shadow-lg"></i>
+                            <div class="absolute -right-2 -bottom-2 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm border-2 border-black shadow-lg">ZIP</div>
+                        </div>
+                        
+                        <h3 class="text-2xl font-black text-white mb-4">ดาวน์โหลด QR Code นักศึกษาทั้งหมด</h3>
+                        <p class="text-sm text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
+                            ระบบจะทำการสร้าง QR Code ของนักศึกษาทุกคน (${window.predefinedUsers.length} คน) <br>โดยแยกเป็นรูปภาพ .png และนำมารวมเป็นไฟล์ ZIP เพื่อให้ง่ายต่อการนำไปใช้งานต่อ
                         </p>
                         
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button onclick="app.exportAllDataCSV()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold shadow-lg transition-transform transform active:scale-95 flex items-center justify-center gap-3">
-                                <i class="fa-solid fa-file-csv text-xl"></i> โหลดข้อมูลสถิติ (CSV)
-                            </button>
-                            <button onclick="app.generateAllQRCodes()" id="btnGenerateQR" class="bg-secondary text-primary hover:bg-yellow-500 px-8 py-4 rounded-2xl font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] transition-transform transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest">
-                                <i class="fa-solid fa-qrcode text-xl"></i> โหลด QR Code (ZIP)
-                            </button>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 max-w-sm mx-auto mb-8 shadow-inner text-left">
+                            <p class="text-[10px] text-secondary font-bold uppercase tracking-widest mb-2"><i class="fa-solid fa-gear mr-1"></i> ตั้งค่าเพิ่มเติม</p>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" id="useShortLinkExport" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary" checked>
+                                <span class="text-xs text-gray-300 font-medium group-hover:text-white transition-colors">ใช้ลิงก์ย่อ (ถ้ามีกำหนดไว้ในระบบ)</span>
+                            </label>
                         </div>
-                        
-                        <div id="qrProgress" class="hidden mt-8 max-w-md mx-auto bg-black/40 p-5 rounded-2xl border border-white/10 shadow-inner">
-                            <div class="flex justify-between text-[10px] text-secondary font-bold tracking-widest uppercase mb-2">
-                                <span>ความคืบหน้า</span>
-                                <span id="qrProgressText">0%</span>
-                            </div>
-                            <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
-                                <div id="qrProgressBar" class="bg-secondary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                            </div>
-                        </div>
+
+                        <button onclick="app.exportQRCodes()" id="btnExportQR" class="bg-secondary text-primary font-black px-10 py-5 rounded-2xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(253,223,49,0.3)] flex items-center justify-center gap-3 mx-auto w-full sm:w-auto uppercase tracking-widest text-sm">
+                            <i class="fa-solid fa-file-zipper text-xl"></i> เริ่มสร้างและดาวน์โหลดไฟล์ ZIP
+                        </button>
                     </div>
                 </div>`;
             },
 
-            generateAllQRCodes: async function() {
-                const btn = document.getElementById('btnGenerateQR');
-                const prog = document.getElementById('qrProgress');
-                const progBar = document.getElementById('qrProgressBar');
-                const progText = document.getElementById('qrProgressText');
-                const container = document.getElementById('qr-generator-container');
-                
+            exportQRCodes: async function() {
+                const btn = document.getElementById('btnExportQR');
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> กำลังสร้าง...';
-                prog.classList.remove('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> กำลังสร้าง QR Code...';
                 
+                const useShortLink = document.getElementById('useShortLinkExport') ? document.getElementById('useShortLinkExport').checked : false;
                 const zip = new JSZip();
-                const total = window.predefinedUsers.length;
-                let baseUrl = window.location.href.split('?')[0].replace(/index\.html$/, '');
-                if (!baseUrl.endsWith('/')) baseUrl += '/';
-                
-                for(let i=0; i<total; i++) {
-                    const u = window.predefinedUsers[i];
-                    const url = `${baseUrl}Exhibition/${u.studentId}.html`;
-                    
-                    container.innerHTML = '';
-                    new QRCode(container, {
-                        text: url,
-                        width: 1000,
-                        height: 1000,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
+                const folder = zip.folder("MORANASATECT_QRCodes");
+                const container = document.getElementById('qr-generator-container');
+                container.innerHTML = ''; 
 
-                    await new Promise(r => setTimeout(r, 100)); // ให้เวลา Canvas เรนเดอร์
+                let basePath = window.location.href.split('?')[0].replace(/index\.html$/, '');
+                if (!basePath.endsWith('/')) basePath += '/';
+
+                for (let i = 0; i < window.predefinedUsers.length; i++) {
+                    const u = window.predefinedUsers[i];
+                    let link = `${basePath}Exhibition/${u.studentId}.html`;
                     
-                    const canvas = container.querySelector('canvas');
-                    if(canvas) {
-                        const imgData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
-                        zip.file(`${u.studentId}_${app.formatName(u.name)}.png`, imgData, {base64: true});
+                    if (useShortLink && u.shortLink && u.shortLink.trim() !== '') {
+                        link = u.shortLink.trim();
                     }
 
-                    const percent = Math.round(((i+1)/total)*100);
-                    progBar.style.width = percent + '%';
-                    progText.innerText = percent + '%';
+                    const tempDiv = document.createElement('div');
+                    container.appendChild(tempDiv);
+
+                    await new Promise(resolve => {
+                        new QRCode(tempDiv, {
+                            text: link,
+                            width: 500,
+                            height: 500,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.H
+                        });
+                        setTimeout(resolve, 50); 
+                    });
+
+                    const img = tempDiv.querySelector('img');
+                    if (img && img.src) {
+                        const base64Data = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
+                        folder.file(`${u.studentId}_${app.formatName(u.name)}.png`, base64Data, {base64: true});
+                    } else {
+                        const canvas = tempDiv.querySelector('canvas');
+                        if(canvas) {
+                            const dataUrl = canvas.toDataURL("image/png");
+                            const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
+                            folder.file(`${u.studentId}_${app.formatName(u.name)}.png`, base64Data, {base64: true});
+                        }
+                    }
                 }
 
-                btn.innerHTML = '<i class="fa-solid fa-box-archive fa-bounce text-xl"></i> กำลังบีบอัดไฟล์...';
-                
-                zip.generateAsync({type:"blob"}).then(function(content) {
+                btn.innerHTML = '<i class="fa-solid fa-file-zipper text-xl"></i> กำลังบีบอัดไฟล์ ZIP...';
+
+                try {
+                    const content = await zip.generateAsync({type:"blob"});
                     saveAs(content, "MORANASATECT_QRCodes.zip");
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> สร้างเสร็จสิ้น';
-                    setTimeout(() => {
-                        prog.classList.add('hidden');
-                        btn.innerHTML = '<i class="fa-solid fa-qrcode text-xl"></i> โหลด QR Code (ZIP)';
-                        progBar.style.width = '0%';
-                    }, 3000);
-                });
+                    app.swal.fire({ title: 'สำเร็จ', text: 'ดาวน์โหลดไฟล์ ZIP เรียบร้อยแล้ว', icon: 'success', timer: 2000, showConfirmButton: false });
+                } catch(e) {
+                    console.error("ZIP Generation Error:", e);
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถสร้างไฟล์ ZIP ได้', 'error');
+                }
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-file-zipper text-xl"></i> เริ่มสร้างและดาวน์โหลดไฟล์ ZIP';
+                container.innerHTML = '';
             },
 
             renderIframeView: function(idx) {
-                const site = app.settings.embeddedSites?.[idx];
-                if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-white/5 p-6 rounded-2xl border border-white/10 max-w-md mx-auto">ไม่พบหน้าที่ต้องการ</div>`;
-                
+                const site = app.settings.embeddedSites[idx];
+                if(!site) return `<div class="text-center py-20 text-red-500 font-bold bg-white/5 rounded-3xl border border-white/10 shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลเว็บฝัง</div>`;
+
                 return `
-                <div class="animate-fade-in w-full h-[calc(100vh-100px)] mt-4 flex flex-col pointer-events-none">
-                    <div class="flex justify-between items-center bg-black/60 backdrop-blur-xl px-6 py-4 rounded-t-3xl border border-white/10 border-b-0 shadow-lg shrink-0 pointer-events-auto z-20 relative">
-                        <h2 class="text-white font-bold text-lg md:text-xl truncate flex items-center gap-3">
-                            <i class="fa-solid fa-link text-secondary"></i>
-                            ${site.title}
-                        </h2>
-                        <button onclick="window.open('${site.url}', '_blank')" class="text-xs bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl transition-colors font-bold border border-white/10 shadow-sm flex items-center gap-2">
-                            เปิดแท็บใหม่ <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </button>
-                    </div>
-                    <div class="flex-1 w-full bg-black rounded-b-3xl overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
+                <div class="animate-fade-in w-full h-[85vh] flex flex-col pt-4 relative px-2 sm:px-0">
+                    <button onclick="app.goBack()" class="absolute -top-12 sm:-top-16 left-2 sm:left-0 z-50 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 shadow-lg backdrop-blur-md">
+                        <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                    </button>
+                    
+                    <div class="w-full flex-1 rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
                             <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                             <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
