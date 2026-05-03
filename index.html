@@ -27,7 +27,6 @@
     <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
 
     <!-- โหลดรูปล่วงหน้า (Preload) เพื่อให้แสดงทันทีที่เปิดเว็บ -->
-    <link rel="preload" href="./LOGO 04.png" as="image">
     <link rel="preload" href="./LOGO MORANASATECT.png" as="image">
     <link rel="preload" href="./LOGO 01.png" as="image">
     <link rel="preload" href="./LOGO 02.png" as="image">
@@ -398,9 +397,8 @@
     <!-- Main Content App -->
     <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-16 md:mt-20">
         <div id="appRoot" class="max-w-6xl mx-auto w-full flex-1 flex flex-col p-4 pb-8 sm:pb-12">
-            <!-- ส่วนที่เปลี่ยนรูปโหลดให้ใหญ่ขึ้นและตั้งให้หมุนไม่กระจก -->
             <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
-                <img src="./LOGO 04.png" alt="Loading" class="w-32 h-32 md:w-48 md:h-48 mb-6 animate-spin-y object-contain drop-shadow-2xl" onerror="this.style.display='none'">
+                <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
                 <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
             </div>
         </div>
@@ -504,7 +502,7 @@
 
                 // ฟังก์ชันบังคับโหลดรูปภาพที่สำคัญล่วงหน้า พร้อมตั้งเวลาจำกัดไม่ให้รอนานเกิน 2 วินาที
                 const preloadImportantImages = () => {
-                    const images = ['./LOGO 04.png', './LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png', './LOGO 03.png'];
+                    const images = ['./LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png', './LOGO 03.png'];
                     const promises = images.map(src => new Promise(resolve => {
                         const img = new Image();
                         img.onload = resolve;
@@ -1556,7 +1554,7 @@
             renderLoading: function() {
                 return `
                 <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
-                    <img src="./LOGO 04.png" alt="Loading" class="w-32 h-32 md:w-48 md:h-48 mb-6 animate-spin-y object-contain drop-shadow-2xl" onerror="this.style.display='none'">
+                    <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
                     <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
                 </div>`;
             },
@@ -1652,16 +1650,16 @@
                     <div class="relative w-full flex flex-col items-center justify-center text-center py-8 md:py-12 mb-6 overflow-hidden">
                         
                         ${!filterParam ? `
-                        <div class="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 mb-8 px-4">
-                            <!-- ด้านซ้าย: รูป 01 และ 02 อยู่ตรงกลางซึ่งกันและกัน และลดขนาดลงในจอคอม -->
-                            <div class="flex flex-col items-center justify-center w-full md:w-1/2 gap-5 md:gap-6">
-                                <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[65vw] md:w-[35vw] max-w-[350px] h-auto object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
-                                <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[75%] sm:w-[60%] md:w-[50%] max-w-[220px] object-contain animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
+                        <div class="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-8 px-4">
+                            <!-- ด้านซ้าย: รูป 01 และ 02 เล็กลงอีกในจอคอม -->
+                            <div class="flex flex-col items-center justify-center w-full md:w-[40%] gap-4 md:gap-5">
+                                <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[65vw] md:w-[30vw] max-w-[280px] h-auto object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
+                                <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[75%] sm:w-[60%] md:w-[45%] max-w-[170px] object-contain animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
                             </div>
                             
-                            <!-- ด้านขวา: รูป 03 ซ่อนในมือถือ (hidden) และแสดงในจอคอม (md:flex) -->
-                            <div class="hidden md:flex flex-col items-center justify-center w-full md:w-1/2 animate-slide-up" style="animation-delay: 0.2s">
-                                <img src="./LOGO 03.png" alt="LOGO 03" class="w-[90%] md:w-full max-w-[550px] object-contain drop-shadow-xl" onerror="this.style.display='none'">
+                            <!-- ด้านขวา: รูป 03 ใหญ่ขึ้นในจอคอม (ซ่อนในมือถือ) -->
+                            <div class="hidden md:flex flex-col items-center justify-center w-full md:w-[60%] animate-slide-up" style="animation-delay: 0.2s">
+                                <img src="./LOGO 03.png" alt="LOGO 03" class="w-[90%] md:w-[105%] max-w-[750px] object-contain drop-shadow-xl" onerror="this.style.display='none'">
                             </div>
                         </div>
                         ` : `
