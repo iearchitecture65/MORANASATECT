@@ -30,6 +30,7 @@
     <link rel="preload" href="./LOGO MORANASATECT.png" as="image">
     <link rel="preload" href="./LOGO 01.png" as="image">
     <link rel="preload" href="./LOGO 02.png" as="image">
+    <link rel="preload" href="./LOGO 03.png" as="image">
 
     <!-- สคริปต์สำหรับดึงชื่อโครงการและชื่ออาจารย์มาแสดงเป็น Title ทันทีตั้งแต่เริ่มโหลดหน้าเว็บ -->
     <script>
@@ -493,7 +494,7 @@
 
                 // ฟังก์ชันบังคับโหลดรูปภาพที่สำคัญล่วงหน้า พร้อมตั้งเวลาจำกัดไม่ให้รอนานเกิน 2 วินาที
                 const preloadImportantImages = () => {
-                    const images = ['./LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png'];
+                    const images = ['./LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png', './LOGO 03.png'];
                     const promises = images.map(src => new Promise(resolve => {
                         const img = new Image();
                         img.onload = resolve;
@@ -1639,18 +1640,27 @@
                 <div class="animate-fade-in w-full max-w-7xl mx-auto pb-12 sm:px-4">
                     <!-- Modern Minimal Hero Section -->
                     <div class="relative w-full flex flex-col items-center justify-center text-center py-8 md:py-12 mb-6 overflow-hidden">
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-80 sm:h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
+                        
                         ${!filterParam ? `
-                        <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[70vw] max-w-[750px] h-auto object-contain mb-8 drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
-                        <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[85%] sm:w-[70%] md:w-[60%] max-w-[450px] object-contain mb-4 animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
+                        <div class="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 mb-8 px-4">
+                            <!-- ด้านซ้าย: รูป 01 และ 02 อยู่ตรงกลางซึ่งกันและกัน และลดขนาดลง -->
+                            <div class="flex flex-col items-center justify-center w-full md:w-1/2 gap-6">
+                                <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[65vw] md:w-[40vw] max-w-[450px] h-auto object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
+                                <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[75%] sm:w-[60%] md:w-[65%] max-w-[300px] object-contain animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
+                            </div>
+                            
+                            <!-- ด้านขวา: รูป 03 เว้นระยะห่างตามที่จัด gap ไว้ -->
+                            <div class="flex flex-col items-center justify-center w-full md:w-1/2 animate-slide-up" style="animation-delay: 0.2s">
+                                <img src="./LOGO 03.png" alt="LOGO 03" class="w-[90%] md:w-full max-w-[550px] object-contain drop-shadow-xl" onerror="this.style.display='none'">
+                            </div>
+                        </div>
                         ` : `
                         <h1 class="relative z-10 text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-white drop-shadow-md mb-2 animate-slide-up leading-tight tracking-tight px-4" style="animation-delay: 0.1s">
                             ${headerTitle}
                         </h1>
                         `}
 
-                        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2 animate-slide-up bg-white/[0.03] backdrop-blur-md px-4 py-1.5 rounded-xl border border-white/5" style="animation-delay: 0.2s">
+                        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-2 animate-slide-up px-4 py-1.5" style="animation-delay: 0.2s">
                             <i class="fa-solid fa-layer-group text-secondary text-[10px] sm:text-xs"></i>
                             <h2 class="text-[9px] sm:text-[10px] text-gray-300 font-bold tracking-widest uppercase">
                                 ${headerSubtitle}
@@ -3283,36 +3293,36 @@
                 let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                            <th class="p-4 rounded-tl-xl">ผู้เข้าสู่ระบบ</th>
-                            <th class="p-4">รหัสประจำตัว</th>
-                            <th class="p-4 text-center rounded-tr-xl">เวลา</th>
+                            <th class="p-4 rounded-tl-xl">ผู้ใช้งาน</th>
+                            <th class="p-4 text-center">บทบาท</th>
+                            <th class="p-4 text-center rounded-tr-xl">เวลาเข้าสู่ระบบ</th>
                         </tr>
                     </thead><tbody class="divide-y divide-white/5">`;
                 
                 loginLogs.forEach(log => {
                     const date = new Date(log.timestamp).toLocaleString('th-TH');
-                    
+                    let roleBadge = '';
+                    if(log.role === 'admin') roleBadge = '<span class="bg-red-500/20 text-red-400 px-2 py-1 rounded-md text-[10px] border border-red-500/30">Admin</span>';
+                    else if(log.role === 'student') roleBadge = '<span class="bg-secondary/20 text-secondary px-2 py-1 rounded-md text-[10px] border border-secondary/30">Student</span>';
+                    else roleBadge = '<span class="bg-gray-500/20 text-gray-300 px-2 py-1 rounded-md text-[10px] border border-gray-500/30">Guest</span>';
+
                     gridHtml += `
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
                         <div class="flex justify-between items-start w-full">
                             <div class="min-w-0 flex-1 pr-2">
-                                <p class="text-white text-sm font-bold truncate">${log.name || 'ไม่ทราบชื่อ'}</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5 uppercase tracking-widest">${log.role || 'student'}</p>
+                                <p class="text-white text-sm font-bold truncate">${log.name || log.uid}</p>
+                                <div class="mt-1">${roleBadge}</div>
                             </div>
                             <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
                                 ${date}
                             </div>
                         </div>
-                        <div class="bg-black/30 p-3 rounded-xl border border-white/5 mt-1 flex justify-between items-center">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-widest">รหัสประจำตัว</span>
-                            <span class="text-secondary font-bold text-sm">${log.uid || '-'}</span>
-                        </div>
                     </div>`;
 
                     tableHtml += `
                     <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'student'})</span></td>
-                        <td class="p-4 text-sm text-secondary font-bold">${log.uid || '-'}</td>
+                        <td class="p-4 text-sm text-white font-medium">${log.name || log.uid}</td>
+                        <td class="p-4 text-center">${roleBadge}</td>
                         <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
                     </tr>`;
                 });
@@ -3344,43 +3354,32 @@
 
             renderAdminIframe: function() {
                 const sites = app.settings.embeddedSites || [];
-                let siteList = sites.map((s, idx) => `
+                let listHtml = sites.map((s, idx) => `
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
                         <div class="min-w-0 flex-1">
                             <p class="font-bold text-white text-sm truncate mb-1"><i class="fa-solid fa-link text-secondary mr-2 text-xs"></i>${s.title}</p>
-                            <p class="text-[10px] text-gray-500 truncate bg-black/50 p-2 rounded-lg border border-white/5 font-mono">${s.url}</p>
+                            <p class="text-[10px] text-blue-400 truncate hover:underline cursor-pointer" onclick="window.open('${s.url}', '_blank')">${s.url}</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
-                            <span id="iframeBadge_${idx}" class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full transition-colors hidden sm:inline-block">
-                                ${s.showToStudents ? 'แสดงสาธารณะ' : 'ซ่อนจากสาธารณะ'}
+                            <span class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full">
+                                ${s.showToStudents ? 'นักศึกษาเห็นได้' : 'เฉพาะ Admin'}
                             </span>
-                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${s.showToStudents ? 'checked' : ''} onchange="app.toggleEmbeddedSite(${idx}, this.checked)" class="sr-only peer">
-                                <div class="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
-                            </label>
-                            <button onclick="app.editEmbeddedSite(${idx})" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-blue-500/20">
-                                <i class="fa-solid fa-pen text-sm"></i>
-                            </button>
-                            <button onclick="app.deleteEmbeddedSite(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
+                            <button onclick="app.deleteIframe(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
                                 <i class="fa-solid fa-trash text-sm"></i>
                             </button>
                         </div>
                     </div>
                 `).join('');
 
-                if(sites.length === 0) siteList = `
-                    <div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
-                        <i class="fa-solid fa-puzzle-piece text-3xl text-gray-600 mb-3"></i>
-                        <p class="text-xs text-gray-400 font-bold">ยังไม่มีการฝังเว็บเพิ่มเติม</p>
-                    </div>`;
+                if(sites.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีการเพิ่มเมนูเว็บฝัง</p></div>`;
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-link"></i></div>
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-bars-staggered"></i></div>
                         <div>
-                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการเมนูเว็บฝัง</p>
-                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Admin Iframe Manager</p>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการเมนูเว็บฝัง (Iframe)</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Embedded Sites Manager</p>
                         </div>
                     </div>
 
@@ -3388,28 +3387,28 @@
                         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                             <div class="lg:col-span-2">
                                 <div class="bg-black/40 p-6 rounded-3xl border border-white/10 sticky top-4 shadow-inner">
-                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มเมนูเว็บฝัง (Iframe)</h3>
+                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มเมนูใหม่</h3>
                                     
                                     <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อเมนู</label>
-                                    <input type="text" id="iframeTitle" placeholder="เช่น แบบประเมินความพึงพอใจ" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
+                                    <input type="text" id="newIframeTitle" placeholder="เช่น แบบสอบถาม, โหวตผลงาน" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
-                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">URL เว็บไซต์</label>
-                                    <input type="url" id="iframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-6 text-sm font-mono">
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ลิงก์ URL (ต้องเป็น https://)</label>
+                                    <input type="url" id="newIframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
-                                    <label class="flex items-center gap-3 text-xs text-white mb-6 bg-black/50 p-4 rounded-xl border border-white/10 cursor-pointer hover:border-secondary/50 transition-colors shadow-inner">
-                                        <input type="checkbox" id="iframeShow" class="w-4 h-4 accent-secondary bg-black border-white/20 rounded"> 
-                                        <span class="font-bold">แสดงในเมนูของทุกคน (นศ. และ ผู้เยี่ยมชม)</span>
+                                    <label class="flex items-center gap-3 mb-6 p-3 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
+                                        <input type="checkbox" id="newIframeShowStudents" checked class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                        <span class="text-xs text-white font-bold">แสดงให้นักศึกษาเห็นด้วย</span>
                                     </label>
-                                    
-                                    <button onclick="app.addEmbeddedSite()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
-                                        บันทึกเมนู <i class="fa-solid fa-floppy-disk text-lg"></i>
+
+                                    <button onclick="app.addIframe()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-link text-lg"></i> เพิ่มเข้าเมนู
                                     </button>
                                 </div>
                             </div>
                             <div class="lg:col-span-3">
-                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>เมนูที่ฝังไว้ทั้งหมด</h3>
+                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายการเมนูฝังทั้งหมด</h3>
                                 <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                    ${siteList}
+                                    ${listHtml}
                                 </div>
                             </div>
                         </div>
@@ -3417,87 +3416,27 @@
                 </div>`;
             },
 
-            addEmbeddedSite: async function() {
-                const title = document.getElementById('iframeTitle').value.trim();
-                const url = document.getElementById('iframeUrl').value.trim();
-                const show = document.getElementById('iframeShow').checked;
-                
-                if(!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
-                
-                const sites = [...(app.settings.embeddedSites || []), { title, url, showToStudents: show }];
-                
+            addIframe: async function() {
+                const title = document.getElementById('newIframeTitle').value.trim();
+                const url = document.getElementById('newIframeUrl').value.trim();
+                const showToStudents = document.getElementById('newIframeShowStudents').checked;
+
+                if (!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+                if (!url.startsWith('http')) return app.swal.fire('แจ้งเตือน', 'URL ต้องขึ้นต้นด้วย http:// หรือ https://', 'warning');
+
+                const sites = [...(app.settings.embeddedSites || []), { title, url, showToStudents }];
                 app.settings.embeddedSites = sites;
+                app.updateMenuVisibility();
                 app.refreshCurrentView();
 
-                try {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true });
-                    document.getElementById('iframeTitle').value = '';
-                    document.getElementById('iframeUrl').value = '';
-                } catch(e){}
+                try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
             },
 
-            toggleEmbeddedSite: async function(idx, showToStudents) {
-                const sites = [...(app.settings.embeddedSites || [])];
-                if (sites[idx]) {
-                    sites[idx].showToStudents = showToStudents;
-                    app.settings.embeddedSites = sites; 
-                    app.updateMenuVisibility();
-                    
-                    const badge = document.getElementById(`iframeBadge_${idx}`);
-                    if (badge) {
-                        badge.className = `text-[9px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full transition-colors hidden sm:inline-block ${showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'}`;
-                        badge.innerText = showToStudents ? 'แสดงสาธารณะ' : 'ซ่อนจากสาธารณะ';
-                    }
-                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
-                }
-            },
-
-            editEmbeddedSite: async function(idx) {
-                const sites = [...(app.settings.embeddedSites || [])];
-                const s = sites[idx];
-                if(!s) return;
-
-                const { value: formValues } = await app.swal.fire({
-                    title: 'แก้ไขเมนูเว็บฝัง',
-                    html: `
-                        <div class="text-left space-y-4">
-                            <div>
-                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ชื่อเมนู</label>
-                                <input id="editIframeTitle" class="glass-input w-full p-3 rounded-xl text-sm" value="${s.title}">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">URL เว็บไซต์</label>
-                                <input id="editIframeUrl" type="url" class="glass-input w-full p-3 rounded-xl text-sm font-mono" value="${s.url}">
-                            </div>
-                        </div>
-                    `,
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    confirmButtonText: 'บันทึก',
-                    cancelButtonText: 'ยกเลิก',
-                    preConfirm: () => {
-                        return {
-                            title: document.getElementById('editIframeTitle').value.trim(),
-                            url: document.getElementById('editIframeUrl').value.trim()
-                        }
-                    }
-                });
-
-                if (formValues && formValues.title && formValues.url) {
-                    sites[idx].title = formValues.title;
-                    sites[idx].url = formValues.url;
-                    app.settings.embeddedSites = sites;
-                    app.updateMenuVisibility();
-                    app.refreshCurrentView();
-                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
-                }
-            },
-
-            deleteEmbeddedSite: async function(idx) {
+            deleteIframe: async function(idx) {
                 const sites = [...(app.settings.embeddedSites || [])];
                 sites.splice(idx, 1);
-
                 app.settings.embeddedSites = sites;
+                app.updateMenuVisibility();
                 app.refreshCurrentView();
 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
@@ -3505,116 +3444,117 @@
 
             renderAdminExport: function() {
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-qrcode"></i></div>
                         <div>
-                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">สร้าง QR Code</p>
-                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Export QR ZIP</p>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">สร้าง QR Code / นามบัตร</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Export Tools</p>
                         </div>
                     </div>
 
-                    <div class="glass-card rounded-[2.5rem] p-6 md:p-12 text-center">
-                        <div class="w-24 h-24 bg-secondary/10 border-2 border-secondary/30 rounded-3xl flex items-center justify-center text-secondary text-5xl mx-auto mb-6 shadow-inner">
-                            <i class="fa-solid fa-qrcode"></i>
-                        </div>
-                        <h3 class="text-2xl font-black text-white mb-3">สร้าง QR Code รวม 57 คน</h3>
-                        <p class="text-xs text-gray-400 mb-8 max-w-sm mx-auto leading-relaxed">ระบบจะสร้างคิวอาร์โค้ดลิงก์หน้าผลงานของนักศึกษาทุกคน และบีบอัดเป็นไฟล์ <span class="text-white font-bold">.ZIP</span> เพื่อนำไปใช้พิมพ์ติดตั้งในงานนิทรรศการ</p>
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-10 text-center">
+                        <i class="fa-solid fa-download text-5xl text-secondary mb-6 drop-shadow-md"></i>
+                        <h3 class="text-white font-black text-xl mb-4">ดาวน์โหลดข้อมูลระบบทั้งหมด</h3>
+                        <p class="text-sm text-gray-400 mb-8 max-w-lg mx-auto bg-black/30 p-4 rounded-xl border border-white/5 leading-relaxed">
+                            ระบบจะทำการสร้าง QR Code สำหรับผลงานของนักศึกษาทุกคน และจัดเก็บในรูปแบบไฟล์ .zip รวมถึงดึงข้อมูลต่างๆ เป็นไฟล์ Excel (CSV)
+                        </p>
                         
-                        <div class="flex flex-wrap gap-4 justify-center mb-8 bg-black/30 p-4 rounded-2xl border border-white/5 inline-flex w-full max-w-md">
-                            <label class="flex flex-col items-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">สีคิวอาร์ (QR)
-                                <input type="color" id="qrColorDark" value="#000000" class="w-10 h-10 mt-2 bg-transparent border-0 cursor-pointer hover:scale-110 transition-transform">
-                            </label>
-                            <label class="flex flex-col items-center text-[10px] text-gray-400 font-bold uppercase tracking-widest px-4 border-l border-r border-white/10">สีพื้นหลัง
-                                <input type="color" id="qrColorLight" value="#ffffff" class="w-10 h-10 mt-2 bg-transparent border-0 cursor-pointer hover:scale-110 transition-transform" onchange="document.getElementById('qrTransparent').checked = false">
-                            </label>
-                            <label class="flex flex-col items-center text-[10px] text-gray-400 font-bold uppercase tracking-widest cursor-pointer">พื้นหลังโปร่งใส
-                                <div class="mt-3 bg-white/10 p-1.5 rounded-lg border border-white/20"><input type="checkbox" id="qrTransparent" class="w-5 h-5 accent-secondary block cursor-pointer"></div>
-                            </label>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="app.exportAllDataCSV()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold shadow-lg transition-transform transform active:scale-95 flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-file-csv text-xl"></i> โหลดข้อมูลสถิติ (CSV)
+                            </button>
+                            <button onclick="app.generateAllQRCodes()" id="btnGenerateQR" class="bg-secondary text-primary hover:bg-yellow-500 px-8 py-4 rounded-2xl font-black shadow-[0_0_20px_rgba(253,223,49,0.4)] transition-transform transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest">
+                                <i class="fa-solid fa-qrcode text-xl"></i> โหลด QR Code (ZIP)
+                            </button>
                         </div>
-
-                        <button onclick="app.generateQRZip()" id="btnGenZip" class="bg-secondary text-black font-black px-10 py-4 rounded-full shadow-[0_0_20px_rgba(253,223,49,0.3)] hover:scale-105 transition-transform flex items-center justify-center mx-auto gap-3 text-sm tracking-widest uppercase">
-                            <i class="fa-solid fa-file-zipper text-lg"></i> เริ่มดาวน์โหลด
-                        </button>
+                        
+                        <div id="qrProgress" class="hidden mt-8 max-w-md mx-auto bg-black/40 p-5 rounded-2xl border border-white/10 shadow-inner">
+                            <div class="flex justify-between text-[10px] text-secondary font-bold tracking-widest uppercase mb-2">
+                                <span>ความคืบหน้า</span>
+                                <span id="qrProgressText">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                                <div id="qrProgressBar" class="bg-secondary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>`;
             },
 
-            generateQRZip: async function() {
-                const btn = document.getElementById('btnGenZip');
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> กำลังสร้าง ZIP...';
-                btn.disabled = true;
-
-                const colorDark = document.getElementById('qrColorDark').value;
-                const colorLightInput = document.getElementById('qrColorLight').value;
-                const isTransparent = document.getElementById('qrTransparent').checked;
-                const colorLight = isTransparent ? "#ffffff" : colorLightInput;
-
-                const zip = new JSZip();
+            generateAllQRCodes: async function() {
+                const btn = document.getElementById('btnGenerateQR');
+                const prog = document.getElementById('qrProgress');
+                const progBar = document.getElementById('qrProgressBar');
+                const progText = document.getElementById('qrProgressText');
                 const container = document.getElementById('qr-generator-container');
                 
-                let basePath = `${window.location.origin}${window.location.pathname}`.replace(/index\.html$/, '');
-                if (!basePath.endsWith('/')) basePath += '/';
-
-                for (let i = 0; i < window.predefinedUsers.length; i++) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> กำลังสร้าง...';
+                prog.classList.remove('hidden');
+                
+                const zip = new JSZip();
+                const total = window.predefinedUsers.length;
+                let baseUrl = window.location.href.split('?')[0].replace(/index\.html$/, '');
+                if (!baseUrl.endsWith('/')) baseUrl += '/';
+                
+                for(let i=0; i<total; i++) {
                     const u = window.predefinedUsers[i];
-                    container.innerHTML = ''; 
+                    const url = `${baseUrl}Exhibition/${u.studentId}.html`;
                     
-                    const url = `${basePath}Exhibition/${u.studentId}.html`;
+                    container.innerHTML = '';
                     new QRCode(container, {
                         text: url,
-                        width: 1000, 
+                        width: 1000,
                         height: 1000,
-                        colorDark: colorDark,
-                        colorLight: colorLight,
-                        correctLevel: QRCode.CorrectLevel.H
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
                     });
 
-                    await new Promise(r => setTimeout(r, 150)); 
+                    await new Promise(r => setTimeout(r, 100)); // ให้เวลา Canvas เรนเดอร์
                     
                     const canvas = container.querySelector('canvas');
-                    if (canvas) {
-                        if (isTransparent) {
-                            const ctx = canvas.getContext('2d');
-                            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                            const data = imgData.data;
-                            for(let j=0; j<data.length; j+=4) {
-                                if(data[j]===255 && data[j+1]===255 && data[j+2]===255) {
-                                    data[j+3] = 0; 
-                                }
-                            }
-                            ctx.putImageData(imgData, 0, 0);
-                        }
-                        const imgDataURL = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
-                        zip.file(`${u.id}.png`, imgDataURL, {base64: true});
+                    if(canvas) {
+                        const imgData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
+                        zip.file(`${u.studentId}_${app.formatName(u.name)}.png`, imgData, {base64: true});
                     }
+
+                    const percent = Math.round(((i+1)/total)*100);
+                    progBar.style.width = percent + '%';
+                    progText.innerText = percent + '%';
                 }
 
+                btn.innerHTML = '<i class="fa-solid fa-box-archive fa-bounce text-xl"></i> กำลังบีบอัดไฟล์...';
+                
                 zip.generateAsync({type:"blob"}).then(function(content) {
                     saveAs(content, "MORANASATECT_QRCodes.zip");
-                    btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i> ดาวน์โหลดสำเร็จ';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> สร้างเสร็จสิ้น';
                     setTimeout(() => {
-                        btn.innerHTML = '<i class="fa-solid fa-file-zipper text-lg"></i> เริ่มดาวน์โหลด';
-                        btn.disabled = false;
+                        prog.classList.add('hidden');
+                        btn.innerHTML = '<i class="fa-solid fa-qrcode text-xl"></i> โหลด QR Code (ZIP)';
+                        progBar.style.width = '0%';
                     }, 3000);
                 });
             },
 
-            renderIframeView: function(idxStr) {
-                const idx = parseInt(idxStr);
-                const sites = app.settings.embeddedSites || [];
-                const site = sites[idx];
-
-                if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto"><i class="fa-solid fa-link-slash text-4xl mb-3"></i><br>ไม่พบหน้าเว็บนี้</div>`;
-
+            renderIframeView: function(idx) {
+                const site = app.settings.embeddedSites?.[idx];
+                if (!site) return `<div class="text-center mt-20 text-red-500 font-bold bg-white/5 p-6 rounded-2xl border border-white/10 max-w-md mx-auto">ไม่พบหน้าที่ต้องการ</div>`;
+                
                 return `
-                <div class="animate-fade-in flex-1 flex flex-col w-full mt-2 sm:mt-4 px-2 sm:px-0" style="height: calc(100dvh - 120px);">
-                    <div class="flex items-center gap-4 mb-4 bg-black/60 p-4 rounded-3xl border border-white/10 backdrop-blur-xl shadow-lg shrink-0">
-                        <div class="min-w-0 pl-2">
-                            <h2 class="text-white font-bold text-sm sm:text-base truncate"><i class="fa-solid fa-arrow-up-right-from-square text-secondary mr-2"></i>${site.title}</h2>
-                        </div>
+                <div class="animate-fade-in w-full h-[calc(100vh-100px)] mt-4 flex flex-col pointer-events-none">
+                    <div class="flex justify-between items-center bg-black/60 backdrop-blur-xl px-6 py-4 rounded-t-3xl border border-white/10 border-b-0 shadow-lg shrink-0 pointer-events-auto z-20 relative">
+                        <h2 class="text-white font-bold text-lg md:text-xl truncate flex items-center gap-3">
+                            <i class="fa-solid fa-link text-secondary"></i>
+                            ${site.title}
+                        </h2>
+                        <button onclick="window.open('${site.url}', '_blank')" class="text-xs bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl transition-colors font-bold border border-white/10 shadow-sm flex items-center gap-2">
+                            เปิดแท็บใหม่ <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </button>
                     </div>
-                    <div class="flex-1 w-full bg-white rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
+                    <div class="flex-1 w-full bg-black rounded-b-3xl overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
                             <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                             <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
