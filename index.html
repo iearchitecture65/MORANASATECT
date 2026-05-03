@@ -3196,182 +3196,86 @@
                             </button>
                         </td>
                         <td class="p-4 text-center">
-                            <button onclick="app.openExhibit('${u.studentId}', false)" class="bg-white/10 w-9 h-9 rounded-full text-sm hover:bg-secondary hover:text-black transition-colors shadow-sm mx-auto flex items-center justify-center" title="ดูผลงาน">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <button onclick="app.openExhibit('${u.studentId}', false)" class="bg-secondary hover:bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors border border-secondary/20 shadow-md">
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                     </tr>`;
                 });
 
                 gridHtml += '</div>';
-                tableHtml += `</tbody></table></div>`;
-
+                tableHtml += '</tbody></table></div>';
+                
                 return gridHtml + tableHtml;
             },
 
-            manageUserData: function(studentId) {
-                const data = app.studentEdits[studentId] || {};
-                const user = window.predefinedUsers.find(u => u.studentId === studentId);
-                const cleanName = app.formatName(user.name);
-                
-                let content = '<div class="text-left space-y-3 mt-4 max-h-[50vh] overflow-y-auto custom-scrollbar">';
+            manageUserData: async function(studentId) {
+                const u = window.predefinedUsers.find(x => x.studentId === studentId);
+                const sData = app.studentEdits[studentId] || {};
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
-                let hasData = false;
                 
+                let fieldsHtml = '';
                 activeBoxes.forEach(b => {
-                    let val = data[b.id] || '';
-                    if (b.id === 'default_text' && !val && data.text) val = data.text; 
-                    if (val) {
-                        hasData = true;
-                        content += `<div class="bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
-                            <p class="text-secondary text-[10px] font-bold mb-2 tracking-widest uppercase">${b.label}</p>
-                            <p class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">${val}</p>
-                        </div>`;
-                    }
+                    let val = sData[b.id] || '';
+                    if(b.id === 'default_text' && !val && sData.text) val = sData.text;
+                    fieldsHtml += `
+                    <div class="mb-4">
+                        <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1 text-left">${b.label}</label>
+                        <textarea id="admin_edit_${b.id}" class="glass-input w-full p-3 rounded-xl text-sm min-h-[80px]" placeholder="${b.placeholder}">${val}</textarea>
+                    </div>`;
                 });
-                
-                if (!hasData) content += '<p class="text-center text-gray-500 py-6 font-bold bg-white/5 rounded-xl border border-white/10">นักศึกษายังไม่ได้กรอกข้อมูลเพิ่มเติม</p>';
-                content += '</div>';
 
-                app.swal.fire({
-                    title: 'ข้อมูลที่กรอกเพิ่มเติม',
-                    html: `<p class="text-sm text-gray-400 mb-2 border-b border-white/10 pb-4">${studentId} - ${cleanName}</p>` + content,
+                if(fieldsHtml === '') {
+                    fieldsHtml = '<p class="text-xs text-gray-500 py-4">ไม่มีกล่องข้อความที่เปิดใช้งานอยู่</p>';
+                }
+
+                // เพิ่มฟิลด์สำหรับจัดการลิงก์ย่อ
+                fieldsHtml += `
+                <div class="mb-4 mt-6 pt-4 border-t border-white/10">
+                    <label class="block text-[10px] text-secondary font-bold uppercase tracking-widest mb-1 text-left"><i class="fa-solid fa-link mr-1"></i> ลิงก์ย่อ (Short Link) สำหรับ QR Code / Share</label>
+                    <input type="text" id="admin_edit_shortlink" class="glass-input w-full p-3 rounded-xl text-sm" placeholder="เช่น https://bit.ly/xxxx" value="${u.shortLink || ''}">
+                    <p class="text-[9px] text-gray-500 mt-1 text-left">ใช้แทนลิงก์ยาวเวลาสร้าง QR Code หรือกดแชร์</p>
+                </div>
+                `;
+
+                const { isConfirmed } = await app.swal.fire({
+                    title: `จัดการข้อมูล: ${u.studentId}`,
+                    html: `<div class="mt-4">${fieldsHtml}</div>`,
                     showCancelButton: true,
-                    showDenyButton: true,
-                    confirmButtonText: 'ปิดหน้าต่าง',
-                    denyButtonText: 'ลบข้อมูล',
-                    cancelButtonText: 'โหลด Excel',
-                    customClass: {
-                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] w-[90%] max-w-lg',
-                        title: 'text-white font-bold',
-                        confirmButton: 'bg-gray-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-gray-500 w-full sm:w-auto m-1',
-                        denyButton: 'bg-red-500/20 text-red-500 border border-red-500/50 font-bold rounded-xl px-4 py-2 hover:bg-red-500 hover:text-white w-full sm:w-auto m-1',
-                        cancelButton: 'bg-green-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-green-500 w-full sm:w-auto m-1'
-                    }
-                }).then((result) => {
-                    if (result.isDenied) {
-                        app.swal.fire({
-                            title: 'ยืนยันลบข้อมูล?',
-                            text: "ข้อความทั้งหมดที่นักศึกษาคนนี้พิมพ์ไว้จะหายไปทันที",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: 'ลบทิ้ง',
-                            cancelButtonText: 'ยกเลิก',
-                            confirmButtonColor: '#ef4444'
-                        }).then(async (res) => {
-                            if (res.isConfirmed) {
-                                try {
-                                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', studentId));
-                                    app.swal.fire({title: 'ลบสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false});
-                                } catch(e) {}
-                            }
-                        });
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        app.exportAllDataCSV();
-                    }
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonText: 'ยกเลิก',
+                    focusConfirm: false
                 });
-            },
 
-            exportAllDataCSV: function() {
-                let csvContent = "\uFEFF"; 
-                csvContent += "ลำดับ,รหัสนักศึกษา,ชื่อ-นามสกุล,ยอดเข้าชม,";
-                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
-                activeBoxes.forEach(b => csvContent += `"${b.label.replace(/"/g, '""')}",`);
-                csvContent += "\n";
-
-                window.predefinedUsers.forEach(u => {
-                    const vCount = app.visitLogs[u.studentId] || 0;
-                    const edits = app.studentEdits[u.studentId] || {};
-                    
-                    let row = `"${u.id}","${u.studentId}","${u.name}",${vCount},`;
+                if (isConfirmed) {
+                    let saveData = {};
                     activeBoxes.forEach(b => {
-                        let val = edits[b.id] || '';
-                        if (b.id === 'default_text' && !val && edits.text) val = edits.text;
-                        row += `"${val.replace(/"/g, '""').replace(/\n/g, ' ')}",`;
+                        const el = document.getElementById(`admin_edit_${b.id}`);
+                        if(el) saveData[b.id] = el.value.trim();
                     });
-                    csvContent += row + "\n";
-                });
 
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                saveAs(blob, "MORANASATECT_Student_Data.csv");
+                    // อัปเดตลิงก์ย่อใน window.predefinedUsers (หมายเหตุ: วิธีนี้จะหายไปเมื่อรีเฟรชหน้าเว็บ หากต้องการให้ถาวรต้องเซฟลง Firebase ด้วย ในที่นี้เซฟลง Firebase แต่ต้องปรับโค้ดตอนดึงข้อมูลด้วย หรือใช้แค่ชั่วคราว)
+                    const shortLinkInput = document.getElementById('admin_edit_shortlink').value.trim();
+                    u.shortLink = shortLinkInput;
+
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', studentId), saveData, { merge:true });
+                        app.swal.fire({ title: 'สำเร็จ', text: 'บันทึกข้อมูลเรียบร้อย', icon: 'success', timer: 1500, showConfirmButton: false });
+                    } catch(e) {
+                        app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกได้', 'error');
+                    }
+                }
             },
 
             renderAdminLogs: function() {
-                let viewLogs = [];
-                if (app.accessLogs && app.accessLogs.length > 0) {
-                    viewLogs = app.accessLogs.filter(log => log.action === 'view_exhibit');
-                }
-
-                if (viewLogs.length === 0) {
-                    return `
-                    <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
-                                <div>
-                                    <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติเข้าชมผลงาน</p>
-                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visitor Logs</p>
-                                </div>
-                            </div>
-                            <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
-                                <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
-                            </button>
-                        </div>
-                        <div class="glass-card rounded-[2.5rem] p-10 text-center text-gray-500 font-bold">
-                            ยังไม่มีประวัติการเข้าชมผลงาน
-                        </div>
-                    </div>`;
-                }
-
-                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-4">';
-                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                            <th class="p-4 rounded-tl-xl">ผู้เข้าชม</th>
-                            <th class="p-4">รหัส / ผลงานที่เข้าดู</th>
-                            <th class="p-4 text-center rounded-tr-xl">เวลา</th>
-                        </tr>
-                    </thead><tbody class="divide-y divide-white/5">`;
-                
-                viewLogs.forEach(log => {
-                    const date = new Date(log.timestamp).toLocaleString('th-TH');
-                    
-                    gridHtml += `
-                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
-                        <div class="flex justify-between items-start w-full">
-                            <div class="min-w-0 flex-1 pr-2">
-                                <p class="text-white text-sm font-bold truncate">${log.name || 'ไม่ทราบชื่อ'}</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5 uppercase tracking-widest">${log.role || 'guest'}</p>
-                            </div>
-                            <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
-                                ${date}
-                            </div>
-                        </div>
-                        <div class="bg-black/30 p-3 rounded-xl border border-white/5 mt-1">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-1">ผลงานที่เข้าดู</span>
-                            <span class="text-secondary font-bold text-sm break-all">${log.target || '-'}</span>
-                        </div>
-                    </div>`;
-
-                    tableHtml += `
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-4 text-sm text-white font-medium">${log.name || 'ไม่ทราบชื่อ'} <span class="text-[10px] text-gray-500 ml-2">(${log.role || 'guest'})</span></td>
-                        <td class="p-4 text-sm text-secondary font-bold">${log.target || '-'}</td>
-                        <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
-                    </tr>`;
-                });
-                
-                gridHtml += '</div>';
-                tableHtml += `</tbody></table></div>`;
-
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-6xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
                             <div>
                                 <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติเข้าชมผลงาน</p>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visitor Logs</p>
+                                <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Visit Logs</p>
                             </div>
                         </div>
                         <button onclick="app.clearAllLogs('view_exhibit')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
@@ -3379,83 +3283,98 @@
                         </button>
                     </div>
 
-                    <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
-                        ${gridHtml}
-                        ${tableHtml}
+                    <div class="relative mb-6 max-w-lg mx-auto">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-sm"></i>
+                        <input type="text" placeholder="ค้นหาชื่อผู้เข้าชม, รหัสนักศึกษา หรือประเภท..." 
+                            class="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-white/10 border border-white/20 outline-none transition-all text-sm font-medium text-white placeholder:text-white/50 shadow-inner focus:bg-white/20 focus:border-secondary"
+                            onkeyup="app.setAdminLogSearch(this.value)">
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-4 sm:p-8" id="adminLogListContainer">
+                        ${app.generateAdminLogsListHtml()}
                     </div>
                 </div>`;
             },
 
-            renderAdminLoginLogs: function() {
-                let loginLogs = [];
-                if (app.accessLogs && app.accessLogs.length > 0) {
-                    loginLogs = app.accessLogs.filter(log => log.action === 'login');
+            setAdminLogSearch: function(val) {
+                app.adminLogSearchQuery = val;
+                app.renderAdminLogsListOnly();
+            },
+
+            renderAdminLogsListOnly: function() {
+                const container = document.getElementById('adminLogListContainer');
+                if (container) {
+                    container.innerHTML = app.generateAdminLogsListHtml();
+                }
+            },
+
+            generateAdminLogsListHtml: function() {
+                let logs = app.accessLogs.filter(l => l.action === 'view_exhibit');
+                if (app.adminLogSearchQuery && app.adminLogSearchQuery.trim() !== '') {
+                    const q = app.adminLogSearchQuery.toLowerCase().trim();
+                    logs = logs.filter(l => 
+                        (l.name && l.name.toLowerCase().includes(q)) || 
+                        (l.target && l.target.toLowerCase().includes(q)) ||
+                        (l.role && l.role.toLowerCase().includes(q))
+                    );
                 }
 
-                if (loginLogs.length === 0) {
-                    return `
-                    <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
-                                <div>
-                                    <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">ประวัติการเข้าสู่ระบบ</p>
-                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Login Logs</p>
-                                </div>
-                            </div>
-                            <button onclick="app.clearAllLogs('login')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg transition-transform transform active:scale-95 flex items-center gap-2">
-                                <i class="fa-solid fa-trash"></i> ล้างประวัติทั้งหมด
-                            </button>
-                        </div>
-                        <div class="glass-card rounded-[2.5rem] p-10 text-center text-gray-500 font-bold">
-                            ยังไม่มีประวัติการเข้าสู่ระบบ
-                        </div>
-                    </div>`;
-                }
+                if (logs.length === 0) return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบประวัติการเข้าชม</p></div>`;
 
-                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-4">';
-                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                            <th class="p-4 rounded-tl-xl">ผู้ใช้งาน</th>
-                            <th class="p-4 text-center">บทบาท</th>
-                            <th class="p-4 text-center rounded-tr-xl">เวลาเข้าสู่ระบบ</th>
-                        </tr>
-                    </thead><tbody class="divide-y divide-white/5">`;
+                let html = `
+                <div class="overflow-x-auto custom-scrollbar pb-4">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                                <th class="p-4 rounded-tl-xl w-48">วัน/เวลา</th>
+                                <th class="p-4">ผู้เข้าชม (ชื่อ-นามสกุล / Role)</th>
+                                <th class="p-4">รหัส / ผลงานที่เข้าชม</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">`;
                 
-                loginLogs.forEach(log => {
-                    const date = new Date(log.timestamp).toLocaleString('th-TH');
-                    let roleBadge = '';
-                    if(log.role === 'admin') roleBadge = '<span class="bg-red-500/20 text-red-400 px-2 py-1 rounded-md text-[10px] border border-red-500/30">Admin</span>';
-                    else if(log.role === 'student') roleBadge = '<span class="bg-secondary/20 text-secondary px-2 py-1 rounded-md text-[10px] border border-secondary/30">Student</span>';
-                    else roleBadge = '<span class="bg-gray-500/20 text-gray-300 px-2 py-1 rounded-md text-[10px] border border-gray-500/30">Guest</span>';
+                logs.forEach(log => {
+                    const dateObj = new Date(log.timestamp);
+                    const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    
+                    const tUser = window.predefinedUsers.find(u => u.studentId === log.target);
+                    const targetName = tUser ? app.formatName(tUser.name) : 'ไม่ทราบชื่อ';
 
-                    gridHtml += `
-                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-sm flex flex-col gap-2">
-                        <div class="flex justify-between items-start w-full">
-                            <div class="min-w-0 flex-1 pr-2">
-                                <p class="text-white text-sm font-bold truncate">${log.name || log.uid}</p>
-                                <div class="mt-1">${roleBadge}</div>
-                            </div>
-                            <div class="text-[10px] text-gray-400 text-right shrink-0 bg-black/40 px-2 py-1 rounded-lg">
-                                ${date}
-                            </div>
-                        </div>
-                    </div>`;
-
-                    tableHtml += `
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-4 text-sm text-white font-medium">${log.name || log.uid}</td>
-                        <td class="p-4 text-center">${roleBadge}</td>
-                        <td class="p-4 text-[10px] text-gray-500 text-center">${date}</td>
-                    </tr>`;
+                    html += `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-4 text-xs font-medium text-gray-300">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-regular fa-clock text-gray-500"></i> ${dateStr} <span class="text-secondary ml-1">${timeStr}</span>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-white text-sm">${log.name || 'ไม่ทราบชื่อ'}</span>
+                                    <span class="text-[10px] text-blue-400 font-bold tracking-widest uppercase mt-0.5">${log.role}</span>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] text-secondary font-bold tracking-widest">${log.target}</span>
+                                        <span class="text-white text-sm font-medium mt-0.5 truncate max-w-[200px] sm:max-w-[300px]" title="${targetName}">${targetName}</span>
+                                    </div>
+                                    <button onclick="app.openExhibit('${log.target}', false)" class="ml-auto bg-white/5 hover:bg-secondary hover:text-black text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-white/10" title="ไปหน้าผลงาน">
+                                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`;
                 });
                 
-                gridHtml += '</div>';
-                tableHtml += `</tbody></table></div>`;
+                html += `</tbody></table></div>`;
+                return html;
+            },
 
+            renderAdminLoginLogs: function() {
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-6xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
@@ -3469,11 +3388,181 @@
                         </button>
                     </div>
 
-                    <div class="glass-card rounded-[2.5rem] p-4 md:p-8">
-                        ${gridHtml}
-                        ${tableHtml}
+                    <div class="relative mb-6 max-w-lg mx-auto">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-sm"></i>
+                        <input type="text" placeholder="ค้นหาชื่อผู้ใช้, รหัส หรือประเภท..." 
+                            class="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-white/10 border border-white/20 outline-none transition-all text-sm font-medium text-white placeholder:text-white/50 shadow-inner focus:bg-white/20 focus:border-secondary"
+                            onkeyup="app.setAdminLoginLogSearch(this.value)">
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-4 sm:p-8" id="adminLoginLogListContainer">
+                        ${app.generateAdminLoginLogsListHtml()}
                     </div>
                 </div>`;
+            },
+
+            setAdminLoginLogSearch: function(val) {
+                app.adminLoginLogSearchQuery = val;
+                app.renderAdminLoginLogsListOnly();
+            },
+
+            renderAdminLoginLogsListOnly: function() {
+                const container = document.getElementById('adminLoginLogListContainer');
+                if (container) {
+                    container.innerHTML = app.generateAdminLoginLogsListHtml();
+                }
+            },
+
+            generateAdminLoginLogsListHtml: function() {
+                let logs = app.accessLogs.filter(l => l.action === 'login');
+                if (app.adminLoginLogSearchQuery && app.adminLoginLogSearchQuery.trim() !== '') {
+                    const q = app.adminLoginLogSearchQuery.toLowerCase().trim();
+                    logs = logs.filter(l => 
+                        (l.name && l.name.toLowerCase().includes(q)) || 
+                        (l.uid && l.uid.toLowerCase().includes(q)) ||
+                        (l.role && l.role.toLowerCase().includes(q))
+                    );
+                }
+
+                if (logs.length === 0) return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบประวัติการเข้าสู่ระบบ</p></div>`;
+
+                let html = `
+                <div class="overflow-x-auto custom-scrollbar pb-4">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                                <th class="p-4 rounded-tl-xl w-48">วัน/เวลา</th>
+                                <th class="p-4">ข้อมูลผู้ใช้ (ชื่อ / ID)</th>
+                                <th class="p-4 text-center">ประเภทบัญชี (Role)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">`;
+                
+                logs.forEach(log => {
+                    const dateObj = new Date(log.timestamp);
+                    const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    
+                    let roleBadgeClass = 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                    if (log.role === 'admin') roleBadgeClass = 'bg-red-500/20 text-red-400 border-red-500/30';
+                    else if (log.role === 'student') roleBadgeClass = 'bg-secondary/20 text-secondary border-secondary/30';
+                    else if (log.role === 'guest') roleBadgeClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+
+                    html += `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-4 text-xs font-medium text-gray-300">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-regular fa-clock text-gray-500"></i> ${dateStr} <span class="text-secondary ml-1">${timeStr}</span>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-white text-sm">${log.name || 'ไม่ทราบชื่อ'}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono mt-0.5">UID: ${log.uid || '-'}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-center">
+                                <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase border ${roleBadgeClass}">
+                                    ${log.role}
+                                </span>
+                            </td>
+                        </tr>`;
+                });
+                
+                html += `</tbody></table></div>`;
+                return html;
+            },
+
+            renderAdminAdvisors: function() {
+                let listHtml = window.advisorsData.map((a, idx) => `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
+                        <div class="flex items-center gap-4 min-w-0 flex-1">
+                            <div class="w-12 h-12 rounded-full bg-secondary text-primary font-black flex items-center justify-center text-sm shrink-0 border-2 border-white/20">${app.getAbbr(app.formatName(a.name))}</div>
+                            <div class="min-w-0">
+                                <p class="font-bold text-white text-sm truncate mb-0.5">${a.name}</p>
+                                <div class="text-[9px] text-gray-400 truncate flex flex-col gap-0.5">
+                                    <span class="text-blue-400"><i class="fa-solid fa-link mr-1"></i>URL: ${a.url || '-'}</span>
+                                    ${a.shortLink ? `<span class="text-secondary"><i class="fa-solid fa-compress mr-1"></i>ShortLink: ${a.shortLink}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="app.editAdvisor(${idx})" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-blue-500/20">
+                                <i class="fa-solid fa-pen text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                if(window.advisorsData.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ไม่มีข้อมูลอาจารย์</p></div>`;
+
+                return `
+                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการข้อมูลอาจารย์</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Advisors Manager</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        <div class="grid grid-cols-1 gap-8">
+                            <div>
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-white font-black text-sm uppercase tracking-widest"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายชื่ออาจารย์ทั้งหมด</h3>
+                                    <span class="text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/10">หมายเหตุ: ข้อมูลนี้เป็นแบบ Hardcoded ในไฟล์ หากอัปเดตจะหายไปเมื่อโหลดใหม่ (รอการเชื่อมต่อ Firebase ในอนาคต)</span>
+                                </div>
+                                <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar" id="adminAdvisorsListContainer">
+                                    ${listHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            editAdvisor: async function(idx) {
+                const a = window.advisorsData[idx];
+                if(!a) return;
+
+                const { value: formValues } = await app.swal.fire({
+                    title: 'จัดการลิงก์อาจารย์',
+                    html: `
+                        <div class="text-left space-y-4">
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ชื่อ-นามสกุล</label>
+                                <input id="editAdvName" class="glass-input w-full p-3 rounded-xl text-sm bg-black/20" value="${a.name}" readonly>
+                                <p class="text-[9px] text-gray-500 mt-1">ไม่อนุญาตให้แก้ไขชื่อ เพื่อป้องกันผลกระทบกับข้อมูลชีต</p>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-secondary font-bold uppercase tracking-widest mb-1"><i class="fa-solid fa-link mr-1"></i> ลิงก์ประวัติ (URL เต็ม)</label>
+                                <input id="editAdvUrl" class="glass-input w-full p-3 rounded-xl text-sm" value="${a.url || ''}">
+                            </div>
+                            <div class="pt-2 border-t border-white/10">
+                                <label class="block text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1"><i class="fa-solid fa-compress mr-1"></i> ลิงก์ย่อ (Short Link) สำหรับ QR Code / Share</label>
+                                <input id="editAdvShortLink" class="glass-input w-full p-3 rounded-xl text-sm" placeholder="เช่น https://bit.ly/xxxx" value="${a.shortLink || ''}">
+                            </div>
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonText: 'ยกเลิก',
+                    preConfirm: () => {
+                        return {
+                            url: document.getElementById('editAdvUrl').value.trim(),
+                            shortLink: document.getElementById('editAdvShortLink').value.trim()
+                        }
+                    }
+                });
+
+                if (formValues) {
+                    window.advisorsData[idx].url = formValues.url;
+                    window.advisorsData[idx].shortLink = formValues.shortLink;
+                    app.refreshCurrentView();
+                    app.swal.fire({ title: 'สำเร็จ', text: 'บันทึกข้อมูลเรียบร้อย (มีผลชั่วคราว)', icon: 'success', timer: 1500, showConfirmButton: false });
+                }
             },
 
             renderAdminIframe: function() {
@@ -3482,25 +3571,30 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
                         <div class="min-w-0 flex-1">
                             <p class="font-bold text-white text-sm truncate mb-1"><i class="fa-solid fa-link text-secondary mr-2 text-xs"></i>${s.title}</p>
-                            <p class="text-[10px] text-blue-400 truncate hover:underline cursor-pointer" onclick="window.open('${s.url}', '_blank')">${s.url}</p>
+                            <p class="text-[10px] text-blue-400 truncate font-mono">${s.url}</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
-                            <span class="text-[9px] font-bold tracking-widest uppercase ${s.showToStudents ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full">
-                                ${s.showToStudents ? 'นักศึกษาเห็นได้' : 'เฉพาะ Admin'}
-                            </span>
-                            <button onclick="app.deleteIframe(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-9 h-9 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
-                                <i class="fa-solid fa-trash text-sm"></i>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" ${s.showToStudents ? 'checked' : ''} onchange="app.toggleIframeVisibility(${idx}, this.checked)" class="w-3.5 h-3.5 rounded text-secondary focus:ring-secondary accent-secondary">
+                                <span class="text-[9px] font-bold text-gray-300">ให้นักศึกษาเห็นด้วย</span>
+                            </label>
+                            <div class="w-px h-6 bg-white/20 mx-1"></div>
+                            <button onclick="app.editIframeSite(${idx})" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 w-8 h-8 rounded-full transition-colors flex items-center justify-center border border-blue-500/20">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            <button onclick="app.deleteIframeSite(${idx})" class="text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 w-8 h-8 rounded-full transition-colors flex items-center justify-center border border-red-500/20">
+                                <i class="fa-solid fa-trash text-xs"></i>
                             </button>
                         </div>
                     </div>
                 `).join('');
 
-                if(sites.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีการเพิ่มเมนูเว็บฝัง</p></div>`;
+                if(sites.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีเมนูเว็บไซต์ฝัง</p></div>`;
 
                 return `
                 <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
-                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-bars-staggered"></i></div>
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-object-group"></i></div>
                         <div>
                             <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการเมนูเว็บฝัง (Iframe)</p>
                             <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Embedded Sites Manager</p>
@@ -3511,30 +3605,30 @@
                         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                             <div class="lg:col-span-2">
                                 <div class="bg-black/40 p-6 rounded-3xl border border-white/10 sticky top-4 shadow-inner">
-                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มลิงก์ใหม่</h3>
+                                    <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-plus text-secondary mr-2 text-lg"></i>เพิ่มเมนูใหม่</h3>
                                     
-                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อเมนู</label>
-                                    <input type="text" id="newIframeTitle" placeholder="เช่น โหวตผลงานยอดนิยม" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ชื่อเมนู (แสดงผลในแถบด้านข้าง)</label>
+                                    <input type="text" id="newIframeTitle" placeholder="เช่น โหวตคะแนน Popular Vote" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
-                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">URL (ลิงก์เว็บ)</label>
-                                    <input type="url" id="newIframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ลิงก์เว็บไซต์ (URL เต็ม)</label>
+                                    <input type="url" id="newIframeUrl" placeholder="https://..." class="glass-input w-full p-3 rounded-xl mb-4 text-sm font-mono">
                                     
-                                    <label class="flex items-center gap-3 cursor-pointer p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors mb-6">
-                                        <input type="checkbox" id="newIframeRole" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                    <label class="flex items-center gap-2 cursor-pointer mb-6 ml-1 p-2 bg-white/5 rounded-lg border border-white/10">
+                                        <input type="checkbox" id="newIframeVisibility" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary" checked>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-bold text-white uppercase tracking-widest">แสดงให้นักศึกษาเห็นด้วย</span>
-                                            <span class="text-[9px] text-gray-400 font-medium">ค่าเริ่มต้นจะเห็นเฉพาะ Admin</span>
+                                            <span class="text-xs font-bold text-white">แสดงให้นักศึกษาเห็นด้วย</span>
+                                            <span class="text-[9px] text-gray-400">ถ้าติ๊กออก จะเห็นเฉพาะแอดมิน</span>
                                         </div>
                                     </label>
-                                    
-                                    <button onclick="app.addIframe()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-square-plus text-lg"></i> เพิ่มลิงก์
+
+                                    <button onclick="app.addIframeSite()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-square-plus text-lg"></i> เพิ่มเมนู
                                     </button>
                                 </div>
                             </div>
                             <div class="lg:col-span-3">
-                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายการเว็บฝังทั้งหมด</h3>
-                                <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6"><i class="fa-solid fa-list text-secondary mr-2 text-lg"></i>รายการเมนูทั้งหมด</h3>
+                                <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar" id="adminIframeListContainer">
                                     ${listHtml}
                                 </div>
                             </div>
@@ -3542,39 +3636,83 @@
                     </div>
                 </div>`;
             },
-            
-            addIframe: async function() {
+
+            addIframeSite: async function() {
                 const title = document.getElementById('newIframeTitle').value.trim();
                 let url = document.getElementById('newIframeUrl').value.trim();
-                const showToStudents = document.getElementById('newIframeRole').checked;
+                const showToStudents = document.getElementById('newIframeVisibility').checked;
                 
-                if(!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+                if(!title || !url) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
                 if(!url.startsWith('http')) url = 'https://' + url;
-                
+
                 const sites = [...(app.settings.embeddedSites || []), { title, url, showToStudents }];
                 app.settings.embeddedSites = sites;
-                app.refreshCurrentView();
+                app.refreshCurrentView(); 
                 app.updateMenuVisibility();
                 
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
             },
 
-            toggleIframeRole: async function(idx, show) {
+            editIframeSite: async function(idx) {
                 const sites = [...(app.settings.embeddedSites || [])];
-                if (sites[idx]) {
-                    sites[idx].showToStudents = show;
+                const s = sites[idx];
+                if(!s) return;
+
+                const { value: formValues } = await app.swal.fire({
+                    title: 'แก้ไขเมนูเว็บฝัง',
+                    html: `
+                        <div class="text-left space-y-4">
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ชื่อเมนู</label>
+                                <input id="editIframeTitle" class="glass-input w-full p-3 rounded-xl text-sm" value="${s.title}">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ลิงก์เว็บไซต์</label>
+                                <input id="editIframeUrl" type="url" class="glass-input w-full p-3 rounded-xl text-sm font-mono" value="${s.url}">
+                            </div>
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'บันทึก',
+                    cancelButtonText: 'ยกเลิก',
+                    preConfirm: () => {
+                        return {
+                            title: document.getElementById('editIframeTitle').value.trim(),
+                            url: document.getElementById('editIframeUrl').value.trim()
+                        }
+                    }
+                });
+
+                if (formValues && formValues.title && formValues.url) {
+                    let newUrl = formValues.url;
+                    if(!newUrl.startsWith('http')) newUrl = 'https://' + newUrl;
+                    
+                    sites[idx].title = formValues.title;
+                    sites[idx].url = newUrl;
                     app.settings.embeddedSites = sites;
+                    app.refreshCurrentView();
+                    app.updateMenuVisibility();
                     try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
                 }
             },
 
-            deleteIframe: async function(idx) {
+            toggleIframeVisibility: async function(idx, isVisible) {
+                const sites = [...(app.settings.embeddedSites || [])];
+                if (sites[idx]) {
+                    sites[idx].showToStudents = isVisible;
+                    app.settings.embeddedSites = sites;
+                    app.updateMenuVisibility();
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
+                }
+            },
+
+            deleteIframeSite: async function(idx) {
                 const sites = [...(app.settings.embeddedSites || [])];
                 sites.splice(idx, 1);
                 app.settings.embeddedSites = sites;
-                app.refreshCurrentView();
+                app.refreshCurrentView(); 
                 app.updateMenuVisibility();
-                
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { embeddedSites: sites }, { merge:true }); } catch(e){}
             },
 
@@ -3598,16 +3736,41 @@
                         </div>
                         
                         <h3 class="text-2xl font-black text-white mb-4">ดาวน์โหลด QR Code นักศึกษาทั้งหมด</h3>
-                        <p class="text-sm text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
-                            ระบบจะทำการสร้าง QR Code ของนักศึกษาทุกคน (${window.predefinedUsers.length} คน) <br>โดยแยกเป็นรูปภาพ .png และนำมารวมเป็นไฟล์ ZIP เพื่อให้ง่ายต่อการนำไปใช้งานต่อ
-                        </p>
                         
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 max-w-sm mx-auto mb-8 shadow-inner text-left">
-                            <p class="text-[10px] text-secondary font-bold uppercase tracking-widest mb-2"><i class="fa-solid fa-gear mr-1"></i> ตั้งค่าเพิ่มเติม</p>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" id="useShortLinkExport" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary" checked>
-                                <span class="text-xs text-gray-300 font-medium group-hover:text-white transition-colors">ใช้ลิงก์ย่อ (ถ้ามีกำหนดไว้ในระบบ)</span>
-                            </label>
+                        <!-- ส่วนตั้งค่า QR Code ที่เพิ่มเข้ามาใหม่ -->
+                        <div class="max-w-md mx-auto bg-white/5 p-6 rounded-3xl border border-white/10 shadow-inner text-left mb-8 space-y-4">
+                            <p class="text-[10px] text-secondary font-bold uppercase tracking-widest mb-2"><i class="fa-solid fa-palette mr-1"></i> ตั้งค่าการปรับแต่ง QR Code</p>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] text-gray-400 font-bold mb-1 ml-1">สีตัว QR Code</label>
+                                    <div class="flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/10">
+                                        <input type="color" id="qrFgColor" value="#000000" class="w-8 h-8 cursor-pointer bg-transparent border-0">
+                                        <span class="text-[10px] text-white font-mono uppercase" id="fgHex">#000000</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-400 font-bold mb-1 ml-1">สีพื้นหลัง</label>
+                                    <div class="flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/10" id="bgColorWrapper">
+                                        <input type="color" id="qrBgColor" value="#ffffff" class="w-8 h-8 cursor-pointer bg-transparent border-0">
+                                        <span class="text-[10px] text-white font-mono uppercase" id="bgHex">#ffffff</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-3 pt-2">
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input type="checkbox" id="qrTransparent" onchange="document.getElementById('bgColorWrapper').style.opacity = this.checked ? '0.3' : '1'; document.getElementById('qrBgColor').disabled = this.checked;" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-white font-bold group-hover:text-secondary transition-colors">พื้นหลังโปร่งใส (Transparent)</span>
+                                        <span class="text-[9px] text-gray-400">ถ้าติ๊กจะบันทึกเป็นไฟล์ PNG แบบไม่มีพื้นหลัง</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input type="checkbox" id="useShortLinkExport" class="w-4 h-4 rounded text-secondary focus:ring-secondary accent-secondary" checked>
+                                    <span class="text-xs text-gray-300 font-medium group-hover:text-white transition-colors">ใช้ลิงก์ย่อ (ถ้ามีกำหนดไว้ในระบบ)</span>
+                                </label>
+                            </div>
                         </div>
 
                         <button onclick="app.exportQRCodes()" id="btnExportQR" class="bg-secondary text-primary font-black px-10 py-5 rounded-2xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(253,223,49,0.3)] flex items-center justify-center gap-3 mx-auto w-full sm:w-auto uppercase tracking-widest text-sm">
@@ -3620,9 +3783,14 @@
             exportQRCodes: async function() {
                 const btn = document.getElementById('btnExportQR');
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> กำลังสร้าง QR Code...';
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> กำลังเตรียมข้อมูล...';
                 
+                // ดึงค่าการตั้งค่าสีจาก UI
+                const fgColor = document.getElementById('qrFgColor').value;
+                const isTransparent = document.getElementById('qrTransparent').checked;
+                const bgColor = isTransparent ? 'transparent' : document.getElementById('qrBgColor').value;
                 const useShortLink = document.getElementById('useShortLinkExport') ? document.getElementById('useShortLinkExport').checked : false;
+
                 const zip = new JSZip();
                 const folder = zip.folder("MORANASATECT_QRCodes");
                 const container = document.getElementById('qr-generator-container');
@@ -3643,29 +3811,44 @@
                     container.appendChild(tempDiv);
 
                     await new Promise(resolve => {
+                        // สร้าง QR Code ตามการตั้งค่าสีที่ได้รับ
                         new QRCode(tempDiv, {
                             text: link,
                             width: 500,
                             height: 500,
-                            colorDark : "#000000",
-                            colorLight : "#ffffff",
+                            colorDark : fgColor,
+                            colorLight : isTransparent ? "#ffffff" : bgColor, // QRCode.js ต้องการสีตรงนี้เป็นค่าเริ่มต้น
                             correctLevel : QRCode.CorrectLevel.H
                         });
                         setTimeout(resolve, 50); 
                     });
 
-                    const img = tempDiv.querySelector('img');
-                    if (img && img.src) {
-                        const base64Data = img.src.replace(/^data:image\/(png|jpg);base64,/, "");
-                        folder.file(`${u.studentId}_${app.formatName(u.name)}.png`, base64Data, {base64: true});
-                    } else {
-                        const canvas = tempDiv.querySelector('canvas');
-                        if(canvas) {
-                            const dataUrl = canvas.toDataURL("image/png");
-                            const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
-                            folder.file(`${u.studentId}_${app.formatName(u.name)}.png`, base64Data, {base64: true});
+                    const canvas = tempDiv.querySelector('canvas');
+                    if(canvas) {
+                        if (isTransparent) {
+                            // ขั้นตอนพิเศษสำหรับพื้นหลังโปร่งใส: ลบสีพื้นหลังออกจาก Canvas
+                            const ctx = canvas.getContext('2d');
+                            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            const data = imgData.data;
+                            
+                            //QRCode.js มักจะวาดสี colorLight ลงบนพื้นหลัง 
+                            //เราจะหา pixel ที่เป็นสีขาว (หรือสี colorLight) แล้วทำให้โปร่งใส
+                            for (let j = 0; j < data.length; j += 4) {
+                                // ถ้าเป็นสี colorLight (สีขาว) ให้ตั้งค่า Alpha (โปร่งใส) เป็น 0
+                                if (data[j] > 240 && data[j+1] > 240 && data[j+2] > 240) {
+                                    data[j+3] = 0;
+                                }
+                            }
+                            ctx.putImageData(imgData, 0, 0);
                         }
+
+                        const dataUrl = canvas.toDataURL("image/png");
+                        const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
+                        folder.file(`${u.studentId}_${app.formatName(u.name)}.png`, base64Data, {base64: true});
                     }
+                    
+                    // อัปเดตความคืบหน้าบนปุ่ม
+                    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> สร้างแล้ว ${i+1}/${window.predefinedUsers.length}`;
                 }
 
                 btn.innerHTML = '<i class="fa-solid fa-file-zipper text-xl"></i> กำลังบีบอัดไฟล์ ZIP...';
@@ -3673,10 +3856,10 @@
                 try {
                     const content = await zip.generateAsync({type:"blob"});
                     saveAs(content, "MORANASATECT_QRCodes.zip");
-                    app.swal.fire({ title: 'สำเร็จ', text: 'ดาวน์โหลดไฟล์ ZIP เรียบร้อยแล้ว', icon: 'success', timer: 2000, showConfirmButton: false });
+                    app.swal.fire({ title: 'สำเร็จ', text: 'ดาวน์โหลด QR Code ทั้งหมดเรียบร้อยแล้ว', icon: 'success', timer: 2000, showConfirmButton: false });
                 } catch(e) {
-                    console.error("ZIP Generation Error:", e);
-                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถสร้างไฟล์ ZIP ได้', 'error');
+                    console.error("ZIP Error:", e);
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถรวมไฟล์ ZIP ได้', 'error');
                 }
 
                 btn.disabled = false;
@@ -3685,16 +3868,28 @@
             },
 
             renderIframeView: function(idx) {
-                const site = app.settings.embeddedSites[idx];
-                if(!site) return `<div class="text-center py-20 text-red-500 font-bold bg-white/5 rounded-3xl border border-white/10 shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลเว็บฝัง</div>`;
+                const sites = app.settings.embeddedSites || [];
+                const site = sites[idx];
+                
+                if (!site) return `<div class="flex-1 flex flex-col items-center justify-center min-h-[60vh]"><div class="text-center text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลหน้าเว็บที่ท่านต้องการ</div></div>`;
 
-                return `
-                <div class="animate-fade-in w-full h-[85vh] flex flex-col pt-4 relative px-2 sm:px-0">
-                    <button onclick="app.goBack()" class="absolute -top-12 sm:-top-16 left-2 sm:left-0 z-50 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 shadow-lg backdrop-blur-md">
+                const backBtnHtml = (app.historyStack && app.historyStack.length > 0) ? `
+                    <button onclick="app.goBack()" class="mb-4 text-gray-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 w-fit">
                         <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
                     </button>
-                    
-                    <div class="w-full flex-1 rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
+                ` : '';
+
+                return `
+                <div class="animate-fade-in w-full h-[calc(100vh-120px)] flex flex-col px-0 sm:px-4">
+                    ${backBtnHtml}
+                    <div class="flex items-center gap-3 mb-4 pl-4 sm:pl-0">
+                        <div class="w-10 h-10 bg-secondary/20 text-secondary rounded-xl flex items-center justify-center border border-secondary/30 shrink-0"><i class="fa-solid fa-earth-americas"></i></div>
+                        <div>
+                            <h2 class="text-white font-bold text-lg md:text-xl leading-tight truncate">${site.title}</h2>
+                            <a href="${site.url}" target="_blank" class="text-[10px] text-blue-400 hover:text-blue-300 font-mono truncate flex items-center gap-1 transition-colors"><i class="fa-solid fa-up-right-from-square"></i> เปิดในหน้าต่างใหม่</a>
+                        </div>
+                    </div>
+                    <div class="flex-1 w-full bg-black rounded-t-[2rem] sm:rounded-[2rem] overflow-hidden border border-white/20 shadow-2xl relative pointer-events-auto">
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0 bg-black">
                             <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
                             <span class="text-xs font-bold tracking-widest uppercase">Loading...</span>
