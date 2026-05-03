@@ -27,6 +27,7 @@
     <link rel="apple-touch-icon" href="./iconLOGO%20MORANASATECT.png">
 
     <!-- โหลดรูปล่วงหน้า (Preload) เพื่อให้แสดงทันทีที่เปิดเว็บ -->
+    <link rel="preload" href="./LOGO 04.png" as="image">
     <link rel="preload" href="./LOGO MORANASATECT.png" as="image">
     <link rel="preload" href="./LOGO 01.png" as="image">
     <link rel="preload" href="./LOGO 02.png" as="image">
@@ -163,6 +164,7 @@
                         'fade-in': 'fadeIn 0.3s ease-out forwards',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
                         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-y': 'spinY 2s linear infinite',
                     },
                     keyframes: {
                         blob: {
@@ -170,7 +172,11 @@
                             '100%': { transform: 'translate(30px, -50px) scale(1.1)' }
                         },
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        spinY: {
+                            '0%': { transform: 'rotateY(0deg)' },
+                            '100%': { transform: 'rotateY(360deg)' }
+                        }
                     }
                 }
             }
@@ -390,7 +396,7 @@
     <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-16 md:mt-20">
         <div id="appRoot" class="max-w-6xl mx-auto w-full flex-1 flex flex-col p-4 pb-8 sm:pb-12">
             <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
-                <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
+                <img src="./LOGO 04.png" alt="Loading" class="w-16 h-16 md:w-20 md:h-20 mb-4 animate-spin-y object-contain" onerror="this.style.display='none'">
                 <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
             </div>
         </div>
@@ -494,7 +500,7 @@
 
                 // ฟังก์ชันบังคับโหลดรูปภาพที่สำคัญล่วงหน้า พร้อมตั้งเวลาจำกัดไม่ให้รอนานเกิน 2 วินาที
                 const preloadImportantImages = () => {
-                    const images = ['./LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png', './LOGO 03.png'];
+                    const images = ['./LOGO 04.png', './LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png', './LOGO 03.png'];
                     const promises = images.map(src => new Promise(resolve => {
                         const img = new Image();
                         img.onload = resolve;
@@ -1546,7 +1552,7 @@
             renderLoading: function() {
                 return `
                 <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
-                    <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
+                    <img src="./LOGO 04.png" alt="Loading" class="w-16 h-16 md:w-20 md:h-20 mb-4 animate-spin-y object-contain" onerror="this.style.display='none'">
                     <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
                 </div>`;
             },
