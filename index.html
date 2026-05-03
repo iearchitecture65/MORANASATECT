@@ -1710,9 +1710,10 @@
                 `}).join('');
 
                 return `
-                        <!-- เส้นขาวด้านบนสุดเหนือรูปภาพและข้อความ -->
-                        <div class="w-16 sm:w-24 h-[2px] bg-white/30 relative z-10 animate-slide-up mb-8" style="animation-delay: 0.05s"></div>
-
+                <div class="animate-fade-in w-full max-w-7xl mx-auto pb-12 sm:px-4">
+                    <!-- Modern Minimal Hero Section -->
+                    <div class="relative w-full flex flex-col items-center justify-center text-center py-8 md:py-12 mb-6 overflow-hidden">
+                        
                         ${!filterParam ? `
                         <div class="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-8 px-4">
                             <!-- ด้านซ้าย: รูป 01 และ 02 เล็กลงอีกในจอคอม -->
