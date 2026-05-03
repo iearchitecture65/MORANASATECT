@@ -164,7 +164,7 @@
                         'fade-in': 'fadeIn 0.3s ease-out forwards',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
                         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'spin-y': 'spinY 2s linear infinite',
+                        'spin-y': 'spinY 2.5s linear infinite', // ปรับความเร็วให้ดูสมูท
                     },
                     keyframes: {
                         blob: {
@@ -174,8 +174,11 @@
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
                         slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
                         spinY: {
-                            '0%': { transform: 'rotateY(0deg)' },
-                            '100%': { transform: 'rotateY(360deg)' }
+                            // เทคนิคหมุนแบบไม่โชว์ด้านกลับหัว (Mirror) โดยพลิกสลับด้านที่ 90 องศา
+                            '0%': { transform: 'perspective(1000px) rotateY(0deg)' },
+                            '49.9%': { transform: 'perspective(1000px) rotateY(90deg)' },
+                            '50%': { transform: 'perspective(1000px) rotateY(-90deg)' },
+                            '100%': { transform: 'perspective(1000px) rotateY(0deg)' }
                         }
                     }
                 }
@@ -395,8 +398,9 @@
     <!-- Main Content App -->
     <div id="mainContentWrapper" class="flex-1 flex flex-col relative z-10 transition-all duration-300 mt-16 md:mt-20">
         <div id="appRoot" class="max-w-6xl mx-auto w-full flex-1 flex flex-col p-4 pb-8 sm:pb-12">
+            <!-- ส่วนที่เปลี่ยนรูปโหลดให้ใหญ่ขึ้นและตั้งให้หมุนไม่กระจก -->
             <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
-                <img src="./LOGO 04.png" alt="Loading" class="w-16 h-16 md:w-20 md:h-20 mb-4 animate-spin-y object-contain" onerror="this.style.display='none'">
+                <img src="./LOGO 04.png" alt="Loading" class="w-32 h-32 md:w-48 md:h-48 mb-6 animate-spin-y object-contain drop-shadow-2xl" onerror="this.style.display='none'">
                 <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
             </div>
         </div>
@@ -1552,7 +1556,7 @@
             renderLoading: function() {
                 return `
                 <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
-                    <img src="./LOGO 04.png" alt="Loading" class="w-16 h-16 md:w-20 md:h-20 mb-4 animate-spin-y object-contain" onerror="this.style.display='none'">
+                    <img src="./LOGO 04.png" alt="Loading" class="w-32 h-32 md:w-48 md:h-48 mb-6 animate-spin-y object-contain drop-shadow-2xl" onerror="this.style.display='none'">
                     <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังโหลดระบบ...</p>
                 </div>`;
             },
@@ -3053,7 +3057,7 @@
                                     <img src="./MORANASATECT/${u.id}.png" 
                                          onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                          onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
+                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
                                 <div>
                                     <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</div>
