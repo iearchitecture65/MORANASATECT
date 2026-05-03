@@ -1719,8 +1719,16 @@
                         </h1>
                         `}
 
+                        <!-- รูปแบนเนอร์อาจารย์ที่ปรึกษา -->
+                        <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-6 mt-4 mx-auto flex justify-center" style="animation-delay: 0.12s">
+                            <img src="./adviser.png" alt="Advisors" 
+                                 onclick="if(!app.isMenuOpen) app.toggleMenu(); const adv = document.getElementById('advisorAccordion'); if(adv && adv.classList.contains('hidden')) app.toggleMenuAccordion('advisorAccordion'); window.scrollTo({top: 0, behavior: 'smooth'});"
+                                 class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-2xl hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
+                                 onerror="this.style.display='none'">
+                        </div>
+
                         <!-- เส้นขาวบางๆ ติดกับข้อความรวมผลงาน -->
-                        <div class="w-16 sm:w-24 h-px bg-white/40 relative z-10 animate-slide-up mb-2 mt-2" style="animation-delay: 0.15s"></div>
+                        <div class="w-16 sm:w-24 h-px bg-white/40 relative z-10 animate-slide-up mb-2 mx-auto" style="animation-delay: 0.15s"></div>
 
                         <div class="relative z-10 flex flex-row items-center justify-center gap-2 animate-slide-up px-6 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full shadow-lg" style="animation-delay: 0.2s">
                             <i class="fa-solid fa-layer-group text-secondary text-[10px] sm:text-xs"></i>
