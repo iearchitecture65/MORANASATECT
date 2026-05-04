@@ -2211,21 +2211,13 @@
 
                     const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
                     
-                    let outUrl = match[2]; // ดึงลิงก์ต้นฉบับมาใช้สำหรับปุ่มกดออก
-
                     html += `
                     <div class="flex flex-col gap-3 w-full max-w-full min-w-0">
-                        <div class="flex items-center justify-between pl-1 gap-2">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <div class="w-1.5 h-4 bg-secondary rounded-full shrink-0"></div>
-                                <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md truncate">
-                                    ${label}
-                                </h4>
-                            </div>
-                            <!-- เพิ่มปุ่มเปิดดูลิงก์ของเราเอง กดง่ายกว่าในมือถือ -->
-                            <a href="${outUrl}" target="_blank" class="bg-white/10 hover:bg-secondary hover:text-black text-white px-3 py-1.5 rounded-xl text-[10px] md:text-xs font-bold flex items-center gap-1.5 transition-colors border border-white/10 shadow-sm shrink-0">
-                                <i class="fa-solid fa-up-right-from-square"></i> เปิดดูเต็มจอ
-                            </a>
+                        <div class="flex items-center gap-2 pl-1">
+                            <div class="w-1.5 h-4 bg-secondary rounded-full"></div>
+                            <h4 class="text-white font-bold text-sm md:text-base drop-shadow-md truncate">
+                                ${label}
+                            </h4>
                         </div>
                     `;
                     
@@ -2371,9 +2363,9 @@
                         
                         if (val) {
                             customBoxesHtml += `
-                            <div class="bg-gradient-to-r from-secondary/10 to-transparent border-l-4 border-secondary p-6 rounded-r-2xl mb-10 text-sm md:text-base text-gray-200 whitespace-pre-wrap shadow-inner relative leading-relaxed overflow-hidden break-words">
-                                <i class="fa-solid fa-quote-left absolute top-4 right-6 text-4xl text-secondary/20"></i>
-                                ${val}
+                            <div class="bg-gradient-to-r from-secondary/20 to-transparent border-l-4 border-secondary p-6 md:p-8 rounded-r-2xl mb-10 shadow-inner relative overflow-hidden break-words">
+                                <i class="fa-solid fa-quote-left absolute top-4 right-6 text-5xl md:text-6xl text-secondary/20 pointer-events-none"></i>
+                                <div class="relative z-10 whitespace-pre-wrap leading-relaxed text-lg md:text-xl font-bold text-white drop-shadow-md">${val}</div>
                             </div>`;
                         }
                     });
@@ -3124,125 +3116,127 @@
             },
 
             generateAdminUsersListHtml: function() {
-                let displayUsers = window.predefinedUsers;
-                if (app.adminUserSearchQuery && app.adminUserSearchQuery.trim() !== '') {
-                    const q = app.adminUserSearchQuery.toLowerCase().trim();
-                    displayUsers = window.predefinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.studentId.includes(q));
-                }
+                            let displayUsers = window.predefinedUsers;
+                            if (app.adminUserSearchQuery && app.adminUserSearchQuery.trim() !== '') {
+                                const q = app.adminUserSearchQuery.toLowerCase().trim();
+                                displayUsers = window.predefinedUsers.filter(u => u.name.toLowerCase().includes(q) || u.studentId.includes(q));
+                            }
 
-                if (displayUsers.length === 0) {
-                    return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบรายชื่อที่ค้นหา</p></div>`;
-                }
+                            if (displayUsers.length === 0) {
+                                return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบรายชื่อที่ค้นหา</p></div>`;
+                            }
 
-                let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-5">';
-                let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                        <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                            <th class="p-4 rounded-tl-xl">ลำดับ/รหัส/ชื่อ</th>
-                            <th class="p-4 text-center">ยอดวิว</th>
-                            <th class="p-4 text-center">รีเซ็ตวิว</th>
-                            <th class="p-4 text-center">สถานะ</th>
-                            <th class="p-4 text-center">จัดการ</th>
-                            <th class="p-4 text-center rounded-tr-xl">ดูผลงาน</th>
-                        </tr>
-                    </thead><tbody class="divide-y divide-white/5">`;
+                            let gridHtml = '<div class="grid md:hidden grid-cols-1 sm:grid-cols-2 gap-6">';
+                            let tableHtml = `<div class="hidden md:block overflow-x-auto custom-scrollbar pb-4"><table class="w-full text-left border-collapse min-w-[700px]">
+                                <thead>
+                                    <tr class="text-xs text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                                        <th class="p-4 rounded-tl-xl">ลำดับ/รหัส/ชื่อ</th>
+                                        <th class="p-4 text-center">ยอดวิว</th>
+                                        <th class="p-4 text-center">รีเซ็ตวิว</th>
+                                        <th class="p-4 text-center">สถานะ</th>
+                                        <th class="p-4 text-center">จัดการ</th>
+                                        <th class="p-4 text-center rounded-tr-xl">ดูผลงาน</th>
+                                    </tr>
+                                </thead><tbody class="divide-y divide-white/5">`;
 
-                displayUsers.forEach(u => {
-                    const vCount = app.visitLogs[u.studentId] || 0;
-                    const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
-                    const isComplete = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
-                    
-                    const cleanName = app.formatName(u.name);
-                    const abbr = app.getAbbr(cleanName);
+                            displayUsers.forEach(u => {
+                                const vCount = app.visitLogs[u.studentId] || 0;
+                                const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
+                                const isComplete = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
 
-                    const statusHtml = isComplete ? 
-                        '<span class="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
-                        '<span class="text-[10px] bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>';
+                                const cleanName = app.formatName(u.name);
+                                const abbr = app.getAbbr(cleanName);
 
-                    gridHtml += `
-                    <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                        <div class="w-20 h-20 rounded-full border-[2px] border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-3 p-0">
-                            <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl z-0 hidden">${abbr}</span>
-                            <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
-                            <img src="./MORANASATECT/${u.id}.png" 
-                                 onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                 onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                 class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
-                        </div>
-                        <h3 class="text-white font-extrabold text-base drop-shadow-md w-full truncate px-2">${cleanName}</h3>
-                        <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</p>
-                        
-                        <div class="mt-4 bg-black/30 p-3 rounded-xl border border-white/10 flex flex-col gap-2 shadow-inner w-full">
-                            <div class="flex justify-between items-center w-full">
-                                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">สถานะข้อมูล</span>
-                                ${statusHtml}
-                            </div>
-                            <div class="flex justify-between items-center w-full">
-                                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">ยอดเข้าชม</span>
-                                <span class="text-secondary font-black text-sm dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-2 w-full mt-4">
-                            <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 min-w-[45%] py-3 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-rotate-left"></i> ล้างวิว
-                            </button>
-                            <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 min-w-[45%] py-3 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-pen-to-square"></i> จัดการ
-                            </button>
-                            <button onclick="app.openExhibit('${u.studentId}', false)" class="w-full py-3 bg-secondary text-primary rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5 mt-1">
-                                <i class="fa-solid fa-eye"></i> ดูผลงาน
-                            </button>
-                        </div>
-                    </div>`;
+                                const statusHtml = isComplete ? 
+                                    '<span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30 text-[10px] md:text-xs"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
+                                    '<span class="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30 text-[10px] md:text-xs"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>';
 
-                    tableHtml += `
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full border-[1.5px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
-                                    <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
-                                    <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
-                                    <img src="./MORANASATECT/${u.id}.png" 
-                                         onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                         onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                         class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
-                                </div>
-                                <div>
-                                    <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</div>
-                                    <div class="text-[10px] text-gray-500 mt-0.5">${cleanName}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center">
-                            <span class="inline-block bg-black/50 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-secondary dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="app.resetVisit('${u.studentId}')" class="text-gray-500 hover:text-red-400 bg-white/5 hover:bg-red-500/10 w-8 h-8 rounded-full transition-colors flex items-center justify-center mx-auto border border-white/10" title="ล้างยอดวิว">
-                                <i class="fa-solid fa-rotate-left text-[10px]"></i>
-                            </button>
-                        </td>
-                        <td class="p-4 text-center">
-                            ${statusHtml}
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="app.manageUserData('${u.studentId}')" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
-                                จัดการข้อมูล
-                            </button>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="app.openExhibit('${u.studentId}', false)" class="bg-secondary hover:bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors border border-secondary/20 shadow-md">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-                });
+                                // แบบ Card สำหรับมือถือ (ขยายขนาดทุกอย่างให้เต็มตา)
+                                gridHtml += `
+                                <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
+                                    <div class="w-24 h-24 rounded-full border-[3px] border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-4 p-0">
+                                        <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
+                                        <i class="fa-solid fa-circle-notch fa-spin text-white text-lg absolute z-10 spinner-icon"></i>
+                                        <img src="./MORANASATECT/${u.id}.png" 
+                                             onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                             onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                             class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
+                                    </div>
+                                    <h3 class="text-white font-extrabold text-lg drop-shadow-md w-full truncate px-2">${cleanName}</h3>
+                                    <p class="text-xs text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</p>
 
-                gridHtml += '</div>';
-                tableHtml += '</tbody></table></div>';
-                
-                return gridHtml + tableHtml;
-            },
+                                    <div class="mt-5 bg-black/30 p-4 rounded-xl border border-white/10 flex flex-col gap-3 shadow-inner w-full">
+                                        <div class="flex justify-between items-center w-full">
+                                            <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">สถานะข้อมูล</span>
+                                            ${statusHtml}
+                                        </div>
+                                        <div class="flex justify-between items-center w-full">
+                                            <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">ยอดเข้าชม</span>
+                                            <span class="text-secondary font-black text-base dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 w-full mt-5">
+                                        <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 min-w-[45%] py-3.5 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-rotate-left"></i> ล้างวิว
+                                        </button>
+                                        <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 min-w-[45%] py-3.5 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-pen-to-square"></i> จัดการ
+                                        </button>
+                                        <button onclick="app.openExhibit('${u.studentId}', false)" class="w-full py-3.5 bg-secondary text-primary rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 mt-1">
+                                            <i class="fa-solid fa-eye"></i> ดูผลงาน
+                                        </button>
+                                    </div>
+                                </div>`;
+
+                                // แบบ Table สำหรับ Desktop
+                                tableHtml += `
+                                <tr class="hover:bg-white/5 transition-colors group">
+                                    <td class="p-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full border-[1.5px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0">
+                                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
+                                                <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
+                                                <img src="./MORANASATECT/${u.id}.png" 
+                                                     onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                                     onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">${cleanName}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <span class="inline-block bg-black/50 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-secondary dynamic-visit-count" data-sid="${u.studentId}">${vCount}</span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <button onclick="app.resetVisit('${u.studentId}')" class="text-gray-500 hover:text-red-400 bg-white/5 hover:bg-red-500/10 w-9 h-9 rounded-full transition-colors flex items-center justify-center mx-auto border border-white/10" title="ล้างยอดวิว">
+                                            <i class="fa-solid fa-rotate-left text-xs"></i>
+                                        </button>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        ${statusHtml}
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <button onclick="app.manageUserData('${u.studentId}')" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
+                                            จัดการข้อมูล
+                                        </button>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <button onclick="app.openExhibit('${u.studentId}', false)" class="bg-secondary hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-secondary/20 shadow-md">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>`;
+                            });
+
+                            gridHtml += '</div>';
+                            tableHtml += '</tbody></table></div>';
+
+                            return gridHtml + tableHtml;
+                        },
 
             manageUserData: async function(studentId) {
                 const u = window.predefinedUsers.find(x => x.studentId === studentId);
@@ -3344,68 +3338,94 @@
             },
 
             generateAdminLogsListHtml: function() {
-                let logs = app.accessLogs.filter(l => l.action === 'view_exhibit');
-                if (app.adminLogSearchQuery && app.adminLogSearchQuery.trim() !== '') {
-                    const q = app.adminLogSearchQuery.toLowerCase().trim();
-                    logs = logs.filter(l => 
-                        (l.name && l.name.toLowerCase().includes(q)) || 
-                        (l.target && l.target.toLowerCase().includes(q)) ||
-                        (l.role && l.role.toLowerCase().includes(q))
-                    );
-                }
+                            let logs = app.accessLogs.filter(l => l.action === 'view_exhibit');
+                            if (app.adminLogSearchQuery && app.adminLogSearchQuery.trim() !== '') {
+                                const q = app.adminLogSearchQuery.toLowerCase().trim();
+                                logs = logs.filter(l => 
+                                    (l.name && l.name.toLowerCase().includes(q)) || 
+                                    (l.target && l.target.toLowerCase().includes(q)) ||
+                                    (l.role && l.role.toLowerCase().includes(q))
+                                );
+                            }
 
-                if (logs.length === 0) return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบประวัติการเข้าชม</p></div>`;
+                            if (logs.length === 0) return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบประวัติการเข้าชม</p></div>`;
 
-                let html = `
-                <div class="overflow-x-auto custom-scrollbar pb-4">
-                    <table class="w-full text-left border-collapse min-w-[700px]">
-                        <thead>
-                            <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                                <th class="p-4 rounded-tl-xl w-48">วัน/เวลา</th>
-                                <th class="p-4">ผู้เข้าชม (ชื่อ-นามสกุล / Role)</th>
-                                <th class="p-4">รหัส / ผลงานที่เข้าชม</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5">`;
-                
-                logs.forEach(log => {
-                    const dateObj = new Date(log.timestamp);
-                    const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
-                    const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    
-                    const tUser = window.predefinedUsers.find(u => u.studentId === log.target);
-                    const targetName = tUser ? app.formatName(tUser.name) : 'ไม่ทราบชื่อ';
+                            let gridHtml = '<div class="grid md:hidden grid-cols-1 gap-4">';
+                            let tableHtml = `
+                            <div class="hidden md:block overflow-x-auto custom-scrollbar pb-4">
+                                <table class="w-full text-left border-collapse min-w-[700px]">
+                                    <thead>
+                                        <tr class="text-xs text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                                            <th class="p-4 rounded-tl-xl w-48">วัน/เวลา</th>
+                                            <th class="p-4">ผู้เข้าชม (ชื่อ-นามสกุล / Role)</th>
+                                            <th class="p-4">รหัส / ผลงานที่เข้าชม</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">`;
 
-                    html += `
-                        <tr class="hover:bg-white/5 transition-colors">
-                            <td class="p-4 text-xs font-medium text-gray-300">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-regular fa-clock text-gray-500"></i> ${dateStr} <span class="text-secondary ml-1">${timeStr}</span>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white text-sm">${log.name || 'ไม่ทราบชื่อ'}</span>
-                                    <span class="text-[10px] text-blue-400 font-bold tracking-widest uppercase mt-0.5">${log.role}</span>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="flex flex-col">
-                                        <span class="text-[10px] text-secondary font-bold tracking-widest">${log.target}</span>
-                                        <span class="text-white text-sm font-medium mt-0.5 truncate max-w-[200px] sm:max-w-[300px]" title="${targetName}">${targetName}</span>
-                                    </div>
-                                    <button onclick="app.openExhibit('${log.target}', false)" class="ml-auto bg-white/5 hover:bg-secondary hover:text-black text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-white/10" title="ไปหน้าผลงาน">
-                                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>`;
-                });
-                
-                html += `</tbody></table></div>`;
-                return html;
-            },
+                            logs.forEach(log => {
+                                const dateObj = new Date(log.timestamp);
+                                const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                                const tUser = window.predefinedUsers.find(u => u.studentId === log.target);
+                                const targetName = tUser ? app.formatName(tUser.name) : 'ไม่ทราบชื่อ';
+
+                                // แบบ Card สำหรับมือถือ
+                                gridHtml += `
+                                    <div class="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col gap-3 shadow-md relative">
+                                        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                                            <div class="flex items-center gap-2 text-xs font-bold text-gray-400">
+                                                <i class="fa-regular fa-clock"></i> ${dateStr} <span class="text-secondary">${timeStr}</span>
+                                            </div>
+                                            <button onclick="app.openExhibit('${log.target}', false)" class="bg-white/10 hover:bg-secondary hover:text-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                                ดูผลงาน <i class="fa-solid fa-arrow-right ml-1"></i>
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">ข้อมูลผู้เยี่ยมชม</p>
+                                            <p class="font-bold text-white text-base">${log.name || 'ไม่ทราบชื่อ'}</p>
+                                            <span class="inline-block bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold mt-1.5 border border-blue-500/30 uppercase tracking-widest">${log.role}</span>
+                                        </div>
+                                        <div class="bg-black/30 p-3.5 rounded-xl border border-white/5 mt-1">
+                                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5 font-bold">เข้าชมผลงานชิ้นนี้</p>
+                                            <p class="text-secondary font-bold text-sm mb-0.5"><i class="fa-solid fa-user-graduate mr-1"></i>${log.target}</p>
+                                            <p class="text-white text-sm truncate w-full">${targetName}</p>
+                                        </div>
+                                    </div>`;
+
+                                // แบบ Table สำหรับ Desktop
+                                tableHtml += `
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="p-4 text-xs font-medium text-gray-300">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-regular fa-clock text-gray-500"></i> ${dateStr} <span class="text-secondary ml-1">${timeStr}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex flex-col">
+                                                <span class="font-bold text-white text-sm">${log.name || 'ไม่ทราบชื่อ'}</span>
+                                                <span class="text-[10px] text-blue-400 font-bold tracking-widest uppercase mt-1 border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 rounded w-fit">${log.role}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex flex-col flex-1 min-w-0">
+                                                    <span class="text-xs text-secondary font-bold tracking-widest">${log.target}</span>
+                                                    <span class="text-white text-sm font-medium mt-0.5 truncate w-full max-w-[250px] lg:max-w-[400px]" title="${targetName}">${targetName}</span>
+                                                </div>
+                                                <button onclick="app.openExhibit('${log.target}', false)" class="shrink-0 bg-white/5 hover:bg-secondary hover:text-black text-white w-9 h-9 rounded-full flex items-center justify-center transition-colors border border-white/10" title="ไปหน้าผลงาน">
+                                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                            });
+
+                            gridHtml += '</div>';
+                            tableHtml += `</tbody></table></div>`;
+                            return gridHtml + tableHtml;
+                        },
 
             renderAdminLoginLogs: function() {
                 return `
@@ -3449,64 +3469,85 @@
             },
 
             generateAdminLoginLogsListHtml: function() {
-                let logs = app.accessLogs.filter(l => l.action === 'login');
-                if (app.adminLoginLogSearchQuery && app.adminLoginLogSearchQuery.trim() !== '') {
-                    const q = app.adminLoginLogSearchQuery.toLowerCase().trim();
-                    logs = logs.filter(l => 
-                        (l.name && l.name.toLowerCase().includes(q)) || 
-                        (l.uid && l.uid.toLowerCase().includes(q)) ||
-                        (l.role && l.role.toLowerCase().includes(q))
-                    );
-                }
+                            let logs = app.accessLogs.filter(l => l.action === 'login');
+                            if (app.adminLoginLogSearchQuery && app.adminLoginLogSearchQuery.trim() !== '') {
+                                const q = app.adminLoginLogSearchQuery.toLowerCase().trim();
+                                logs = logs.filter(l => 
+                                    (l.name && l.name.toLowerCase().includes(q)) || 
+                                    (l.uid && l.uid.toLowerCase().includes(q)) ||
+                                    (l.role && l.role.toLowerCase().includes(q))
+                                );
+                            }
 
-                if (logs.length === 0) return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบประวัติการเข้าสู่ระบบ</p></div>`;
+                            if (logs.length === 0) return `<div class="text-center py-10"><p class="text-white/50 font-bold">ไม่พบประวัติการเข้าสู่ระบบ</p></div>`;
 
-                let html = `
-                <div class="overflow-x-auto custom-scrollbar pb-4">
-                    <table class="w-full text-left border-collapse min-w-[700px]">
-                        <thead>
-                            <tr class="text-[10px] text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
-                                <th class="p-4 rounded-tl-xl w-48">วัน/เวลา</th>
-                                <th class="p-4">ข้อมูลผู้ใช้ (ชื่อ / ID)</th>
-                                <th class="p-4 text-center">ประเภทบัญชี (Role)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5">`;
-                
-                logs.forEach(log => {
-                    const dateObj = new Date(log.timestamp);
-                    const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
-                    const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    
-                    let roleBadgeClass = 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-                    if (log.role === 'admin') roleBadgeClass = 'bg-red-500/20 text-red-400 border-red-500/30';
-                    else if (log.role === 'student') roleBadgeClass = 'bg-secondary/20 text-secondary border-secondary/30';
-                    else if (log.role === 'guest') roleBadgeClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                            let gridHtml = '<div class="grid md:hidden grid-cols-1 gap-4">';
+                            let tableHtml = `
+                            <div class="hidden md:block overflow-x-auto custom-scrollbar pb-4">
+                                <table class="w-full text-left border-collapse min-w-[700px]">
+                                    <thead>
+                                        <tr class="text-xs text-gray-400 border-b border-white/20 uppercase tracking-widest bg-black/50">
+                                            <th class="p-4 rounded-tl-xl w-48">วัน/เวลา</th>
+                                            <th class="p-4">ข้อมูลผู้ใช้ (ชื่อ / ID)</th>
+                                            <th class="p-4 text-center">ประเภทบัญชี (Role)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">`;
 
-                    html += `
-                        <tr class="hover:bg-white/5 transition-colors">
-                            <td class="p-4 text-xs font-medium text-gray-300">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-regular fa-clock text-gray-500"></i> ${dateStr} <span class="text-secondary ml-1">${timeStr}</span>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white text-sm">${log.name || 'ไม่ทราบชื่อ'}</span>
-                                    <span class="text-[10px] text-gray-500 font-mono mt-0.5">UID: ${log.uid || '-'}</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-center">
-                                <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase border ${roleBadgeClass}">
-                                    ${log.role}
-                                </span>
-                            </td>
-                        </tr>`;
-                });
-                
-                html += `</tbody></table></div>`;
-                return html;
-            },
+                            logs.forEach(log => {
+                                const dateObj = new Date(log.timestamp);
+                                const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                                let roleBadgeClass = 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                                if (log.role === 'admin') roleBadgeClass = 'bg-red-500/20 text-red-400 border-red-500/30';
+                                else if (log.role === 'student') roleBadgeClass = 'bg-secondary/20 text-secondary border-secondary/30';
+                                else if (log.role === 'guest') roleBadgeClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+
+                                // แบบ Card สำหรับมือถือ
+                                gridHtml += `
+                                    <div class="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col gap-3 shadow-md relative">
+                                        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                                            <div class="flex items-center gap-2 text-xs font-bold text-gray-400">
+                                                <i class="fa-solid fa-right-to-bracket text-secondary"></i> ${dateStr} <span class="text-white">${timeStr}</span>
+                                            </div>
+                                            <span class="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase border ${roleBadgeClass}">
+                                                ${log.role}
+                                            </span>
+                                        </div>
+                                        <div class="pt-1">
+                                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5 font-bold">ชื่อผู้ใช้งาน</p>
+                                            <p class="font-bold text-white text-base">${log.name || 'ไม่ทราบชื่อ'}</p>
+                                            <p class="text-xs text-gray-400 font-mono mt-1.5 bg-black/40 p-2 rounded-lg border border-white/5">UID: ${log.uid || '-'}</p>
+                                        </div>
+                                    </div>`;
+
+                                // แบบ Table สำหรับ Desktop
+                                tableHtml += `
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="p-4 text-xs font-medium text-gray-300">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-regular fa-clock text-gray-500"></i> ${dateStr} <span class="text-secondary ml-1">${timeStr}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex flex-col">
+                                                <span class="font-bold text-white text-sm">${log.name || 'ไม่ทราบชื่อ'}</span>
+                                                <span class="text-xs text-gray-500 font-mono mt-1">UID: ${log.uid || '-'}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            <span class="inline-block px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase border ${roleBadgeClass}">
+                                                ${log.role}
+                                            </span>
+                                        </td>
+                                    </tr>`;
+                            });
+
+                            gridHtml += '</div>';
+                            tableHtml += `</tbody></table></div>`;
+                            return gridHtml + tableHtml;
+                        },
 
             renderAdminAdvisors: function() {
                 let listHtml = window.advisorsData.map((a, idx) => `
