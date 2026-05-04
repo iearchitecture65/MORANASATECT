@@ -195,8 +195,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
+        /* เติมสีดำชั้นล่างสุด ป้องกันสีขาวโผล่ตอนโหลดหรือตอนดึงหน้าจอแรงๆ ในมือถือ */
+        html {
+            background-color: #0f0f0f; 
+        }
+
         body { 
             background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            background-attachment: fixed; /* ล็อกสีพื้นหลังให้อยู่กับที่ ป้องกันสีขาดกุดเวลาเลื่อนลงยาวๆ */
             color: #ffffff;
             overflow-x: hidden;
             touch-action: manipulation;
@@ -272,6 +278,27 @@
             font-size: clamp(0.875rem, 5vw, 1.5rem);
             line-height: 1.2;
             word-break: break-word;
+        }
+        
+        /* บังคับให้มือถือใช้ GPU ประมวลผลอนิเมชั่นก้อนสี ลดอาการกระตุกและหน่วง */
+        .animate-blob {
+            will-change: transform;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* ลดภาระเบลอกระจกในจอมือถือเล็กน้อย (ในคอมยังเบลอจัดเต็มเหมือนเดิม) */
+        @media (max-width: 768px) {
+            .glass-card {
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .fixed.inset-0.overflow-hidden div {
+                opacity: 0.7; /* ลดความเข้มก้อนสีหลังลงนิดนึงเวลาเล่นในมือถือ */
+            }
         }
     </style>
 </head>
