@@ -1193,9 +1193,10 @@
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
                 let link = "";
                 
-                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ
+                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ พร้อมเช็ค http://
                 if (user && user.shortLink) {
-                    link = user.shortLink;
+                    link = user.shortLink.trim();
+                    if (!link.startsWith('http')) link = 'https://' + link;
                 } else {
                     let basePath = window.location.href.split('?')[0].replace(/index\.html$/, '');
                     if (!basePath.endsWith('/')) basePath += '/';
@@ -1266,9 +1267,10 @@
                 const advisor = window.advisorsData.find(a => a.id == advisorId);
                 let link = "";
                 
-                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ
+                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ พร้อมเช็ค http://
                 if (advisor && advisor.shortLink) {
-                    link = advisor.shortLink;
+                    link = advisor.shortLink.trim();
+                    if (!link.startsWith('http')) link = 'https://' + link;
                 } else {
                     const baseUrl = window.location.href.split('?')[0];
                     link = `${baseUrl}?advisor=${advisorId}`;
@@ -2648,7 +2650,7 @@
                 }
 
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-5 sm:px-0 w-full">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-black/40 backdrop-blur-xl p-5 sm:p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden w-full max-w-full">
                         <div class="absolute -top-20 -right-20 w-64 h-64 bg-secondary/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
                         
@@ -2817,7 +2819,7 @@
 
             renderAdminSettings: function() {
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-gear"></i></div>
                         <div>
@@ -2973,7 +2975,7 @@
                 if(boxes.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีกล่องข้อความเสริม</p></div>`;
 
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-square-plus"></i></div>
                         <div>
@@ -3092,7 +3094,7 @@
 
             renderAdminUsers: function() {
                 return `
-                <div class="animate-fade-in max-w-6xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-users"></i></div>
@@ -3129,7 +3131,37 @@
                 app.renderAdminUsersListOnly();
             },
 
-            exportUsersData: function() {
+            exportUsersData: async function() {
+                const result = await app.swal.fire({
+                    title: 'เลือกรูปแบบการโหลดข้อมูล',
+                    html: 'คุณต้องการดาวน์โหลดรายชื่อแบบใด?',
+                    icon: 'question',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'โหลดทั้งหมด',
+                    denyButtonText: 'เฉพาะคนที่มีข้อมูล',
+                    cancelButtonText: 'ยกเลิก',
+                    customClass: {
+                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[90%] max-w-md',
+                        confirmButton: 'bg-blue-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-blue-500 transition-colors m-1 w-full sm:w-auto',
+                        denyButton: 'bg-green-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-green-500 transition-colors m-1 w-full sm:w-auto',
+                        cancelButton: 'bg-gray-700 text-white font-bold rounded-xl px-4 py-2 hover:bg-gray-600 transition-colors m-1 w-full sm:w-auto'
+                    }
+                });
+
+                if (!result.isConfirmed && !result.isDenied) return;
+
+                let targetUsers = window.predefinedUsers;
+                if (result.isDenied) {
+                    targetUsers = window.predefinedUsers.filter(u => {
+                        const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
+                        return (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
+                    });
+                    if (targetUsers.length === 0) {
+                        return app.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีคนที่มีข้อมูลสมบูรณ์', 'info');
+                    }
+                }
+
                 // ดึงหัวข้อของกล่องข้อความที่เปิดใช้งานอยู่
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 let customHeaders = activeBoxes.map(b => `"${b.label.replace(/"/g, '""')}"`).join(',');
@@ -3138,7 +3170,7 @@
                 let csvContent = `รหัสนักศึกษา,ชื่อ-นามสกุล,ชื่อผลงาน,อาจารย์ที่ปรึกษา,ยอดเข้าชม,ลิงก์ย่อ${customHeaders},เวลาที่อัปเดตข้อมูลล่าสุด,เวลาที่โหลดไฟล์\n`;
                 const now = new Date().toLocaleString('th-TH');
 
-                window.predefinedUsers.forEach(u => {
+                targetUsers.forEach(u => {
                     const sid = u.studentId;
                     const name = u.name;
                     const vCount = app.visitLogs[sid] || 0;
@@ -3377,7 +3409,7 @@
 
             renderAdminLogs: function() {
                 return `
-                <div class="animate-fade-in max-w-6xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-list-check"></i></div>
@@ -3424,7 +3456,7 @@
 
             renderAdminLoginLogs: function() {
                 return `
-                <div class="animate-fade-in max-w-6xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-right-to-bracket"></i></div>
@@ -3502,7 +3534,7 @@
                 if(sites.length === 0) listHtml = `<div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl bg-white/5"><p class="text-xs text-gray-400 font-bold">ยังไม่มีเมนูเว็บฝัง</p></div>`;
 
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-link"></i></div>
                         <div>
@@ -3616,7 +3648,7 @@
 
             renderAdminExport: function() {
                 return `
-                <div class="animate-fade-in max-w-5xl mx-auto pb-10 mt-6 px-2 sm:px-0">
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-qrcode"></i></div>
                         <div>
@@ -3629,10 +3661,44 @@
                         <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                         <i class="fa-solid fa-file-zipper text-7xl text-secondary opacity-90 drop-shadow-lg mb-6 relative z-10 animate-bounce"></i>
                         <h2 class="text-2xl font-black text-white mb-4 drop-shadow-sm relative z-10">ดาวน์โหลด QR Code นักศึกษาทุกคน</h2>
-                        <p class="text-sm text-gray-400 mb-10 leading-relaxed max-w-md mx-auto relative z-10 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
-                            ระบบจะสร้างภาพ QR Code ของหน้าผลงานนักศึกษาทุกคน (57 คน) เป็นไฟล์นามสกุล PNG และบีบอัดรวมกันเป็นไฟล์ <span class="font-bold text-secondary">.zip</span> ให้ดาวน์โหลดในครั้งเดียว
+                        <p class="text-sm text-gray-400 mb-6 leading-relaxed max-w-md mx-auto relative z-10 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
+                            ระบบจะสร้างภาพ QR Code ของหน้าผลงานนักศึกษาทุกคน เป็นไฟล์ <span class="font-bold text-white">PNG</span> และบีบอัดรวมกันเป็นไฟล์ <span class="font-bold text-secondary">.zip</span> ให้ดาวน์โหลดในครั้งเดียว
                         </p>
                         
+                        <!-- ตั้งค่า QR Code -->
+                        <div class="relative z-10 mb-6 p-6 bg-black/40 border border-white/10 rounded-2xl text-left max-w-sm mx-auto shadow-inner flex flex-col gap-4">
+                            <h3 class="text-white font-bold text-sm border-b border-white/10 pb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-palette text-secondary"></i> ตั้งค่ารูปแบบ QR Code
+                            </h3>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="text-xs text-white font-bold block">สีคิวอาร์โค้ด (เส้น)</label>
+                                    <span class="text-[9px] text-gray-500">ค่าเริ่มต้น: สีดำ</span>
+                                </div>
+                                <input type="color" id="qrColorDark" value="#000000" class="w-10 h-10 rounded-xl cursor-pointer border-2 border-white/20 bg-transparent">
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="text-xs text-white font-bold block">พื้นหลังคิวอาร์โค้ด</label>
+                                    <span class="text-[9px] text-gray-500">ปิดเพื่อใช้พื้นหลังแบบใส (โปร่งใส)</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" id="qrHasBg" class="sr-only peer" checked onchange="document.getElementById('qrBgColorContainer').style.opacity = this.checked ? '1' : '0.3'; document.getElementById('qrColorLight').disabled = !this.checked;">
+                                    <div class="w-12 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between transition-opacity duration-300" id="qrBgColorContainer">
+                                <div>
+                                    <label class="text-xs text-white font-bold block">สีพื้นหลัง</label>
+                                    <span class="text-[9px] text-gray-500">ค่าเริ่มต้น: สีขาว</span>
+                                </div>
+                                <input type="color" id="qrColorLight" value="#ffffff" class="w-10 h-10 rounded-xl cursor-pointer border-2 border-white/20 bg-transparent">
+                            </div>
+                        </div>
+
                         <button id="btnGenerateAllQR" onclick="app.generateAllQRCodes()" class="relative z-10 bg-secondary hover:bg-yellow-500 text-black px-10 py-5 rounded-2xl text-sm font-black shadow-[0_0_30px_rgba(253,223,49,0.3)] transition-transform transform active:scale-95 hover:-translate-y-2 flex items-center justify-center gap-3 uppercase tracking-widest mx-auto w-full sm:w-auto">
                             <i class="fa-solid fa-cloud-arrow-down text-xl"></i> สร้างไฟล์ ZIP ตอนนี้
                         </button>
@@ -3654,6 +3720,36 @@
             },
 
             generateAllQRCodes: async function() {
+                const result = await app.swal.fire({
+                    title: 'เลือกรูปแบบการสร้าง QR Code',
+                    html: 'คุณต้องการสร้างคิวอาร์โค้ดแบบใด?',
+                    icon: 'question',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'สร้างทั้งหมด',
+                    denyButtonText: 'เฉพาะคนที่มีข้อมูล',
+                    cancelButtonText: 'ยกเลิก',
+                    customClass: {
+                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[90%] max-w-md',
+                        confirmButton: 'bg-blue-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-blue-500 transition-colors m-1 w-full sm:w-auto',
+                        denyButton: 'bg-green-600 text-white font-bold rounded-xl px-4 py-2 hover:bg-green-500 transition-colors m-1 w-full sm:w-auto',
+                        cancelButton: 'bg-gray-700 text-white font-bold rounded-xl px-4 py-2 hover:bg-gray-600 transition-colors m-1 w-full sm:w-auto'
+                    }
+                });
+
+                if (!result.isConfirmed && !result.isDenied) return;
+
+                let targetUsers = window.predefinedUsers;
+                if (result.isDenied) {
+                    targetUsers = window.predefinedUsers.filter(u => {
+                        const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
+                        return (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0) >= 2;
+                    });
+                    if (targetUsers.length === 0) {
+                        return app.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีคนที่มีข้อมูลสมบูรณ์', 'info');
+                    }
+                }
+
                 const btn = document.getElementById('btnGenerateAllQR');
                 const progressContainer = document.getElementById('qrProgressContainer');
                 const progressBar = document.getElementById('qrProgressBar');
@@ -3661,13 +3757,19 @@
                 const statusText = document.getElementById('qrStatusText');
                 const qrContainer = document.getElementById('qr-generator-container');
                 
+                // ดึงค่าการตั้งค่าสีจากหน้าต่าง
+                const colorDark = document.getElementById('qrColorDark')?.value || "#000000";
+                const hasBg = document.getElementById('qrHasBg')?.checked;
+                const colorLightInput = document.getElementById('qrColorLight')?.value || "#ffffff";
+                const colorLight = hasBg ? colorLightInput : "transparent"; // ถ้าปิดสวิตช์ จะเป็นพื้นหลังใส
+                
                 btn.disabled = true;
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
                 progressContainer.classList.remove('hidden');
                 qrContainer.innerHTML = ''; 
                 
                 const zip = new JSZip();
-                const total = window.predefinedUsers.length;
+                const total = targetUsers.length;
                 let current = 0;
                 
                 let basePath = window.location.href.split('?')[0].replace(/index\.html$/, '');
@@ -3678,24 +3780,28 @@
                         const tempDiv = document.createElement('div');
                         qrContainer.appendChild(tempDiv);
                         
-                        // ใช้ shortLink ถ้ามี ถ้าไม่มีใช้ Link เต็ม
-                        let link = user.shortLink ? user.shortLink : `${basePath}Exhibition/${user.studentId}.html`;
+                        // ใช้ shortLink ถ้ามี ถ้าไม่มีใช้ Link เต็ม พร้อมเช็ค https:// อัตโนมัติกันสแกนไม่ติด
+                        let link = user.shortLink ? user.shortLink.trim() : `${basePath}Exhibition/${user.studentId}.html`;
+                        if (!link.startsWith('http')) {
+                            link = 'https://' + link;
+                        }
                         
                         new QRCode(tempDiv, {
                             text: link,
-                            width: 1000, 
-                            height: 1000,
-                            colorDark : "#000000",
-                            colorLight : "#ffffff",
-                            correctLevel : QRCode.CorrectLevel.H
+                            width: 1200, 
+                            height: 1200,
+                            colorDark : colorDark,
+                            colorLight : colorLight,
+                            correctLevel : QRCode.CorrectLevel.L // L = มุมใหญ่และจุดใหญ่ สแกนง่ายแม้ปรับขนาดเล็ก
                         });
 
                         setTimeout(() => {
+                            const formattedId = String(user.id).padStart(2, '0');
                             const img = tempDiv.querySelector('img');
                             if (img && img.src) {
                                 const base64Data = img.src.split(',')[1];
                                 const cleanName = app.formatName(user.name).replace(/[^a-zA-Z0-9ก-ฮะ-๙\s]/g, '').trim();
-                                zip.file(`${user.studentId} - ${cleanName}.png`, base64Data, {base64: true});
+                                zip.file(`${formattedId} - ${user.studentId} - ${cleanName}.png`, base64Data, {base64: true});
                                 resolve();
                             } else {
                                 const canvas = tempDiv.querySelector('canvas');
@@ -3703,7 +3809,7 @@
                                     const dataUrl = canvas.toDataURL("image/png");
                                     const base64Data = dataUrl.split(',')[1];
                                     const cleanName = app.formatName(user.name).replace(/[^a-zA-Z0-9ก-ฮะ-๙\s]/g, '').trim();
-                                    zip.file(`${user.studentId} - ${cleanName}.png`, base64Data, {base64: true});
+                                    zip.file(`${formattedId} - ${user.studentId} - ${cleanName}.png`, base64Data, {base64: true});
                                 }
                                 resolve();
                             }
@@ -3711,7 +3817,7 @@
                     });
                 };
 
-                for (const user of window.predefinedUsers) {
+                for (const user of targetUsers) {
                     await generateQR(user);
                     current++;
                     const percent = Math.round((current / total) * 100);
@@ -3751,7 +3857,7 @@
                 if(!site) return `<div class="text-center py-20 text-red-500 font-bold bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md mx-auto shadow-lg"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>ไม่พบข้อมูลเว็บฝังนี้</div>`;
 
                 return `
-                <div class="animate-fade-in w-full h-[calc(100vh-100px)] flex flex-col p-2 sm:p-0">
+                <div class="animate-fade-in w-full h-[calc(100vh-100px)] flex flex-col p-2 sm:p-0 max-w-4xl mx-auto w-full min-w-0">
                     <div class="flex items-center gap-4 bg-black/60 backdrop-blur-xl px-5 py-3 sm:py-4 rounded-t-3xl border border-white/10 shadow-md">
                         <div class="w-10 h-10 bg-secondary/20 text-secondary rounded-full flex items-center justify-center text-lg border border-secondary/30 shrink-0"><i class="fa-solid fa-link"></i></div>
                         <div class="min-w-0 flex-1">
