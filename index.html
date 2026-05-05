@@ -350,6 +350,10 @@
                         <i class="fa-solid fa-house w-5 text-center text-secondary"></i> หน้าหลัก (รวมผลงาน)
                     </button>
 
+                    <button id="publicAdminUsersBtn" onclick="app.showView('admin_users')" class="hidden items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white border border-secondary/30 bg-secondary/10 mt-1 mb-1">
+                        <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
+                    </button>
+
                     <!-- Advisors Accordion -->
                     <button onclick="app.toggleMenuAccordion('advisorAccordion')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white justify-between">
                         <div class="flex items-center gap-3"><i class="fa-solid fa-chalkboard-user w-5 text-center text-secondary"></i> หมวดหมู่อาจารย์ที่ปรึกษา</div>
@@ -478,6 +482,7 @@
                 isSharingOpen: true,
                 allowEdit: true,
                 isHomeMenuForStudentOpen: true, // เพิ่มค่าเริ่มต้นให้แสดงเมนูหน้าหลักสำหรับนักศึกษา
+                isAdminUsersPublic: false, // เพิ่มค่าเริ่มต้นสำหรับเปิดหน้าจัดการสมาชิกเป็นสาธารณะ
                 sessionDurationHours: 2, // ระยะเวลาเซสชันเริ่มต้น (ชั่วโมง)
                 sessionApplyGuest: true, // เปิดใช้งานกับ Guest หรือไม่
                 sessionApplyStudent: false, // เปิดใช้งานกับ Student หรือไม่
@@ -700,6 +705,7 @@
                         if(data.sessionApplyGuest === undefined) data.sessionApplyGuest = true;
                         if(data.sessionApplyStudent === undefined) data.sessionApplyStudent = false;
                         if(data.sessionApplyAdmin === undefined) data.sessionApplyAdmin = false;
+                        if(data.isAdminUsersPublic === undefined) data.isAdminUsersPublic = false;
                         
                         const oldBoxesStr = JSON.stringify(app.settings.customBoxes);
                         app.settings = { ...app.settings, ...data };
@@ -1035,6 +1041,17 @@
                 const menuLogoutBtn = document.getElementById('menuLogoutBtn');
                 
                 if (!hamBtn) return;
+
+                const publicAdminUsersBtn = document.getElementById('publicAdminUsersBtn');
+                if (publicAdminUsersBtn) {
+                    if (app.settings.isAdminUsersPublic) {
+                        publicAdminUsersBtn.classList.remove('hidden');
+                        publicAdminUsersBtn.classList.add('flex');
+                    } else {
+                        publicAdminUsersBtn.classList.add('hidden');
+                        publicAdminUsersBtn.classList.remove('flex');
+                    }
+                }
 
                 // --- ซ่อนปุ่ม Header อัตโนมัติเมื่ออยู่หน้า Loading / Login / OTP / Guest Register ---
                 if (['loading', 'login', 'otp', 'guest_register'].includes(app.view)) {
@@ -1561,6 +1578,14 @@
 
             // ================== VIEWS ==================
             showView: function(viewName, param = null, isBack = false) {
+                if (viewName === 'admin_users') {
+                    const isAdmin = app.profile && app.profile.role === 'admin';
+                    if (!isAdmin && !app.settings.isAdminUsersPublic) {
+                        app.swal.fire('ไม่มีสิทธิ์', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'error');
+                        return app.goHome();
+                    }
+                }
+
                 if (!app.historyStack) app.historyStack = [];
                 if (!isBack && app.view && app.view !== 'loading' && app.view !== viewName) {
                     app.historyStack.push({ view: app.view, param: app.currentParam });
@@ -2915,6 +2940,17 @@
                             </label>
                         </div>
 
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div>
+                                <p class="font-bold text-white text-sm text-secondary">เปิดหน้าจัดการสมาชิกเป็นสาธารณะ</p>
+                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากเปิด ผู้เยี่ยมชมทั่วไปจะสามารถเข้าถึงเมนู "จัดการข้อมูลสมาชิก" เพื่อแก้ไขข้อมูล/โหลด QR Code ได้โดยไม่ต้องล็อกอิน</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" ${app.settings.isAdminUsersPublic ? 'checked' : ''} onchange="app.updateSetting('isAdminUsersPublic', this.checked)" class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                        </div>
+
                         <div class="p-8 bg-black/40 rounded-2xl border border-white/10 text-center shadow-inner mt-4">
                             <i class="fa-solid fa-envelope-circle-check text-5xl text-blue-400 mb-4 opacity-80 drop-shadow-md"></i>
                             <p class="text-white font-bold text-sm mb-5">เช็คโควต้าอีเมลสำหรับส่ง OTP (ต่อวัน)</p>
@@ -3092,6 +3128,17 @@
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
             },
 
+            // เพิ่มฟังก์ชันตัวช่วยสำหรับดึงลิงก์ผลงาน/ลิงก์ย่อ
+            getStudentLink: function(studentId) {
+                const user = window.predefinedUsers.find(u => u.studentId === studentId);
+                if (!user) return '#';
+                let basePath = window.location.href.split('?')[0].replace(/index\.html$/, '');
+                if (!basePath.endsWith('/')) basePath += '/';
+                let link = user.shortLink ? user.shortLink.trim() : `${basePath}Exhibition/${user.studentId}.html`;
+                if (user.shortLink && !link.startsWith('http')) link = 'https://' + link;
+                return link;
+            },
+
             renderAdminUsers: function() {
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
@@ -3243,7 +3290,7 @@
                                         <th class="p-4 text-center">รีเซ็ตวิว</th>
                                         <th class="p-4 text-center">สถานะ</th>
                                         <th class="p-4 text-center">จัดการ</th>
-                                        <th class="p-4 text-center rounded-tr-xl">ดูผลงาน</th>
+                                        <th class="p-4 text-center rounded-tr-xl">พรีวิวลิงก์</th>
                                     </tr>
                                 </thead><tbody class="divide-y divide-white/5">`;
 
@@ -3254,6 +3301,20 @@
 
                                 const cleanName = app.formatName(u.name);
                                 const abbr = app.getAbbr(cleanName);
+
+                                // เช็คว่ามีข้อมูลกล่องข้อความหรือลิงก์ย่อหรือไม่ เพื่อแสดงจุดสีเหลือง
+                                const sData = app.studentEdits[u.studentId] || {};
+                                let hasCustomData = false;
+                                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
+                                for (let b of activeBoxes) {
+                                    if (sData[b.id] && sData[b.id].trim() !== '') {
+                                        hasCustomData = true; break;
+                                    }
+                                }
+                                if (!hasCustomData && sData.text && sData.text.trim() !== '') hasCustomData = true;
+                                if (!hasCustomData && u.shortLink && u.shortLink.trim() !== '') hasCustomData = true;
+
+                                const dotHtml = hasCustomData ? `<span class="absolute -top-1.5 -right-1.5 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span></span>` : '';
 
                                 const statusHtml = isComplete ? 
                                     '<span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30 text-[10px] md:text-xs"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
@@ -3288,11 +3349,11 @@
                                         <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 min-w-[45%] py-3.5 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-rotate-left"></i> ล้างวิว
                                         </button>
-                                        <button onclick="app.manageUserData('${u.studentId}')" class="flex-1 min-w-[45%] py-3.5 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
-                                            <i class="fa-solid fa-pen-to-square"></i> จัดการ
+                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative flex-1 min-w-[45%] py-3.5 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-pen-to-square"></i> จัดการ ${dotHtml}
                                         </button>
-                                        <button onclick="app.openExhibit('${u.studentId}', false)" class="w-full py-3.5 bg-secondary text-primary rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 mt-1">
-                                            <i class="fa-solid fa-eye"></i> ดูผลงาน
+                                        <button onclick="window.open(app.getStudentLink('${u.studentId}'), '_blank')" class="w-full py-3.5 bg-secondary text-primary rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 mt-1">
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i> พรีวิวลิงก์จริง
                                         </button>
                                     </div>
                                 </div>`;
@@ -3328,13 +3389,13 @@
                                         ${statusHtml}
                                     </td>
                                     <td class="p-4 text-center">
-                                        <button onclick="app.manageUserData('${u.studentId}')" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
-                                            จัดการข้อมูล
+                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
+                                            จัดการข้อมูล ${dotHtml}
                                         </button>
                                     </td>
                                     <td class="p-4 text-center">
-                                        <button onclick="app.openExhibit('${u.studentId}', false)" class="bg-secondary hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-secondary/20 shadow-md">
-                                            <i class="fa-solid fa-eye"></i>
+                                        <button onclick="window.open(app.getStudentLink('${u.studentId}'), '_blank')" class="bg-secondary hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-secondary/20 shadow-md" title="เปิดลิงก์ผลงานในแท็บใหม่">
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                         </button>
                                     </td>
                                 </tr>`;
@@ -3374,6 +3435,16 @@
                     <p class="text-[9px] text-gray-500 mt-1 text-left">ใช้แทนลิงก์ยาวเวลาสร้าง QR Code หรือกดแชร์</p>
                 </div>
                 `;
+
+                // ดึงลิงก์พรีวิวผ่านฟังก์ชัน
+                let previewLink = app.getStudentLink(u.studentId);
+                
+                fieldsHtml += `
+                <div class="mt-4 pt-4 border-t border-white/10 flex justify-center">
+                    <a href="${previewLink}" target="_blank" class="bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/30 px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> พรีวิวหน้าผลงาน
+                    </a>
+                </div>`;
 
                 const { isConfirmed } = await app.swal.fire({
                     title: `จัดการข้อมูล: ${u.studentId}`,
