@@ -481,15 +481,24 @@
                 isPublicGuestOpen: true,
                 isSharingOpen: true,
                 allowEdit: true,
-                isHomeMenuForStudentOpen: true, // เพิ่มค่าเริ่มต้นให้แสดงเมนูหน้าหลักสำหรับนักศึกษา
-                isAdminUsersPublic: false, // เพิ่มค่าเริ่มต้นสำหรับเปิดหน้าจัดการสมาชิกเป็นสาธารณะ
-                sessionDurationHours: 2, // ระยะเวลาเซสชันเริ่มต้น (ชั่วโมง)
-                sessionApplyGuest: true, // เปิดใช้งานกับ Guest หรือไม่
-                sessionApplyStudent: false, // เปิดใช้งานกับ Student หรือไม่
-                sessionApplyAdmin: false, // เปิดใช้งานกับ Admin หรือไม่
+                isHomeMenuForStudentOpen: true, 
+                isAdminUsersPublic: false, 
+                sessionDurationHours: 2, 
+                sessionApplyGuest: true, 
+                sessionApplyStudent: false, 
+                sessionApplyAdmin: false, 
                 embeddedSites: [], 
-                customBoxes: []
+                customBoxes: [],
+                adminMarkers: {} 
             },
+            markerColors: [
+                { id: 'red', class: 'bg-red-500', border: 'border-red-500/50' },
+                { id: 'green', class: 'bg-green-500', border: 'border-green-500/50' },
+                { id: 'blue', class: 'bg-blue-500', border: 'border-blue-500/50' },
+                { id: 'yellow', class: 'bg-yellow-500', border: 'border-yellow-500/50' },
+                { id: 'purple', class: 'bg-purple-500', border: 'border-purple-500/50' },
+                { id: 'orange', class: 'bg-orange-500', border: 'border-orange-500/50' }
+            ],
             thesisData: [], 
             studentEdits: {}, 
             visitLogs: {}, 
@@ -497,7 +506,7 @@
             adminUserSearchQuery: '',
             historyStack: [],
             guestTimeoutId: null,
-            sessionTimeoutId: null, // เพิ่มตัวแปรสำหรับจัดการเซสชันรวม
+            sessionTimeoutId: null, 
             
             tempId: '',
             serverOtp: '',
@@ -521,11 +530,9 @@
                 buttonsStyling: false
             }),
 
-            // --- หัวใจสำคัญ SEO: อัปเดต Canonical เพื่อแก้ปัญหา "รูปแบบบัญญัติ" ---
             updateSEO: function(viewName, param) {
                 let canonical = "https://iearchitecture65.github.io/MORANASATECT/";
                 if (viewName === 'public_exhibit' && param) {
-                    // ให้ Canonical ชี้ไปที่ไฟล์ในโฟลเดอร์ Exhibition ตรงๆ
                     canonical += "Exhibition/" + param + ".html";
                 }
                 
@@ -535,9 +542,7 @@
                 if(!cLink.parentElement) document.head.appendChild(cLink);
             },
 
-            // --- ฟังก์ชันสำหรับตรวจสอบและตั้งเวลาเซสชัน (Dynamic Session Timeout) ---
             setupSessionTimeout: function() {
-                // ล้าง Timeout เดิมออกก่อน (ถ้ามี)
                 if (app.guestTimeoutId) {
                     clearTimeout(app.guestTimeoutId);
                     app.guestTimeoutId = null;
@@ -550,7 +555,6 @@
                 if (!app.profile || !app.profile.loginTime) return;
 
                 let applySession = false;
-                // ตรวจสอบจากตั้งค่า ว่ากลุ่มผู้ใช้งานปัจจุบันตรงกับเงื่อนไขที่ให้เปิดใช้เซสชันหรือไม่
                 if (app.profile.role === 'guest' && app.settings.sessionApplyGuest !== false) applySession = true;
                 if (app.profile.role === 'student' && app.settings.sessionApplyStudent === true) applySession = true;
                 if (app.profile.role === 'admin' && app.settings.sessionApplyAdmin === true) applySession = true;
@@ -561,7 +565,6 @@
                     const timeLeft = durationMs - (Date.now() - app.profile.loginTime);
 
                     if (timeLeft <= 0) {
-                        // หากเวลาหมดไปแล้ว ให้เคลียร์ข้อมูลและบังคับล็อกเอาต์
                         localStorage.removeItem('moranasatect_profile');
                         app.profile = null;
                         app.swal.fire('หมดเวลาเข้าใช้งาน', 'เซสชันของคุณหมดอายุ กรุณาเข้าสู่ระบบใหม่ครับ', 'info').then(() => {
@@ -569,7 +572,6 @@
                             window.location.reload();
                         });
                     } else {
-                        // ตั้งเวลาให้ล็อกเอาต์ตามระยะเวลาที่เหลือ
                         app.sessionTimeoutId = setTimeout(() => {
                             app.swal.fire('หมดเวลาเข้าใช้งาน', 'เซสชันของคุณหมดอายุ กรุณาเข้าสู่ระบบใหม่ครับ', 'info').then(() => {
                                 app.logout();
@@ -584,13 +586,12 @@
                 const root = document.getElementById('appRoot');
                 if(root) root.innerHTML = app.renderLoading();
 
-                // ฟังก์ชันบังคับโหลดรูปภาพที่สำคัญล่วงหน้า พร้อมตั้งเวลาจำกัดไม่ให้รอนานเกิน 2 วินาที
                 const preloadImportantImages = () => {
                     const images = ['./LOGO MORANASATECT.png', './LOGO 01.png', './LOGO 02.png', './LOGO 03.png', './adviser.png', './student.png'];
                     const promises = images.map(src => new Promise(resolve => {
                         const img = new Image();
                         img.onload = resolve;
-                        img.onerror = resolve; // หากโหลดพังก็ให้ข้ามไปเลยเพื่อไม่ให้ระบบค้าง
+                        img.onerror = resolve; 
                         img.src = src;
                     }));
                     const timeout = new Promise(resolve => setTimeout(resolve, 2000));
@@ -610,7 +611,6 @@
                         }
                     };
                     
-                    // สั่งล็อกอินและโหลดรูปภาพไปพร้อมๆ กันก่อนเข้าหน้าเว็บหลัก
                     await Promise.all([initAuth(), preloadImportantImages()]);
                     
                     onAuthStateChanged(auth, async (user) => {
@@ -630,10 +630,7 @@
                                 try {
                                     const parsed = JSON.parse(savedProfile);
                                     app.profile = parsed;
-                                    // เผื่อผู้ใช้ล็อกอินค้างไว้ตั้งแต่ก่อนมีระบบ sessionTimeout ให้เพิ่ม loginTime ปัจจุบันเข้าไป
                                     if (!app.profile.loginTime) app.profile.loginTime = Date.now();
-                                    
-                                    // เรียกใช้ฟังก์ชันตรวจสอบเวลาเซสชัน (โดยใช้ค่าเริ่มต้นก่อน และจะถูกอัปเดตอัตโนมัติเมื่อดึง settings จาก Firebase เสร็จ)
                                     app.setupSessionTimeout();
                                 } catch(e) { app.profile = null; }
                             }
@@ -673,7 +670,6 @@
                             } else if (app.profile) {
                                 app.routeBasedOnRole();
                             } else {
-                                // เปลี่ยนแปลง: ถ้าไม่มี Profile (คือผู้ใช้ใหม่/คนนอก) ให้เข้าหน้า home โดยตรง
                                 app.showView('home');
                             }
                         }
@@ -698,21 +694,20 @@
                             data.isSharingOpen = data.isSystemOpen !== false;
                         }
                         if(data.isHomeMenuForStudentOpen === undefined) {
-                            data.isHomeMenuForStudentOpen = true; // ค่าเริ่มต้น
+                            data.isHomeMenuForStudentOpen = true;
                         }
-                        // ค่าเริ่มต้นสำหรับระบบ Session Timeout เผื่อยังไม่มีข้อมูลในระบบ
                         if(data.sessionDurationHours === undefined) data.sessionDurationHours = 2;
                         if(data.sessionApplyGuest === undefined) data.sessionApplyGuest = true;
                         if(data.sessionApplyStudent === undefined) data.sessionApplyStudent = false;
                         if(data.sessionApplyAdmin === undefined) data.sessionApplyAdmin = false;
                         if(data.isAdminUsersPublic === undefined) data.isAdminUsersPublic = false;
+                        if(data.adminMarkers === undefined) data.adminMarkers = {};
                         
                         const oldBoxesStr = JSON.stringify(app.settings.customBoxes);
                         app.settings = { ...app.settings, ...data };
                         const newBoxesStr = JSON.stringify(app.settings.customBoxes);
                         
                         app.updateMenuVisibility();
-                        // อัปเดตและเช็คเวลาเซสชันใหม่เมื่อได้รับค่า Setting จากระบบส่วนกลาง
                         app.setupSessionTimeout();
                         
                         if (app.view === 'login' || app.view === 'guest_register' || app.view === 'home') {
@@ -735,6 +730,8 @@
                     } else if (app.view === 'student_dash') {
                         if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
                         app.refreshCurrentView();
+                    } else if (app.view === 'admin_users') {
+                        app.renderAdminUsersListOnly();
                     }
                 });
 
@@ -818,7 +815,6 @@
                             return obj;
                         }).filter(r => r.studentId);
 
-                        // เรียกอัปเดตเมนูอีกครั้งหลังจากได้ข้อมูล Categories และ Advisors
                         app.updateMenuVisibility();
                     }
                 } catch (e) {
@@ -846,11 +842,9 @@
             },
 
             getCategories: function() {
-                // ดึงหมวดหมู่ที่ไม่ซ้ำจากข้อมูล
                 const cats = new Set();
                 app.thesisData.forEach(d => {
                     if (d.category) {
-                        // ตัดช่องว่างและตัวอักษรพิเศษที่ไม่จำเป็น
                         cats.add(d.category.trim());
                     }
                 });
@@ -858,7 +852,6 @@
             },
 
             formatCategoryMenu: function(rawCat) {
-                // จัดรูปแบบ "1. Urban architecture (สถาปัตยกรรมผังเมือง)"
                 let clean = rawCat.replace(/^\d+\.\s*/, '').trim();
                 let eng = clean;
                 let thai = "";
@@ -884,11 +877,7 @@
 
             logVisit: async function(studentId, isFromDashboardMenu = false) {
                 if(!app.user || !app.profile) return;
-                
-                // 1. Admin ไม่บันทึกการเข้าชม
                 if (app.profile.role === 'admin') return;
-                
-                // 2. นักศึกษาดูผลงานตัวเองจากปุ่มใน Dashboard หรือ เมนู ไม่บันทึก
                 if (app.profile.role === 'student' && app.profile.uid === studentId && isFromDashboardMenu) {
                     return;
                 }
@@ -1053,16 +1042,14 @@
                     }
                 }
 
-                // --- ซ่อนปุ่ม Header อัตโนมัติเมื่ออยู่หน้า Loading / Login / OTP / Guest Register ---
                 if (['loading', 'login', 'otp', 'guest_register'].includes(app.view)) {
                     if (loginBtn) loginBtn.classList.add('hidden');
                     if (hamBtn) hamBtn.classList.add('hidden');
                     if (guestLogoutBtn) guestLogoutBtn.classList.add('hidden');
-                    app.closeMenu(); // ปิดเมนูทุกครั้ง
+                    app.closeMenu(); 
                     return; 
                 }
 
-                // สร้างเมนู Advisors
                 const advContainer = document.getElementById('advisorAccordion');
                 if (advContainer) {
                     advContainer.innerHTML = window.advisorsData.map(a => `
@@ -1072,7 +1059,6 @@
                     `).join('');
                 }
 
-                // สร้างเมนู Categories
                 const catContainer = document.getElementById('categoryAccordion');
                 if (catContainer && app.thesisData.length > 0) {
                     const categories = app.getCategories();
@@ -1085,7 +1071,6 @@
                 }
 
                 if (app.profile) {
-                    // หาก Login แล้ว ซ่อนปุ่ม Login ใหญ่
                     if (loginBtn) loginBtn.classList.add('hidden');
                     if (hamBtn) hamBtn.classList.remove('hidden');
 
@@ -1096,11 +1081,9 @@
                         if (logoutDivider) logoutDivider.classList.remove('hidden');
                         if (menuLogoutBtn) menuLogoutBtn.classList.remove('hidden');
                     } else {
-                        // แอดมิน หรือ นักศึกษา
                         if (secAdmin) secAdmin.classList.toggle('hidden', app.profile.role !== 'admin');
                         if (secStudent) secStudent.classList.toggle('hidden', app.profile.role !== 'student');
                         
-                        // การแสดง Public Menu สำหรับนักศึกษา ขึ้นอยู่กับการตั้งค่าของแอดมิน
                         if (secPublic) {
                             if (app.profile.role === 'admin') {
                                 secPublic.classList.remove('hidden');
@@ -1113,26 +1096,23 @@
                         if (menuLogoutBtn) menuLogoutBtn.classList.remove('hidden');
                     }
                 } else {
-                    // หากยังไม่ได้ Login (คนนอก)
                     if (loginBtn) loginBtn.classList.remove('hidden');
-                    if (hamBtn) hamBtn.classList.remove('hidden'); // แสดงแฮมเบอร์เกอร์ให้เห็น Public Menu
+                    if (hamBtn) hamBtn.classList.remove('hidden'); 
                     
                     if (secAdmin) secAdmin.classList.add('hidden');
                     if (secStudent) secStudent.classList.add('hidden');
-                    if (secPublic) secPublic.classList.remove('hidden'); // แสดงเมนูรวมผลงาน
+                    if (secPublic) secPublic.classList.remove('hidden'); 
                     
                     if (logoutDivider) logoutDivider.classList.add('hidden');
                     if (menuLogoutBtn) menuLogoutBtn.classList.add('hidden');
                 }
 
-                // เมนู iframe สำหรับทุกคนที่เห็นเมนูได้
                 if (iframeContainer) {
                     iframeContainer.innerHTML = '';
                     const sites = app.settings.embeddedSites || [];
                     let iframeCount = 0;
                     sites.forEach((site, idx) => {
                         let canSee = false;
-                        // ให้เห็นได้เฉพาะ Admin หรือ Student เท่านั้น
                         if (app.profile) {
                             if (app.profile.role === 'admin') canSee = true;
                             else if (app.profile.role === 'student') canSee = site.showToStudents;
@@ -1210,7 +1190,6 @@
                 const data = app.thesisData.find(d => d.studentId === studentId) || {};
                 let link = "";
                 
-                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ พร้อมเช็ค http://
                 if (user && user.shortLink) {
                     link = user.shortLink.trim();
                     if (!link.startsWith('http')) link = 'https://' + link;
@@ -1220,7 +1199,6 @@
                     link = `${basePath}Exhibition/${studentId}.html`;
                 }
                 
-                // จัดเตรียมข้อความสำหรับแชร์
                 let rawTitle = data.title || (user ? user.thesisTitle : 'ไม่มีชื่อโครงการ');
                 let thaiTitle = rawTitle.split('\n')[0];
                 const bracketMatch = thaiTitle.match(/^(.*?)(\([^)]+\))$/);
@@ -1267,7 +1245,7 @@
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
-                    showFallbackCopy(); // บังคับให้ PC เด้งหน้าจอ Copy ข้อความเสมอ
+                    showFallbackCopy(); 
                 }
             },
 
@@ -1284,7 +1262,6 @@
                 const advisor = window.advisorsData.find(a => a.id == advisorId);
                 let link = "";
                 
-                // ตรวจสอบว่าในระบบตั้งค่าลิงก์ย่อไว้หรือไม่ ถ้ามีให้ใช้ลิงก์ย่อ พร้อมเช็ค http://
                 if (advisor && advisor.shortLink) {
                     link = advisor.shortLink.trim();
                     if (!link.startsWith('http')) link = 'https://' + link;
@@ -1325,7 +1302,7 @@
                         if (e.name !== 'AbortError') showFallbackCopy();
                     }
                 } else {
-                    showFallbackCopy(); // บังคับให้ PC เด้งหน้าจอ Copy ข้อความเสมอ
+                    showFallbackCopy(); 
                 }
             },
 
@@ -1597,7 +1574,6 @@
                 app.updateSEO(viewName, param);
                 app.closeMenu();
                 
-                // ปรับเปลี่ยน URL ให้ตรงกับหน้าที่แสดงอยู่ เพื่อให้สามารถแชร์ลิงก์ได้
                 let newUrl = window.location.pathname;
                 if (viewName === 'login') newUrl += '?login=student';
                 else if (viewName === 'guest_register') newUrl += '?login=guest';
@@ -1606,13 +1582,11 @@
                 else if (viewName === 'iframe_view' && param !== null) newUrl += '?iframe=' + param;
                 try { window.history.replaceState(null, '', newUrl); } catch(e){}
 
-                // อัปเดตการแสดงผลเมนูด้านบนทุกครั้งที่เปลี่ยนหน้า
                 app.updateMenuVisibility();
                 
                 const root = document.getElementById('appRoot');
                 window.scrollTo(0,0);
 
-                // Update Dynamic Page Title
                 let newDocTitle = "MORANASATECT - Thesis Exhibition 2025 | Kharuthapat KMITL";
                 if (viewName === 'public_exhibit') {
                     const user = window.predefinedUsers.find(u => u.studentId === param);
@@ -1635,7 +1609,7 @@
                 document.title = newDocTitle;
 
                 if (viewName === 'loading') root.innerHTML = app.renderLoading();
-                else if (viewName === 'home') root.innerHTML = app.renderHome(param); // เพิ่มหน้า home ใหม่
+                else if (viewName === 'home') root.innerHTML = app.renderHome(param);
                 else if (viewName === 'login') root.innerHTML = app.renderLogin();
                 else if (viewName === 'otp') root.innerHTML = app.renderOTP();
                 else if (viewName === 'guest_register') root.innerHTML = app.renderGuestRegister();
@@ -1677,7 +1651,6 @@
             },
 
             renderHome: function(filterParam = null) {
-                // 1. กรองเอาเฉพาะคนที่มีข้อมูลครบ (มี 2 ใน 3 อย่าง: ชื่อเรื่อง, รูปปก, วิดีโอ)
                 let completedUsers = window.predefinedUsers.filter(u => {
                     const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
                     const completeness = (data.title ? 1 : 0) + (data.coverImg ? 1 : 0) + (data.videoUrl ? 1 : 0);
@@ -1734,7 +1707,6 @@
                 const listHtml = displayUsers.map(u => {
                     const cleanName = app.formatName(u.name);
                     const abbr = app.getAbbr(cleanName);
-                    // ดึงชื่อผลงานจาก Sheet เป็นหลัก ถ้าไม่มีค่อยใช้จากที่ตั้งค่าไว้ (ใส่ true เพื่อบอกว่าเป็นรูปแบบการ์ด)
                     const data = app.thesisData.find(d => d.studentId === u.studentId) || {};
                     const displayTitle = app.formatThesisTitle(data.title || u.thesisTitle, true);
 
@@ -1775,24 +1747,20 @@
 
                 return `
                 <div class="animate-fade-in w-full max-w-7xl mx-auto pb-12 sm:px-4">
-                    <!-- Modern Minimal Hero Section -->
                     <div class="relative w-full flex flex-col items-center justify-center text-center py-8 md:py-12 mb-6 overflow-hidden">
                         
                         ${!filterParam ? `
                         <div class="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-8 px-4">
-                            <!-- ด้านซ้าย: รูป 01 และ 02 เล็กลงอีกในจอคอม -->
                             <div class="flex flex-col items-center justify-center w-full md:w-[40%] gap-4 md:gap-5">
                                 <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[65vw] md:w-[30vw] max-w-[280px] h-auto object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
                                 <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[75%] sm:w-[60%] md:w-[45%] max-w-[170px] object-contain animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
                             </div>
                             
-                            <!-- ด้านขวา: รูป 03 ใหญ่ขึ้นในจอคอม (ซ่อนในมือถือ) -->
                             <div class="hidden md:flex flex-col items-center justify-center w-full md:w-[60%] animate-slide-up" style="animation-delay: 0.2s">
                                 <img src="./LOGO 03.png" alt="LOGO 03" class="w-[90%] md:w-[105%] max-w-[750px] object-contain drop-shadow-xl" onerror="this.style.display='none'">
                             </div>
                         </div>
 
-                        <!-- รูปแบนเนอร์อาจารย์ที่ปรึกษา -->
                         <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-4 mt-4 mx-auto flex justify-center" style="animation-delay: 0.12s">
                             <img src="./adviser.png" alt="Advisors" 
                                  onclick="if(!app.isMenuOpen) app.toggleMenu(); const adv = document.getElementById('advisorAccordion'); if(adv && adv.classList.contains('hidden')) app.toggleMenuAccordion('advisorAccordion'); window.scrollTo({top: 0, behavior: 'smooth'});"
@@ -1800,7 +1768,6 @@
                                  onerror="this.style.display='none'">
                         </div>
 
-                        <!-- รูปแบนเนอร์นักศึกษา -->
                         <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-6 mx-auto flex justify-center" style="animation-delay: 0.13s">
                             <img src="./student.png" alt="Students" 
                                  onclick="const target = document.getElementById('studentGridTarget'); if(target) { const headerOffset = 80; const elementPosition = target.getBoundingClientRect().top; const offsetPosition = elementPosition + window.pageYOffset - headerOffset; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }"
@@ -1814,7 +1781,6 @@
                         </h1>
                         `}
 
-                        <!-- เส้นขาวบางๆ ติดกับข้อความรวมผลงาน -->
                         <div class="w-16 sm:w-24 h-px bg-white/40 relative z-10 animate-slide-up mb-2 mx-auto" style="animation-delay: 0.15s"></div>
 
                         <div id="studentGridTarget" class="relative z-10 flex flex-row items-center justify-center gap-2 animate-slide-up px-6 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full shadow-lg" style="animation-delay: 0.2s">
@@ -1833,7 +1799,6 @@
                         ` : ''}
                     </div>
 
-                    <!-- Bento Grid Section -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 sm:px-0">
                         ${listHtml}
                     </div>
@@ -1903,7 +1868,7 @@
                     localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                     app.logSystemAccess('admin', pass);
                     app.updateMenuVisibility();
-                    app.setupSessionTimeout(); // บังคับตั้งเวลาเซสชันใหม่
+                    app.setupSessionTimeout(); 
                     app.routeBasedOnRole();
                 } else if (pass) {
                     app.swal.fire('ผิดพลาด', 'รหัสผ่านไม่ถูกต้อง', 'error');
@@ -2013,7 +1978,7 @@
                     localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
                     app.logSystemAccess('student', student.studentId);
                     app.updateMenuVisibility();
-                    app.setupSessionTimeout(); // บังคับตั้งเวลาเซสชันใหม่
+                    app.setupSessionTimeout(); 
                     app.swal.fire({ 
                         iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', 
                         title: 'เข้าสู่ระบบสำเร็จ', 
@@ -2117,8 +2082,6 @@
                 
                 app.logSystemAccess('guest', finalName);
                 app.updateMenuVisibility();
-
-                // ปรับเปลี่ยนให้ใช้ระบบการตั้งเวลาเซสชัน (Dynamic Session Timeout)
                 app.setupSessionTimeout();
                 
                 if (app.pendingExhibitId) {
@@ -2157,24 +2120,18 @@
                 app.swal.fire({
                     html: `
                         <div class="flex flex-col items-center justify-center w-full gap-4">
-                            <!-- คำแนะนำด้านบน -->
                             <div class="bg-black/60 text-secondary border border-secondary/30 px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold tracking-wide shadow-lg backdrop-blur-md shrink-0">
                                 <i class="fa-solid fa-circle-exclamation mr-1"></i> หากวิดีโอตกขอบหรือไม่แสดงผล ให้ปิดหน้าต่างแล้วเปิดใหม่
                             </div>
 
-                            <!-- กรอบวิดีโอ -->
                             <div class="w-full relative bg-black rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 border border-secondary/30" style="aspect-ratio: 16/9; max-height: 75vh;">
-                                
-                                <!-- Loading State -->
                                 <div id="${iframeId}-loader" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/95 backdrop-blur-sm transition-opacity duration-500">
                                     <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-4 text-secondary"></i>
                                     <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest animate-pulse">กำลังเตรียมวิดีโอ...</span>
                                 </div>
-                                
                                 <iframe id="${iframeId}" class="absolute top-0 left-0 w-full h-full border-0 z-10 opacity-0 transition-opacity duration-700" allow="autoplay; fullscreen" allowfullscreen></iframe>
                             </div>
                             
-                            <!-- ปุ่มปิดด้านล่าง -->
                             <button onclick="Swal.close()" class="flex items-center justify-center gap-2 px-8 py-3 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white rounded-full transition-all cursor-pointer pointer-events-auto border border-red-500/30 shadow-lg backdrop-blur-md active:scale-95 shrink-0 mt-2">
                                 <i class="fa-solid fa-xmark text-lg"></i> <span class="font-bold text-xs sm:text-sm tracking-widest uppercase">ปิดหน้าต่าง</span>
                             </button>
@@ -2196,16 +2153,13 @@
                         let loadCount = 0;
                         const totalLoads = 2;
                         
-                        // จัดการการโหลดเบื้องหลัง 2 รอบ
                         iframe.onload = () => {
                             loadCount++;
                             if (loadCount < totalLoads) {
-                                // โหลดซ้ำรอบแรก รอ 1.5 วินาที
                                 setTimeout(() => {
                                     iframe.src = displayUrl;
                                 }, 1500);
                             } else if (loadCount === totalLoads) {
-                                // รอบสุดท้าย: โหลดเสร็จสมบูรณ์ ปิดตัวโหลดและเฟดวิดีโอขึ้นมา
                                 setTimeout(() => {
                                     loader.style.opacity = '0';
                                     setTimeout(() => loader.style.display = 'none', 500);
@@ -2213,8 +2167,6 @@
                                 }, 500);
                             }
                         };
-                        
-                        // เริ่มต้นโหลดรอบแรก
                         iframe.src = displayUrl;
                     }
                 });
@@ -2342,7 +2294,6 @@
                 const isAdmin = app.profile && app.profile.role === 'admin';
                 const isOwner = app.profile && app.profile.role === 'student' && app.profile.uid === studentId;
 
-                // หากระบบปิด และไม่ใช่แอดมินหรือเจ้าของผลงาน
                 if (!isPublicGuestOpen && !isAdmin && !isOwner) {
                     if (app.profile && app.profile.role === 'student') {
                         return `
@@ -2399,7 +2350,6 @@
                         if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
                         
                         if (val) {
-                            // ทำให้คำว่า "สติ" เป็นตัวหนาพิเศษและขนาดเดิม เพิ่ม mx-0.5 เพื่อเว้นระยะซ้ายขวาเล็กน้อย ส่วนข้อความอื่นเล็กลง 75% และบางลง
                             let formattedVal = val.replace(/สติ/g, '<span class="font-black text-lg md:text-xl text-white drop-shadow-md mx-0.5">สติ</span>');
 
                             customBoxesHtml += `
@@ -2633,17 +2583,77 @@
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 
                 if(app.settings.allowEdit && activeBoxes.length > 0) {
+                    let anyExhausted = false;
+                    let allExhausted = true;
                     let fieldsHtml = '';
+
                     activeBoxes.forEach(b => {
                         let val = studentCustomData[b.id] || '';
                         if (b.id === 'default_text' && !val && studentCustomData.text) val = studentCustomData.text; 
                         
+                        const limit = b.editLimit || 0;
+                        const currentCount = studentCustomData['editCount_' + b.id] || 0;
+                        const isExhausted = (limit > 0 && currentCount >= limit);
+                        
+                        if (isExhausted) anyExhausted = true;
+                        if (!isExhausted) allExhausted = false;
+
+                        let disabledAttr = isExhausted ? 'disabled' : '';
+                        let opacityClass = isExhausted ? 'opacity-50 cursor-not-allowed bg-black/60' : '';
+                        
+                        let quotaText = '';
+                        if (isExhausted) quotaText = ` <span class="text-red-400 text-[9px]">(หมดโควต้า)</span>`;
+                        else if (limit > 0) quotaText = ` <span class="text-yellow-400 text-[9px]">(แก้ได้อีก ${limit - currentCount} ครั้ง)</span>`;
+
                         fieldsHtml += `
-                        <div class="mb-6 max-w-full">
-                            <label class="block text-[11px] text-secondary font-bold uppercase tracking-widest mb-2 pl-2"><i class="fa-solid fa-pen-nib mr-1"></i> ${b.label}</label>
-                            <textarea id="custom_box_${b.id}" class="glass-input w-full p-4 rounded-2xl min-h-[120px] text-sm placeholder:text-gray-600 transition-shadow leading-relaxed" placeholder="${b.placeholder || 'พิมพ์ข้อความที่นี่...'}">${val}</textarea>
+                        <div class="mb-6 max-w-full relative">
+                            <label class="block text-[11px] text-secondary font-bold uppercase tracking-widest mb-2 pl-2"><i class="fa-solid fa-pen-nib mr-1"></i> ${b.label} ${quotaText}</label>
+                            <textarea id="custom_box_${b.id}" ${disabledAttr} class="glass-input w-full p-4 rounded-2xl min-h-[120px] text-sm placeholder:text-gray-600 transition-shadow leading-relaxed ${opacityClass}" placeholder="${b.placeholder || 'พิมพ์ข้อความที่นี่...'}">${val}</textarea>
+                            ${isExhausted ? `<div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none mt-6"><i class="fa-solid fa-lock text-6xl text-white/20"></i></div>` : ''}
                         </div>`;
                     });
+
+                    let buttonSection = '';
+                    const req = studentCustomData.editRequest;
+
+                    if (anyExhausted) {
+                        if (req && req.status === 'pending') {
+                            buttonSection += `
+                                <div class="bg-yellow-500/20 border border-yellow-500/50 p-4 rounded-xl text-center mb-6">
+                                    <i class="fa-solid fa-clock text-yellow-400 text-3xl mb-2 animate-pulse"></i>
+                                    <p class="text-yellow-400 font-bold text-sm">กำลังรอแอดมินอนุมัติคำร้องขอแก้ไข...</p>
+                                </div>
+                            `;
+                        } else if (req && req.status === 'rejected') {
+                            buttonSection += `
+                                <div class="bg-red-500/20 border border-red-500/50 p-4 rounded-xl text-center mb-4">
+                                    <i class="fa-solid fa-circle-xmark text-red-400 text-3xl mb-2"></i>
+                                    <p class="text-red-400 font-bold text-sm mb-1">คำร้องล่าสุดถูกปฏิเสธ</p>
+                                    <p class="text-xs text-gray-300">เหตุผล: ${req.reason || 'ไม่ระบุ'}</p>
+                                </div>
+                                <button onclick="app.requestEditQuota()" class="bg-gray-700 text-white font-bold px-8 py-4 rounded-xl text-sm hover:bg-gray-600 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest w-full sm:w-auto mx-auto mb-6">
+                                    <i class="fa-solid fa-paper-plane text-lg"></i> ส่งคำร้องขอแก้ไขอีกครั้ง
+                                </button>
+                            `;
+                        } else {
+                            buttonSection += `
+                                <div class="text-center mb-6 bg-black/40 p-4 rounded-2xl border border-white/5">
+                                    <p class="text-red-400 font-bold text-xs mb-3">บางกล่องข้อความของคุณใช้โควต้าการบันทึกครบแล้ว</p>
+                                    <button onclick="app.requestEditQuota()" class="bg-gray-700 text-white font-bold px-8 py-3 rounded-xl text-xs hover:bg-gray-600 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest w-full sm:w-auto mx-auto">
+                                        <i class="fa-solid fa-hand-holding-hand text-lg"></i> ร้องขอสิทธิ์การแก้ไข
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    if (!allExhausted || activeBoxes.length === 0) {
+                        buttonSection += `
+                            <button onclick="app.saveStudentText()" class="bg-secondary text-black font-bold px-8 py-4 rounded-xl text-sm hover:bg-yellow-500 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest w-full sm:w-auto mx-auto">
+                                <i class="fa-solid fa-floppy-disk text-lg"></i> บันทึกข้อมูลที่เหลือ
+                            </button>
+                        `;
+                    }
 
                     customBoxesInputHtml = `
                     <div class="glass-card p-5 sm:p-8 rounded-3xl relative overflow-hidden border-t-4 border-t-secondary mb-8 w-full max-w-full">
@@ -2654,10 +2664,7 @@
                         <p class="text-[11px] text-gray-400 mb-5 bg-black/40 p-4 rounded-xl border border-white/5 leading-relaxed break-words">ข้อมูลส่วนนี้จะถูกนำไปแสดงผลเด่นอยู่ด้านบนสุดของหน้าผลงานของคุณทันที สามารถเว้นว่างไว้ได้หากไม่ต้องการแสดง</p>
                         
                         ${fieldsHtml}
-                        
-                        <button onclick="app.saveStudentText()" class="bg-secondary text-black font-bold px-8 py-4 rounded-xl text-sm hover:bg-yellow-500 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest w-full sm:w-auto">
-                            <i class="fa-solid fa-floppy-disk text-lg"></i> บันทึกข้อมูล
-                        </button>
+                        ${buttonSection}
                     </div>`;
                 }
 
@@ -2742,98 +2749,47 @@
                 </div>`;
             },
 
-            showMyViewCount: function(studentId, count) {
-                const user = window.predefinedUsers.find(u => u.studentId === studentId);
-                const cleanName = user ? app.formatName(user.name) : 'ไม่ทราบชื่อ';
-                
-                const logs = app.accessLogs.filter(log => log.action === 'view_exhibit' && log.target === studentId);
-                
-                let listHtml = '<div class="max-h-[45vh] sm:max-h-[50vh] overflow-y-auto custom-scrollbar mt-3 pt-3 border-t border-white/10 flex flex-col gap-2 text-left w-full">';
-                if (logs.length === 0) {
-                    listHtml += '<p class="text-center text-gray-500 text-xs py-4">ยังไม่มีข้อมูลการเข้าชมแบบบันทึกประวัติ</p>';
-                } else {
-                    logs.forEach(log => {
-                        const dateObj = new Date(log.timestamp);
-                        const dateStr = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
-                        const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-                        
-                        listHtml += `
-                            <div class="bg-white/5 p-2.5 rounded-xl border border-white/10 flex justify-between items-center gap-3 w-full">
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-white text-xs font-bold truncate w-full">${log.name || 'ไม่ทราบชื่อ'}</p>
-                                    <p class="text-[9px] text-secondary mt-0.5 w-full">${log.role || 'Visitor'}</p>
-                                </div>
-                                <div class="text-[9px] sm:text-[10px] text-gray-500 text-right shrink-0">
-                                    <div>${dateStr}</div>
-                                    <div>${timeStr} น.</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                listHtml += '</div>';
-
-                app.swal.fire({
-                    html: `
-                        <div class="flex flex-col items-center pt-2 pb-1 w-full max-w-full">
-                            <i class="fa-solid fa-eye text-secondary text-3xl sm:text-4xl mb-1.5"></i>
-                            <h2 class="text-white font-extrabold text-lg sm:text-xl mb-1">ยอดเข้าชมผลงาน</h2>
-                            <div class="mb-0.5 w-full"><span class="text-white font-bold text-sm sm:text-base truncate block w-full">${cleanName}</span></div>
-                            <p class="text-[10px] sm:text-xs text-gray-400 mb-2 w-full truncate">มีผู้เข้าเยี่ยมชมหน้าผลงานของคุณทั้งหมด</p>
-                            <div>
-                                <span class="text-4xl sm:text-5xl font-black text-secondary drop-shadow-md leading-none">${count}</span> 
-                                <span class="text-xs text-gray-400 font-bold ml-1">ครั้ง</span>
-                            </div>
-                        </div>
-                        ${listHtml}
-                    `,
-                    showConfirmButton: true,
-                    confirmButtonText: 'ปิดหน้าต่าง',
-                    customClass: {
-                        popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-md shadow-2xl w-[90%] max-w-md bg-black/95 !p-4',
-                        confirmButton: 'bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl px-8 py-2.5 transition-colors w-full sm:w-auto mt-2 border border-white/10'
-                    }
-                });
-            },
-
-            showMediaPopup: function(type) {
+            requestEditQuota: async function() {
                 const sid = app.profile.uid;
-                const data = app.thesisData.find(d => d.studentId === sid) || {};
-                let html = '';
-                
-                if (type === 'video') {
-                    if(!data.videoUrl) return app.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีข้อมูลวิดีโอผลงานของคุณในระบบ', 'info');
-                    html = app.renderMediaFrames(data.videoUrl, 'video');
-                } else if (type === 'image') {
-                    const imgs = data.coverImg ? (data.coverImg + (data.portfolioImgs ? '\n'+data.portfolioImgs : '')) : data.portfolioImgs;
-                    if(!imgs) return app.swal.fire('ไม่พบข้อมูล', 'ยังไม่มีข้อมูลรูปภาพผลงานของคุณในระบบ', 'info');
-                    html = app.renderMediaFrames(imgs, 'image');
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', sid), {
+                        editRequest: { status: 'pending', timestamp: Date.now() }
+                    }, { merge: true });
+                    app.swal.fire({
+                        icon: 'success',
+                        title: 'ส่งคำร้องสำเร็จ',
+                        text: 'ส่งคำร้องขอแก้ไขไปยังผู้ดูแลระบบเรียบร้อยแล้ว กรุณารอการอนุมัติครับ'
+                    });
+                } catch(e) {
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถส่งคำร้องได้', 'error');
                 }
-                
-                app.swal.fire({
-                    title: type === 'video' ? 'วิดีโอผลงาน' : 'รูปภาพผลงาน',
-                    html: `<div class="mt-4 text-left max-h-[75vh] overflow-y-auto overflow-x-hidden custom-scrollbar px-1 sm:px-2">${html}</div>`,
-                    showCloseButton: true,
-                    showConfirmButton: false,
-                    width: '85vw', 
-                    customClass: {
-                        popup: 'bg-black/95 border border-secondary/30 rounded-[2rem] backdrop-blur-xl w-[85vw] md:w-[75%] lg:w-[60%] max-w-4xl mx-auto',
-                        title: 'text-secondary font-bold text-xl md:text-2xl border-b border-white/10 pb-4',
-                        closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
-                    }
-                });
             },
 
             saveStudentText: async function() {
+                const sData = app.studentEdits[app.profile.uid] || {};
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 let saveData = {};
-                
+                let hasChanges = false;
+
                 activeBoxes.forEach(b => {
-                    const el = document.getElementById(`custom_box_${b.id}`);
-                    if(el) saveData[b.id] = el.value.trim();
+                    const limit = b.editLimit || 0;
+                    const currentCount = sData['editCount_' + b.id] || 0;
+                    const isExhausted = (limit > 0 && currentCount >= limit);
+                    
+                    if (!isExhausted) {
+                        const el = document.getElementById(`custom_box_${b.id}`);
+                        if(el) {
+                            saveData[b.id] = el.value.trim();
+                            saveData['editCount_' + b.id] = currentCount + 1;
+                            hasChanges = true;
+                        }
+                    }
                 });
 
-                // บันทึกเวลาที่มีการอัปเดตข้อมูล
+                if (!hasChanges) {
+                    return app.swal.fire('ข้อผิดพลาด', 'ไม่มีข้อมูลที่สามารถบันทึกได้ (โควต้าหมด)', 'error');
+                }
+
                 saveData.lastUpdated = Date.now();
 
                 try {
@@ -2959,7 +2915,40 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8 mt-8 relative overflow-hidden">
+                        <h3 class="text-white font-bold text-sm sm:text-base border-b border-white/10 pb-4 mb-4 flex items-center gap-2"><i class="fa-solid fa-tags text-secondary"></i> ตั้งค่าป้ายกำกับ (Marker Tags)</h3>
+                        <p class="text-[10px] sm:text-xs text-gray-400 mb-6 leading-relaxed">ใช้สำหรับมาร์คหรือจัดกลุ่มนักศึกษาในหน้า "จัดการข้อมูลสมาชิก" (เช่น รอตรวจสอบ, ผ่านแล้ว, พิมพ์แล้ว) <br>พิมพ์ชื่อป้ายกำกับในสีที่ต้องการ หากปล่อยว่างไว้ สีนั้นจะไม่ถูกเปิดใช้งาน</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            ${app.markerColors.map(mc => `
+                                <div class="flex items-center gap-3 bg-black/30 p-3 rounded-xl border border-white/5">
+                                    <div class="w-6 h-6 rounded-full ${mc.class} shrink-0 shadow-inner"></div>
+                                    <input type="text" id="marker_input_${mc.id}" class="glass-input w-full p-2 rounded-lg text-xs" placeholder="ชื่อป้าย (เว้นว่างเพื่อปิด)" value="${app.settings.adminMarkers?.[mc.id] || ''}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <button onclick="app.saveMarkerSettings()" class="bg-secondary text-black font-bold px-6 py-3 rounded-xl text-xs hover:bg-yellow-500 transition-colors shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest w-full sm:w-auto">
+                            <i class="fa-solid fa-floppy-disk text-lg"></i> บันทึกป้ายกำกับ
+                        </button>
+                    </div>
                 </div>`;
+            },
+
+            saveMarkerSettings: async function() {
+                let markers = {};
+                app.markerColors.forEach(mc => {
+                    const val = document.getElementById(`marker_input_${mc.id}`).value.trim();
+                    if (val) markers[mc.id] = val;
+                });
+                app.settings.adminMarkers = markers;
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { adminMarkers: markers }, { merge:true });
+                    app.swal.fire({ iconHtml: '<i class="fa-solid fa-circle-check text-secondary text-5xl"></i>', title: 'บันทึกป้ายกำกับสำเร็จ', timer: 1500, showConfirmButton: false });
+                } catch(e) {
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกได้', 'error');
+                }
             },
 
             updateSetting: async function(key, val) {
@@ -2988,7 +2977,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
                         <div class="min-w-0 flex-1">
                             <p class="font-bold text-white text-sm truncate mb-1"><i class="fa-solid fa-align-left text-secondary mr-2 text-xs"></i>${b.label}</p>
-                            <p class="text-[10px] text-gray-400 truncate font-medium">คำอธิบาย: ${b.placeholder || 'พิมพ์ข้อความที่นี่...'}</p>
+                            <p class="text-[10px] text-gray-400 truncate font-medium">คำอธิบาย: ${b.placeholder || 'พิมพ์ข้อความที่นี่...'} | โควต้า: ${b.editLimit > 0 ? b.editLimit + ' ครั้ง' : 'ไม่จำกัด'}</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
                             <span id="boxBadge_${idx}" class="text-[9px] font-bold tracking-widest uppercase ${b.isActive ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'} px-3 py-1.5 rounded-full transition-colors">
@@ -3030,8 +3019,11 @@
                                     <input type="text" id="newBoxLabel" placeholder="เช่น แรงบันดาลใจ, ขอบคุณที่ปรึกษา" class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
                                     <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">ข้อความแนะนำในช่อง (Placeholder)</label>
-                                    <input type="text" id="newBoxPlaceholder" placeholder="เช่น พิมพ์ข้อความของคุณที่นี่..." class="glass-input w-full p-3 rounded-xl mb-6 text-sm">
+                                    <input type="text" id="newBoxPlaceholder" placeholder="เช่น พิมพ์ข้อความของคุณที่นี่..." class="glass-input w-full p-3 rounded-xl mb-4 text-sm">
                                     
+                                    <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2 ml-1">โควต้าการแก้ไข (0 = ไม่จำกัด)</label>
+                                    <input type="number" id="newBoxEditLimit" placeholder="จำนวนครั้ง" value="0" min="0" class="glass-input w-full p-3 rounded-xl mb-6 text-sm">
+
                                     <button onclick="app.addCustomBox()" class="bg-secondary text-black font-black py-4 rounded-xl w-full text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
                                         <i class="fa-solid fa-square-plus text-lg"></i> สร้างกล่อง
                                     </button>
@@ -3051,10 +3043,12 @@
             addCustomBox: async function() {
                 const label = document.getElementById('newBoxLabel').value.trim();
                 const placeholder = document.getElementById('newBoxPlaceholder').value.trim();
+                const editLimit = parseInt(document.getElementById('newBoxEditLimit').value) || 0;
+                
                 if(!label) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อหัวข้อกล่อง', 'warning');
                 
                 const id = 'box_' + Date.now();
-                const boxes = [...(app.settings.customBoxes || []), { id, label, placeholder, isActive: true }];
+                const boxes = [...(app.settings.customBoxes || []), { id, label, placeholder, isActive: true, editLimit }];
                 
                 app.settings.customBoxes = boxes;
                 app.refreshCurrentView(); 
@@ -3079,6 +3073,10 @@
                                 <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">ข้อความแนะนำ (Placeholder)</label>
                                 <input id="editBoxPlaceholder" class="glass-input w-full p-3 rounded-xl text-sm" value="${b.placeholder || ''}">
                             </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">โควต้าการแก้ไข (0 = ไม่จำกัด)</label>
+                                <input type="number" id="editBoxLimit" class="glass-input w-full p-3 rounded-xl text-sm" value="${b.editLimit || 0}" min="0">
+                            </div>
                         </div>
                     `,
                     focusConfirm: false,
@@ -3088,7 +3086,8 @@
                     preConfirm: () => {
                         return {
                             label: document.getElementById('editBoxLabel').value.trim(),
-                            placeholder: document.getElementById('editBoxPlaceholder').value.trim()
+                            placeholder: document.getElementById('editBoxPlaceholder').value.trim(),
+                            editLimit: parseInt(document.getElementById('editBoxLimit').value) || 0
                         }
                     }
                 });
@@ -3096,6 +3095,7 @@
                 if (formValues && formValues.label) {
                     boxes[idx].label = formValues.label;
                     boxes[idx].placeholder = formValues.placeholder;
+                    boxes[idx].editLimit = formValues.editLimit;
                     app.settings.customBoxes = boxes;
                     app.refreshCurrentView();
                     try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
@@ -3128,7 +3128,6 @@
                 try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { customBoxes: boxes }, { merge:true }); } catch(e){}
             },
 
-            // เพิ่มฟังก์ชันตัวช่วยสำหรับดึงลิงก์ผลงาน/ลิงก์ย่อ
             getStudentLink: function(studentId) {
                 const user = window.predefinedUsers.find(u => u.studentId === studentId);
                 if (!user) return '#';
@@ -3140,8 +3139,28 @@
             },
 
             renderAdminUsers: function() {
+                const pendingCount = Object.values(app.studentEdits).filter(s => s.editRequest && s.editRequest.status === 'pending').length;
+                let pendingBanner = '';
+                
+                if (pendingCount > 0) {
+                    pendingBanner = `
+                    <div class="bg-red-600/90 text-white p-4 sm:p-5 rounded-3xl mb-6 shadow-[0_0_30px_rgba(239,68,68,0.3)] border-2 border-red-400 flex items-center justify-between animate-pulse cursor-pointer" onclick="window.scrollTo({top: document.getElementById('adminUserListContainer').offsetTop - 100, behavior: 'smooth'})">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-white text-red-600 rounded-full flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-bell"></i></div>
+                            <div>
+                                <h3 class="font-black text-sm md:text-lg drop-shadow-md">มีการร้องขอสิทธิ์แก้ไขข้อมูล ${pendingCount} รายการ!</h3>
+                                <p class="text-xs text-red-100 font-bold mt-0.5">โปรดตรวจสอบจุดสีแดงที่มีเครื่องหมายตกใจ <i class="fa-solid fa-circle-exclamation"></i> ที่ปุ่ม "จัดการ"</p>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }
+
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                    
+                    ${pendingBanner}
+
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-users"></i></div>
@@ -3176,6 +3195,19 @@
             setAdminUserSearch: function(val) {
                 app.adminUserSearchQuery = val;
                 app.renderAdminUsersListOnly();
+            },
+
+            onMarkerChange: function(colorId) {
+                const input = document.getElementById('admin_marker_text');
+                const hint = document.getElementById('admin_marker_hint');
+                if (!colorId) {
+                    input.classList.add('hidden');
+                    hint.classList.add('hidden');
+                } else {
+                    input.classList.remove('hidden');
+                    hint.classList.remove('hidden');
+                    input.value = app.settings.adminMarkers?.[colorId] || '';
+                }
             },
 
             exportUsersData: async function() {
@@ -3214,7 +3246,7 @@
                 let customHeaders = activeBoxes.map(b => `"${b.label.replace(/"/g, '""')}"`).join(',');
                 if (customHeaders) customHeaders = ',' + customHeaders;
 
-                let csvContent = `รหัสนักศึกษา,ชื่อ-นามสกุล,ชื่อผลงาน,อาจารย์ที่ปรึกษา,ยอดเข้าชม,ลิงก์ย่อ${customHeaders},เวลาที่อัปเดตข้อมูลล่าสุด,เวลาที่โหลดไฟล์\n`;
+                let csvContent = `รหัสนักศึกษา,ชื่อ-นามสกุล,ชื่อผลงาน,อาจารย์ที่ปรึกษา,ยอดเข้าชม,ป้ายกำกับ (Marker),ลิงก์ย่อ${customHeaders},เวลาที่อัปเดตข้อมูลล่าสุด,เวลาที่โหลดไฟล์\n`;
                 const now = new Date().toLocaleString('th-TH');
 
                 targetUsers.forEach(u => {
@@ -3230,6 +3262,13 @@
 
                     // ดึงข้อมูลที่กรอกเพิ่มเติมของนักศึกษา
                     const sData = app.studentEdits[sid] || {};
+                    
+                    // ดึงข้อมูลป้ายกำกับ
+                    let markerValue = "-";
+                    if (sData._adminMarker && app.settings.adminMarkers?.[sData._adminMarker]) {
+                        markerValue = app.settings.adminMarkers[sData._adminMarker];
+                    }
+
                     let customDataValues = activeBoxes.map(b => {
                         let val = sData[b.id] || '';
                         if (b.id === 'default_text' && !val && sData.text) val = sData.text;
@@ -3245,7 +3284,7 @@
                         lastUpdatedStr = new Date(sData.lastUpdated).toLocaleString('th-TH');
                     }
 
-                    csvContent += `"${sid}","${name}","${title}","${advisor}","${vCount}","${shortLink}"${customDataValues},"${lastUpdatedStr}","${now}"\n`;
+                    csvContent += `"${sid}","${name}","${title}","${advisor}","${vCount}","${markerValue}","${shortLink}"${customDataValues},"${lastUpdatedStr}","${now}"\n`;
                 });
 
                 // Add BOM for UTF-8 support in MS Excel
@@ -3302,7 +3341,7 @@
                                 const cleanName = app.formatName(u.name);
                                 const abbr = app.getAbbr(cleanName);
 
-                                // เช็คว่ามีข้อมูลกล่องข้อความหรือลิงก์ย่อหรือไม่ เพื่อแสดงจุดสีเหลือง
+                                // เช็คข้อมูลต่างๆ เพื่อแสดงจุด
                                 const sData = app.studentEdits[u.studentId] || {};
                                 let hasCustomData = false;
                                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
@@ -3314,22 +3353,52 @@
                                 if (!hasCustomData && sData.text && sData.text.trim() !== '') hasCustomData = true;
                                 if (!hasCustomData && u.shortLink && u.shortLink.trim() !== '') hasCustomData = true;
 
-                                const dotHtml = hasCustomData ? `<span class="absolute -top-1.5 -right-1.5 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span></span>` : '';
+                                // เช็คว่ามีการร้องขอสิทธิ์แก้ไขหรือไม่
+                                let hasPendingReq = (sData.editRequest && sData.editRequest.status === 'pending');
+                                let dotHtml = '';
+                                
+                                if (hasPendingReq) {
+                                    // จุดสีแดงใหญ่ เครื่องหมายตกใจ
+                                    dotHtml = `<span class="absolute -top-2 -right-2 flex h-6 w-6"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span><span class="relative inline-flex rounded-full h-6 w-6 bg-red-600 text-white items-center justify-center text-xs shadow-lg"><i class="fa-solid fa-exclamation"></i></span></span>`;
+                                } else if (hasCustomData || sData._adminMarker) {
+                                    let dotColorClass = 'bg-secondary';
+                                    if (sData._adminMarker) {
+                                        const mc = app.markerColors.find(m => m.id === sData._adminMarker);
+                                        if (mc) dotColorClass = mc.class; // เปลี่ยนสีจุดตามป้ายกำกับ
+                                    }
+                                    dotHtml = `<span class="absolute -top-1.5 -right-1.5 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full ${dotColorClass} opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 ${dotColorClass}"></span></span>`;
+                                }
 
                                 const statusHtml = isComplete ? 
                                     '<span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold border border-green-500/30 text-[10px] md:text-xs"><i class="fa-solid fa-check mr-1"></i> มีข้อมูล</span>' : 
                                     '<span class="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold border border-orange-500/30 text-[10px] md:text-xs"><i class="fa-solid fa-clock mr-1"></i> รอข้อมูล</span>';
 
+                                // จัดการป้ายกำกับ (Marker) สำหรับการแสดงผลการ์ด/ตาราง
+                                let markerBadgeHtml = '';
+                                let markerTableBadge = '';
+                                let cardBorderClass = 'border-white/10';
+                                
+                                if (sData._adminMarker && app.settings.adminMarkers?.[sData._adminMarker]) {
+                                    const mc = app.markerColors.find(m => m.id === sData._adminMarker);
+                                    if (mc) {
+                                        const markerLabel = app.settings.adminMarkers[sData._adminMarker];
+                                        markerBadgeHtml = `<div class="absolute top-3 right-3 ${mc.class} text-white text-[9px] font-bold px-2 py-1 rounded-lg shadow-md z-10 whitespace-nowrap"><i class="fa-solid fa-tag mr-1"></i> ${markerLabel}</div>`;
+                                        markerTableBadge = `<span class="${mc.class} text-white text-[9px] font-bold px-2 py-0.5 rounded-md ml-2 shadow-sm whitespace-nowrap"><i class="fa-solid fa-tag mr-1"></i> ${markerLabel}</span>`;
+                                        cardBorderClass = mc.border;
+                                    }
+                                }
+
                                 // แบบ Card สำหรับมือถือ (ขยายขนาดทุกอย่างให้เต็มตา)
                                 gridHtml += `
-                                <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border border-white/10 shadow-lg relative">
-                                    <div class="w-24 h-24 rounded-full border-[3px] border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-4 p-0">
+                                <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border ${hasPendingReq ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : cardBorderClass} shadow-lg relative transition-colors duration-300">
+                                    ${markerBadgeHtml}
+                                    <div class="w-24 h-24 rounded-full border-[3px] border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-4 p-0 mt-2">
                                         <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                         <i class="fa-solid fa-circle-notch fa-spin text-white text-lg absolute z-10 spinner-icon"></i>
                                         <img src="./MORANASATECT/${u.id}.png" 
                                              onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                              onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                             class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
+                                             class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                     </div>
                                     <h3 class="text-white font-extrabold text-lg drop-shadow-md w-full truncate px-2">${cleanName}</h3>
                                     <p class="text-xs text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</p>
@@ -3349,7 +3418,7 @@
                                         <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 min-w-[45%] py-3.5 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-rotate-left"></i> ล้างวิว
                                         </button>
-                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative flex-1 min-w-[45%] py-3.5 bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative flex-1 min-w-[45%] py-3.5 ${hasPendingReq ? 'bg-red-600 hover:bg-red-500 text-white border-red-400' : 'bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border-blue-500/30'} rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-pen-to-square"></i> จัดการ ${dotHtml}
                                         </button>
                                         <button onclick="window.open(app.getStudentLink('${u.studentId}'), '_blank')" class="w-full py-3.5 bg-secondary text-primary rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 mt-1">
@@ -3372,7 +3441,7 @@
                                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                             </div>
                                             <div>
-                                                <div class="font-bold text-white text-sm"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</div>
+                                                <div class="font-bold text-white text-sm flex items-center flex-wrap gap-y-1"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId} ${markerTableBadge}</div>
                                                 <div class="text-xs text-gray-500 mt-0.5">${cleanName}</div>
                                             </div>
                                         </div>
@@ -3389,7 +3458,7 @@
                                         ${statusHtml}
                                     </td>
                                     <td class="p-4 text-center">
-                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border border-blue-500/20" title="จัดการข้อมูลเสริม">
+                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative ${hasPendingReq ? 'text-white bg-red-600 hover:bg-red-500 border-red-500' : 'text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 border-blue-500/20'} px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border" title="จัดการข้อมูลเสริม">
                                             จัดการข้อมูล ${dotHtml}
                                         </button>
                                     </td>
@@ -3413,6 +3482,22 @@
                 const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
                 
                 let fieldsHtml = '';
+
+                // เช็คคำร้องขอสิทธิ์แก้ไข และนำมาแสดงด้านบนสุด
+                if (sData.editRequest && sData.editRequest.status === 'pending') {
+                    fieldsHtml += `
+                    <div class="mb-6 bg-red-500/20 border-2 border-red-500/50 p-4 rounded-xl text-center shadow-lg relative overflow-hidden">
+                        <div class="absolute inset-0 bg-red-600/10 animate-pulse pointer-events-none"></div>
+                        <i class="fa-solid fa-bell text-red-400 text-4xl mb-2 relative z-10 animate-bounce"></i>
+                        <p class="text-white font-black text-sm md:text-base mb-3 relative z-10 drop-shadow-md">นักศึกษาร้องขอสิทธิ์แก้ไขข้อมูล</p>
+                        <div class="flex gap-3 justify-center mt-3 relative z-10">
+                            <button onclick="app.approveEditRequest('${studentId}')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-transform transform active:scale-95 shadow-md flex-1"><i class="fa-solid fa-check mr-1"></i> อนุญาต (เพิ่มให้ 1 ครั้ง)</button>
+                            <button onclick="app.rejectEditRequest('${studentId}')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-transform transform active:scale-95 shadow-md flex-1"><i class="fa-solid fa-xmark mr-1"></i> ไม่อนุญาต</button>
+                        </div>
+                    </div>
+                    `;
+                }
+
                 activeBoxes.forEach(b => {
                     let val = sData[b.id] || '';
                     if(b.id === 'default_text' && !val && sData.text) val = sData.text;
@@ -3423,8 +3508,8 @@
                     </div>`;
                 });
 
-                if(fieldsHtml === '') {
-                    fieldsHtml = '<p class="text-xs text-gray-500 py-4">ไม่มีกล่องข้อความที่เปิดใช้งานอยู่</p>';
+                if(activeBoxes.length === 0) {
+                    fieldsHtml += '<p class="text-xs text-gray-500 py-4">ไม่มีกล่องข้อความที่เปิดใช้งานอยู่</p>';
                 }
 
                 // เพิ่มฟิลด์สำหรับจัดการลิงก์ย่อ
@@ -3435,6 +3520,33 @@
                     <p class="text-[9px] text-gray-500 mt-1 text-left">ใช้แทนลิงก์ยาวเวลาสร้าง QR Code หรือกดแชร์</p>
                 </div>
                 `;
+
+                // ฟิลด์สำหรับเลือกป้ายกำกับ (Marker) และแก้ข้อความแนะนำได้จากตรงนี้เลย
+                let currentMarker = sData._adminMarker || '';
+                let mHtml = `
+                <div class="mb-4 mt-6 pt-4 border-t border-white/10">
+                    <label class="block text-[10px] text-secondary font-bold uppercase tracking-widest mb-3 text-left"><i class="fa-solid fa-tags mr-1"></i> ป้ายกำกับสถานะ (เลือกสีและระบุข้อความ)</label>
+                    <div class="flex flex-wrap gap-3 justify-center mb-3">
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="adminMarkerColor" value="" class="peer sr-only" onchange="app.onMarkerChange('')" ${currentMarker === '' ? 'checked' : ''}>
+                            <div class="w-8 h-8 rounded-full bg-gray-600 peer-checked:ring-2 peer-checked:ring-white peer-checked:scale-110 opacity-50 peer-checked:opacity-100 transition-all shadow-md flex items-center justify-center"><i class="fa-solid fa-xmark text-white text-xs"></i></div>
+                        </label>`;
+
+                app.markerColors.forEach(mc => {
+                    mHtml += `
+                    <label class="cursor-pointer group flex flex-col items-center">
+                        <input type="radio" name="adminMarkerColor" value="${mc.id}" class="peer sr-only" onchange="app.onMarkerChange('${mc.id}')" ${currentMarker === mc.id ? 'checked' : ''}>
+                        <div class="w-8 h-8 rounded-full ${mc.class} peer-checked:ring-2 peer-checked:ring-white peer-checked:scale-110 opacity-50 peer-checked:opacity-100 transition-all shadow-md"></div>
+                    </label>`;
+                });
+                
+                mHtml += `
+                    </div>
+                    <input type="text" id="admin_marker_text" class="glass-input w-full p-3 rounded-xl text-sm ${!currentMarker ? 'hidden' : ''}" placeholder="ระบุข้อความป้ายกำกับ (เช่น รอตรวจ, ผ่าน)" value="${currentMarker ? (app.settings.adminMarkers?.[currentMarker] || '') : ''}">
+                    <p class="text-[9px] text-gray-500 mt-1 text-left ${!currentMarker ? 'hidden' : ''}" id="admin_marker_hint">ข้อความนี้จะถูกบันทึกและแนะนำให้ใช้กับสีนี้ในครั้งต่อไป</p>
+                </div>`;
+                
+                fieldsHtml += mHtml;
 
                 // ดึงลิงก์พรีวิวผ่านฟังก์ชัน
                 let previewLink = app.getStudentLink(u.studentId);
@@ -3448,7 +3560,7 @@
 
                 const { isConfirmed } = await app.swal.fire({
                     title: `จัดการข้อมูล: ${u.studentId}`,
-                    html: `<div class="mt-4">${fieldsHtml}</div>`,
+                    html: `<div class="mt-4 max-h-[60vh] overflow-y-auto px-1 custom-scrollbar">${fieldsHtml}</div>`,
                     showCancelButton: true,
                     confirmButtonText: 'บันทึก',
                     cancelButtonText: 'ยกเลิก',
@@ -3462,10 +3574,27 @@
                         if(el) saveData[b.id] = el.value.trim();
                     });
 
+                    // บันทึกป้ายกำกับ (Marker)
+                    const selectedColor = document.querySelector('input[name="adminMarkerColor"]:checked');
+                    if (selectedColor && selectedColor.value !== "") {
+                        const colorId = selectedColor.value;
+                        const markerText = document.getElementById('admin_marker_text').value.trim();
+                        saveData._adminMarker = colorId;
+                        
+                        // ถ้าพิมพ์ข้อความใหม่ อัปเดตข้อความแนะนำให้สีนี้ใน Setting ส่วนกลางด้วย
+                        if (markerText && markerText !== app.settings.adminMarkers?.[colorId]) {
+                            if(!app.settings.adminMarkers) app.settings.adminMarkers = {};
+                            app.settings.adminMarkers[colorId] = markerText;
+                            try { setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { adminMarkers: app.settings.adminMarkers }, { merge: true }); } catch(e){}
+                        }
+                    } else {
+                        saveData._adminMarker = ""; // ล้างค่า
+                    }
+
                     // บันทึกเวลาที่มีการอัปเดตข้อมูลจากฝั่ง Admin
                     saveData.lastUpdated = Date.now();
 
-                    // อัปเดตลิงก์ย่อใน window.predefinedUsers (หมายเหตุ: วิธีนี้จะหายไปเมื่อรีเฟรชหน้าเว็บ หากต้องการให้ถาวรต้องเซฟลง Firebase ด้วย ในที่นี้เซฟลง Firebase แต่ต้องปรับโค้ดตอนดึงข้อมูลด้วย หรือใช้แค่ชั่วคราว)
+                    // อัปเดตลิงก์ย่อ
                     const shortLinkInput = document.getElementById('admin_edit_shortlink').value.trim();
                     u.shortLink = shortLinkInput;
 
@@ -3475,6 +3604,53 @@
                     } catch(e) {
                         app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกได้', 'error');
                     }
+                }
+            },
+
+            // ฟังก์ชันอนุมัติสิทธิ์การแก้ไข 1 ครั้ง
+            approveEditRequest: async function(studentId) {
+                Swal.close();
+                const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
+                const sData = app.studentEdits[studentId] || {};
+                let updateData = {
+                    editRequest: { status: 'approved', timestamp: Date.now() }
+                };
+
+                // วนลูปกล่องทั้งหมด ถอดโควต้าออกกล่องละ 1 ครั้ง เฉพาะกล่องที่โควต้าเต็มแล้ว
+                activeBoxes.forEach(b => {
+                    const limit = b.editLimit || 0;
+                    const currentCount = sData['editCount_' + b.id] || 0;
+                    if (limit > 0 && currentCount >= limit) {
+                        updateData['editCount_' + b.id] = Math.max(0, limit - 1);
+                    }
+                });
+                
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', studentId), updateData, { merge: true });
+                    app.swal.fire('สำเร็จ', 'อนุมัติสิทธิ์การแก้ไขให้นักศึกษาแล้ว (เพิ่มให้กล่องที่ล็อกไว้กล่องละ 1 ครั้ง)', 'success');
+                } catch(e) { console.error(e); }
+            },
+
+            // ฟังก์ชันปฏิเสธสิทธิ์การแก้ไข พร้อมระบุเหตุผล
+            rejectEditRequest: async function(studentId) {
+                Swal.close();
+                const { value: reason } = await app.swal.fire({
+                    title: 'ระบุเหตุผลที่ปฏิเสธ',
+                    input: 'text',
+                    inputPlaceholder: 'เช่น ไม่อนุญาตให้แก้ไขอีก, ข้อมูลสมบูรณ์แล้ว',
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยันการปฏิเสธ',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#ef4444'
+                });
+                
+                if (reason !== undefined) {
+                    try {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'student_edits', studentId), {
+                            editRequest: { status: 'rejected', reason: reason || 'ไม่ระบุเหตุผล', timestamp: Date.now() }
+                        }, { merge: true });
+                        app.swal.fire('สำเร็จ', 'ปฏิเสธคำร้องเรียบร้อยแล้ว', 'success');
+                    } catch(e) { console.error(e); }
                 }
             },
 
@@ -3832,7 +4008,7 @@
                 const colorDark = document.getElementById('qrColorDark')?.value || "#000000";
                 const hasBg = document.getElementById('qrHasBg')?.checked;
                 const colorLightInput = document.getElementById('qrColorLight')?.value || "#ffffff";
-                const colorLight = hasBg ? colorLightInput : "transparent"; // ถ้าปิดสวิตช์ จะเป็นพื้นหลังใส
+                const colorLight = hasBg ? colorLightInput : "transparent"; 
                 
                 btn.disabled = true;
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -3851,7 +4027,6 @@
                         const tempDiv = document.createElement('div');
                         qrContainer.appendChild(tempDiv);
                         
-                        // ใช้ shortLink ถ้ามี ถ้าไม่มีใช้ Link เต็ม พร้อมเช็ค https:// อัตโนมัติกันสแกนไม่ติด
                         let link = user.shortLink ? user.shortLink.trim() : `${basePath}Exhibition/${user.studentId}.html`;
                         if (!link.startsWith('http')) {
                             link = 'https://' + link;
@@ -3863,7 +4038,7 @@
                             height: 1200,
                             colorDark : colorDark,
                             colorLight : colorLight,
-                            correctLevel : QRCode.CorrectLevel.L // L = มุมใหญ่และจุดใหญ่ สแกนง่ายแม้ปรับขนาดเล็ก
+                            correctLevel : QRCode.CorrectLevel.L
                         });
 
                         setTimeout(() => {
