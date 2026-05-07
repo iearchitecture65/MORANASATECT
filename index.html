@@ -731,7 +731,8 @@
                         if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
                         app.refreshCurrentView();
                     } else if (app.view === 'admin_users') {
-                        app.renderAdminUsersListOnly();
+                        // อัปเดตเฉพาะจุดที่เปลี่ยนโดยไม่โหลดรูปใหม่
+                        app.updateAdminUsersListUI();
                     }
                 });
 
@@ -746,9 +747,7 @@
                             if (sid) el.innerText = app.visitLogs[sid] || 0;
                         });
                     }
-                    if (app.view === 'admin_users') {
-                        app.renderAdminUsersListOnly();
-                    }
+                    // นำ app.renderAdminUsersListOnly() ออก เพื่อไม่ให้โหลดตารางใหม่เวลายอดวิวขึ้น
                 });
 
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), (snap) => {
@@ -3138,6 +3137,91 @@
                 return link;
             },
 
+            // ฟังก์ชันสำหรับอัปเดตสถานะป้ายและจุด โดยไม่โหลดตารางใหม่
+            updateAdminUsersListUI: function() {
+                const pendingCount = Object.values(app.studentEdits).filter(s => s.editRequest && s.editRequest.status === 'pending').length;
+                const bannerContainer = document.getElementById('admin_pending_banner_container');
+                if (bannerContainer) {
+                    if (pendingCount > 0) {
+                        bannerContainer.innerHTML = `
+                        <div class="bg-red-600/90 text-white p-4 sm:p-5 rounded-3xl mb-6 shadow-[0_0_30px_rgba(239,68,68,0.3)] border-2 border-red-400 flex items-center justify-between animate-pulse cursor-pointer" onclick="window.scrollTo({top: document.getElementById('adminUserListContainer').offsetTop - 100, behavior: 'smooth'})">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white text-red-600 rounded-full flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-bell"></i></div>
+                                <div>
+                                    <h3 class="font-black text-sm md:text-lg drop-shadow-md">มีการร้องขอสิทธิ์แก้ไขข้อมูล ${pendingCount} รายการ!</h3>
+                                    <p class="text-xs text-red-100 font-bold mt-0.5">โปรดตรวจสอบจุดสีแดงที่มีเครื่องหมายตกใจ <i class="fa-solid fa-circle-exclamation"></i> ที่ปุ่ม "จัดการ"</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        bannerContainer.innerHTML = '';
+                    }
+                }
+
+                window.predefinedUsers.forEach(u => {
+                    const sData = app.studentEdits[u.studentId] || {};
+                    let hasCustomData = false;
+                    const activeBoxes = (app.settings.customBoxes || []).filter(b => b.isActive);
+                    for (let b of activeBoxes) {
+                        if (sData[b.id] && sData[b.id].trim() !== '') {
+                            hasCustomData = true; break;
+                        }
+                    }
+                    if (!hasCustomData && sData.text && sData.text.trim() !== '') hasCustomData = true;
+                    if (!hasCustomData && u.shortLink && u.shortLink.trim() !== '') hasCustomData = true;
+
+                    let hasPendingReq = (sData.editRequest && sData.editRequest.status === 'pending');
+                    let dotHtml = '';
+                    
+                    if (hasPendingReq) {
+                        dotHtml = `<span class="absolute -top-2 -right-2 flex h-6 w-6"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span><span class="relative inline-flex rounded-full h-6 w-6 bg-red-600 text-white items-center justify-center text-xs shadow-lg"><i class="fa-solid fa-exclamation"></i></span></span>`;
+                    } else if (hasCustomData || sData._adminMarker) {
+                        let dotColorClass = 'bg-secondary';
+                        if (sData._adminMarker) {
+                            const mc = app.markerColors.find(m => m.id === sData._adminMarker);
+                            if (mc) dotColorClass = mc.class;
+                        }
+                        dotHtml = `<span class="absolute -top-1.5 -right-1.5 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full ${dotColorClass} opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 ${dotColorClass}"></span></span>`;
+                    }
+
+                    let markerBadgeHtml = '';
+                    let markerTableBadge = '';
+                    let cardBorderClass = 'border-white/10';
+                    
+                    if (sData._adminMarker && app.settings.adminMarkers?.[sData._adminMarker]) {
+                        const mc = app.markerColors.find(m => m.id === sData._adminMarker);
+                        if (mc) {
+                            const markerLabel = app.settings.adminMarkers[sData._adminMarker];
+                            markerBadgeHtml = `<div class="absolute top-3 right-3 ${mc.class} text-white text-[9px] font-bold px-2 py-1 rounded-lg shadow-md z-10 whitespace-nowrap"><i class="fa-solid fa-tag mr-1"></i> ${markerLabel}</div>`;
+                            markerTableBadge = `<span class="${mc.class} text-white text-[9px] font-bold px-2 py-0.5 rounded-md ml-2 shadow-sm whitespace-nowrap"><i class="fa-solid fa-tag mr-1"></i> ${markerLabel}</span>`;
+                            cardBorderClass = mc.border;
+                        }
+                    }
+
+                    const card = document.getElementById(`admin_card_${u.studentId}`);
+                    if (card) {
+                        card.className = `bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border ${hasPendingReq ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : cardBorderClass} shadow-lg relative transition-colors duration-300`;
+                    }
+                    const cardMarker = document.getElementById(`admin_card_marker_${u.studentId}`);
+                    if (cardMarker) cardMarker.innerHTML = markerBadgeHtml;
+
+                    const tableMarker = document.getElementById(`admin_table_marker_${u.studentId}`);
+                    if (tableMarker) tableMarker.innerHTML = markerTableBadge;
+
+                    const cardManageBtn = document.getElementById(`admin_card_manage_${u.studentId}`);
+                    if (cardManageBtn) {
+                        cardManageBtn.className = `relative flex-1 min-w-[45%] py-3.5 ${hasPendingReq ? 'bg-red-600 hover:bg-red-500 text-white border-red-400' : 'bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border-blue-500/30'} rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2`;
+                        cardManageBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> จัดการ ${dotHtml}`;
+                    }
+
+                    const tableManageBtn = document.getElementById(`admin_table_manage_${u.studentId}`);
+                    if (tableManageBtn) {
+                        tableManageBtn.className = `relative ${hasPendingReq ? 'text-white bg-red-600 hover:bg-red-500 border-red-500' : 'text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 border-blue-500/20'} px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border`;
+                        tableManageBtn.innerHTML = `จัดการข้อมูล ${dotHtml}`;
+                    }
+                });
+            },
+
             renderAdminUsers: function() {
                 const pendingCount = Object.values(app.studentEdits).filter(s => s.editRequest && s.editRequest.status === 'pending').length;
                 let pendingBanner = '';
@@ -3159,7 +3243,7 @@
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
                     
-                    ${pendingBanner}
+                    <div id="admin_pending_banner_container">${pendingBanner}</div>
 
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
                         <div class="flex items-center gap-4">
@@ -3390,15 +3474,15 @@
 
                                 // แบบ Card สำหรับมือถือ (ขยายขนาดทุกอย่างให้เต็มตา)
                                 gridHtml += `
-                                <div class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border ${hasPendingReq ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : cardBorderClass} shadow-lg relative transition-colors duration-300">
-                                    ${markerBadgeHtml}
+                                <div id="admin_card_${u.studentId}" class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border ${hasPendingReq ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : cardBorderClass} shadow-lg relative transition-colors duration-300">
+                                    <div id="admin_card_marker_${u.studentId}">${markerBadgeHtml}</div>
                                     <div class="w-24 h-24 rounded-full border-[3px] border-white bg-secondary overflow-hidden relative flex items-center justify-center shadow-md mb-4 p-0 mt-2">
                                         <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                         <i class="fa-solid fa-circle-notch fa-spin text-white text-lg absolute z-10 spinner-icon"></i>
                                         <img src="./MORANASATECT/${u.id}.png" 
                                              onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
                                              onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
-                                             class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
+                                             class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                                     </div>
                                     <h3 class="text-white font-extrabold text-lg drop-shadow-md w-full truncate px-2">${cleanName}</h3>
                                     <p class="text-xs text-gray-400 font-bold mt-1 tracking-widest"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId}</p>
@@ -3418,7 +3502,7 @@
                                         <button onclick="app.resetVisit('${u.studentId}')" class="flex-1 min-w-[45%] py-3.5 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-rotate-left"></i> ล้างวิว
                                         </button>
-                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative flex-1 min-w-[45%] py-3.5 ${hasPendingReq ? 'bg-red-600 hover:bg-red-500 text-white border-red-400' : 'bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border-blue-500/30'} rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                                        <button id="admin_card_manage_${u.studentId}" onclick="app.manageUserData('${u.studentId}')" class="relative flex-1 min-w-[45%] py-3.5 ${hasPendingReq ? 'bg-red-600 hover:bg-red-500 text-white border-red-400' : 'bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white border-blue-500/30'} rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-pen-to-square"></i> จัดการ ${dotHtml}
                                         </button>
                                         <button onclick="window.open(app.getStudentLink('${u.studentId}'), '_blank')" class="w-full py-3.5 bg-secondary text-primary rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 mt-1">
@@ -3441,7 +3525,7 @@
                                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                             </div>
                                             <div>
-                                                <div class="font-bold text-white text-sm flex items-center flex-wrap gap-y-1"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId} ${markerTableBadge}</div>
+                                                <div class="font-bold text-white text-sm flex items-center flex-wrap gap-y-1"><span class="text-secondary mr-1">${u.id}</span> ${u.studentId} <span id="admin_table_marker_${u.studentId}">${markerTableBadge}</span></div>
                                                 <div class="text-xs text-gray-500 mt-0.5">${cleanName}</div>
                                             </div>
                                         </div>
@@ -3458,7 +3542,7 @@
                                         ${statusHtml}
                                     </td>
                                     <td class="p-4 text-center">
-                                        <button onclick="app.manageUserData('${u.studentId}')" class="relative ${hasPendingReq ? 'text-white bg-red-600 hover:bg-red-500 border-red-500' : 'text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 border-blue-500/20'} px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border" title="จัดการข้อมูลเสริม">
+                                        <button id="admin_table_manage_${u.studentId}" onclick="app.manageUserData('${u.studentId}')" class="relative ${hasPendingReq ? 'text-white bg-red-600 hover:bg-red-500 border-red-500' : 'text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 border-blue-500/20'} px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-colors border" title="จัดการข้อมูลเสริม">
                                             จัดการข้อมูล ${dotHtml}
                                         </button>
                                     </td>
