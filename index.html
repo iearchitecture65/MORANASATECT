@@ -1400,7 +1400,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
@@ -1443,7 +1443,7 @@
                                     <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                     <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                     <img src="./MORANASATECT01/${advisor.id}.png" 
-                                         onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                         onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                          onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                          class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                 </div>
@@ -1700,7 +1700,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl sm:text-4xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT01/${advisor.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT01/${advisor.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>`;
@@ -1747,7 +1747,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl md:text-2xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-lg absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${u.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT/${u.id}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.05] z-20 opacity-0 transition-transform duration-700 group-hover:scale-[1.15]">
                             </div>
@@ -2265,7 +2265,7 @@
                         <div class="${containerClass}" ${inlineStyle ? `style="${inlineStyle}"` : ''}>
                             <i class="fa-solid fa-circle-notch fa-spin text-gray-500 text-4xl absolute z-0"></i>
                             <img src="${url}" alt="${label}" 
-                                 onload="this.parentElement.querySelector('.fa-circle-notch').classList.add('hidden'); this.classList.remove('opacity-0')"
+                                 onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.fa-circle-notch'); if(s) s.classList.add('hidden'); }, 700);"
                                  class="${imgClass}" 
                                  onerror="this.style.display='none'">
                         </div>`;
@@ -2403,7 +2403,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl sm:text-5xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl sm:text-4xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${user.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${user.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
@@ -2501,7 +2501,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-xl sm:text-2xl z-0 hidden">${sAbbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${uid}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT/${uid}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-transform duration-500 group-hover:scale-[1.2]">
                             </div>
@@ -2535,7 +2535,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-4xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-3xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT01/${advisor.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT01/${advisor.id}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
@@ -2702,7 +2702,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-2xl sm:text-3xl z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xl sm:text-2xl absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT/${app.profile.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback !== '1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${app.profile.id}.jpg'; } else { this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                             </div>
@@ -3076,7 +3076,7 @@
                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                 <img src="./MORANASATECT01/${a.id}.png" 
-                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                      onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT01/${a.id}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-transform duration-500">
                             </div>
@@ -3647,7 +3647,7 @@
                                         <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-3xl z-0 hidden">${abbr}</span>
                                         <i class="fa-solid fa-circle-notch fa-spin text-white text-lg absolute z-10 spinner-icon"></i>
                                         <img src="./MORANASATECT/${u.id}.png" 
-                                             onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
+                                             onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"
                                              onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                              class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-300">
                                     </div>
@@ -3687,8 +3687,7 @@
                                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                                 <img src="./MORANASATECT/${u.id}.png" 
-                                                     onload="const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.classList.remove('opacity-0');"
-                                                     onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"                                                     onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                             </div>
                                             <div>
