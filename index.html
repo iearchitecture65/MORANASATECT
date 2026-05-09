@@ -477,6 +477,7 @@
                 studentLoginCloseMsg: '',
                 isPublicGuestOpen: true,
                 publicGuestCloseMsg: '',
+                studentPublicCloseMsg: '', // เพิ่มอันนี้
                 isSharingOpen: true,
                 sharingCloseMsg: '',
                 allowEdit: true,
@@ -730,7 +731,7 @@
                         }
                         if(data.studentLoginCloseMsg === undefined) data.studentLoginCloseMsg = '';
                         if(data.publicGuestCloseMsg === undefined) data.publicGuestCloseMsg = '';
-                        if(data.sharingCloseMsg === undefined) data.sharingCloseMsg = '';
+                        if(data.studentPublicCloseMsg === undefined) data.studentPublicCloseMsg = ''; // เพิ่มอันนี้                        if(data.sharingCloseMsg === undefined) data.sharingCloseMsg = '';
                         if(data.sessionDurationHours === undefined) data.sessionDurationHours = 2;
                         if(data.sessionApplyGuest === undefined) data.sessionApplyGuest = true;
                         
@@ -2321,10 +2322,16 @@
                 const isOwner = app.profile && app.profile.role === 'student' && app.profile.uid === studentId;
 
                 if (!isPublicGuestOpen && !isAdmin && !isOwner) {
-                    let msgHtml = app.formatCloseMsg(app.settings.publicGuestCloseMsg, 'ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้');
+                    // เลือกข้อความตามบทบาทของผู้ใช้งาน
+                    let targetMsg = app.settings.publicGuestCloseMsg;
+                    let defaultText = 'ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้';
+
                     if (app.profile && app.profile.role === 'student') {
-                        msgHtml = app.formatCloseMsg(app.settings.publicGuestCloseMsg, 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงาน\nสำหรับบุคคลภายนอก\n\nคุณสามารถดูได้เฉพาะผลงานของตนเอง\nผ่านปุ่ม "ดูผลงานของฉัน" เท่านั้นครับ');
+                        targetMsg = app.settings.studentPublicCloseMsg;
+                        defaultText = 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงานสำหรับบุคคลภายนอก\nคุณสามารถดูได้เฉพาะผลงานของตนเองเท่านั้นครับ';
                     }
+
+                    const msgHtml = app.formatCloseMsg(targetMsg, defaultText);
                     
                     return `
                     <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
@@ -2957,8 +2964,16 @@
                                 </label>
                             </div>
                             <div id="msg_guest_login" class="w-full ${app.settings.isPublicGuestOpen !== false ? 'hidden' : ''} pt-2 border-t border-white/5 mt-2">
-                                <label class="block text-[10px] text-red-400 font-bold mb-2">ข้อความแจ้งเตือนเมื่อปิดระบบ</label>
-                                <textarea onchange="app.updateSetting('publicGuestCloseMsg', this.value)" class="glass-input w-full p-3 rounded-xl text-xs min-h-[60px]" placeholder="พิมพ์ข้อความที่นี่... ค่าเริ่มต้น: ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้">${app.settings.publicGuestCloseMsg || ''}</textarea>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] text-secondary font-bold mb-2">ข้อความสำหรับบุคคลทั่วไป (Guest)</label>
+                                        <textarea onchange="app.updateSetting('publicGuestCloseMsg', this.value)" class="glass-input w-full p-3 rounded-xl text-xs min-h-[80px]" placeholder="ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้">${app.settings.publicGuestCloseMsg || ''}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] text-blue-400 font-bold mb-2">ข้อความสำหรับนักศึกษา (เมื่อดูผลงานคนอื่น)</label>
+                                        <textarea onchange="app.updateSetting('studentPublicCloseMsg', this.value)" class="glass-input w-full p-3 rounded-xl text-xs min-h-[80px]" placeholder="คุณสามารถดูได้เฉพาะผลงานของตนเองเท่านั้น">${app.settings.studentPublicCloseMsg || ''}</textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
