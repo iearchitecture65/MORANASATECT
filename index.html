@@ -898,7 +898,16 @@
 
             openExhibit: function(studentId, isFromDashboardMenu = false) {
                 if (app.profile) {
-                    app.logVisit(studentId, isFromDashboardMenu);
+                    // เช็คสิทธิ์การเข้าชมว่าระบบเปิดอยู่ หรือเป็นแอดมิน/เจ้าของผลงานหรือไม่
+                    const isPublicGuestOpen = app.settings.isPublicGuestOpen !== false;
+                    const isAdmin = app.profile.role === 'admin';
+                    const isOwner = app.profile.role === 'student' && app.profile.uid === studentId;
+
+                    // จะบันทึกยอดเข้าชม (logVisit) ก็ต่อเมื่อมีสิทธิ์เห็นผลงานจริงๆ เท่านั้น
+                    if (isPublicGuestOpen || isAdmin || isOwner) {
+                        app.logVisit(studentId, isFromDashboardMenu);
+                    }
+                    
                     app.showView('public_exhibit', studentId);
                 } else {
                     app.pendingExhibitId = studentId;
