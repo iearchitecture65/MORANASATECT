@@ -290,25 +290,14 @@
             perspective: 1000px;
         }
 
-        /* ลดภาระ GPU ในมือถือขั้นเด็ดขาด ป้องกันเครื่องร้อนและหน่วง */
+        /* คืนค่าความเบลอให้กลับมาสมูท ไม่เป็นเหลี่ยม */
         @media (max-width: 768px) {
             .glass-card {
-                backdrop-filter: blur(4px); /* ลดเบลอลงให้ GPU ไม่ทำงานหนัก */
-                -webkit-backdrop-filter: blur(4px);
-                background: rgba(20, 20, 20, 0.85); /* เพิ่มความทึบสีดำชดเชยความเบลอที่หายไป */
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
             }
             .fixed.inset-0.overflow-hidden div {
-                opacity: 0.5;
-            }
-            .animate-blob {
-                animation: none !important; /* ปิดการขยับของก้อนสีในมือถือ (สาเหตุหลักที่ทำให้เครื่องร้อน) */
-            }
-            /* ลดเงาแสงสะท้อนที่กินสเปค */
-            * {
-                box-shadow: none !important; 
-            }
-            .glass-card, .border-white\/10 {
-                box-shadow: 0 4px 6px rgba(0,0,0,0.5) !important;
+                opacity: 0.7; 
             }
         }
     </style>
@@ -4398,7 +4387,17 @@
             }
         };
 
-        window.addEventListener('DOMContentLoaded', () => app.init());
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+            
+            // ให้คำนวณกราฟิกแค่ช่วงแรก แล้วสั่งแช่แข็ง (Pause) ก้อนสีพื้นหลังหลังจาก 4 วินาที
+            // เพื่อลดการทำงานของ GPU มือถือ แก้ปัญหาเครื่องร้อนและหน่วง โดยที่ภาพยังเบลอสวยงามไม่เป็นเหลี่ยม
+            setTimeout(() => {
+                document.querySelectorAll('.animate-blob').forEach(el => {
+                    el.style.animationPlayState = 'paused';
+                });
+            }, 4000);
+        });
         
         // Scroll Listener for LOGO 01 Rotation
         window.addEventListener('scroll', () => {
