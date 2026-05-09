@@ -3635,7 +3635,6 @@
                                 let dotHtml = '';
                                 
                                 if (hasPendingReq) {
-                                    // จุดสีแดงใหญ่ เครื่องหมายตกใจ
                                     dotHtml = `<span class="absolute -top-2 -right-2 flex h-6 w-6"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span><span class="relative inline-flex rounded-full h-6 w-6 bg-red-600 text-white items-center justify-center text-xs shadow-lg"><i class="fa-solid fa-exclamation"></i></span></span>`;
                                 } else if (hasCustomData || sData._adminMarker) {
                                     let dotColorClass = 'bg-secondary';
@@ -3665,7 +3664,7 @@
                                     }
                                 }
 
-                                // แบบ Card สำหรับมือถือ (ขยายขนาดทุกอย่างให้เต็มตา)
+                                // แบบ Card สำหรับมือถือ
                                 gridHtml += `
                                 <div id="admin_card_${u.studentId}" class="bg-white/5 p-6 rounded-[2rem] flex flex-col items-center text-center border ${hasPendingReq ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : cardBorderClass} shadow-lg relative transition-colors duration-300">
                                     <div id="admin_card_marker_${u.studentId}">${markerBadgeHtml}</div>
@@ -3713,7 +3712,8 @@
                                                 <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
                                                 <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
                                                 <img src="./MORANASATECT/${u.id}.png" 
-                                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);"                                                     onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
+                                                     onload="this.classList.remove('opacity-0'); setTimeout(() => { let s = this.parentElement.querySelector('.spinner-icon'); if(s) s.classList.add('hidden'); }, 500);" 
+                                                     onerror="if(this.dataset.fallback!=='1') { this.dataset.fallback='1'; this.src='./MORANASATECT/${u.id}.jpg'; } else { const spin = this.parentElement.querySelector('.spinner-icon'); if(spin) spin.classList.add('hidden'); this.parentElement.querySelector('.fallback-text').classList.remove('hidden'); this.remove(); }" 
                                                      class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-all duration-500">
                                             </div>
                                             <div>
