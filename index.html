@@ -350,10 +350,6 @@
                         <i class="fa-solid fa-house w-5 text-center text-secondary"></i> หน้าหลัก (รวมผลงาน)
                     </button>
 
-                    <button id="publicAdminUsersBtn" onclick="app.showView('admin_users')" class="hidden items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white border border-secondary/30 bg-secondary/10 mt-1 mb-1">
-                        <i class="fa-solid fa-users w-5 text-center text-secondary"></i> จัดการข้อมูลสมาชิก
-                    </button>
-
                     <!-- Advisors Accordion -->
                     <button onclick="app.toggleMenuAccordion('advisorAccordion')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left font-bold text-sm text-white justify-between">
                         <div class="flex items-center gap-3"><i class="fa-solid fa-chalkboard-user w-5 text-center text-secondary"></i> หมวดหมู่อาจารย์ที่ปรึกษา</div>
@@ -478,11 +474,13 @@
             currentParam: null,
             settings: {
                 isStudentLoginOpen: true,
+                studentLoginCloseMsg: '',
                 isPublicGuestOpen: true,
+                publicGuestCloseMsg: '',
                 isSharingOpen: true,
+                sharingCloseMsg: '',
                 allowEdit: true,
                 isHomeMenuForStudentOpen: true, 
-                isAdminUsersPublic: false, 
                 sessionDurationHours: 2, 
                 sessionApplyGuest: true, 
                 sessionApplyStudent: false, 
@@ -529,6 +527,40 @@
                 },
                 buttonsStyling: false
             }),
+
+            formatCloseMsg: function(msg, defaultMsg) {
+                let text = msg ? msg.trim() : defaultMsg;
+                if (!text) return '';
+                const lines = text.split('\n');
+                return `<div class="w-full flex flex-col items-center justify-center overflow-hidden py-2 gap-1.5">
+                    ${lines.map(l => `<div class="w-full flex justify-center items-center overflow-hidden"><span class="whitespace-pre font-bold text-white auto-scale-line" style="font-size: 18px; line-height: 1.4; transition: font-size 0.2s ease-out;">${l || '&nbsp;'}</span></div>`).join('')}
+                </div>`;
+            },
+            
+            autoScaleText: function() {
+                const lines = document.querySelectorAll('.auto-scale-line');
+                lines.forEach(el => {
+                    // หาความกว้างของกล่องแม่
+                    const parentWidth = el.parentElement.clientWidth;
+                    if (parentWidth <= 0) return;
+                    
+                    // รีเซ็ตขนาดฟอนต์ให้ใหญ่และอ่านง่ายก่อน (18px)
+                    el.style.fontSize = '18px';
+                    
+                    // ความกว้างจริงของตัวอักษร
+                    const textWidth = el.scrollWidth;
+                    
+                    // หากตัวหนังสือยาวเกินกล่อง ค่อยทำการคำนวณย่อขนาดให้พอดี
+                    if (textWidth > parentWidth) {
+                        // คำนวณอัตราส่วนย่อที่พอดีเป๊ะ (คูณ 0.95 เพื่อเว้นระยะขอบซ้ายขวานิดหน่อย)
+                        const ratio = (parentWidth * 0.95) / textWidth;
+                        let newSize = Math.floor(18 * ratio);
+                        
+                        // นำขนาดใหม่ไปใช้ทันที (รับประกันว่าไม่ตกบรรทัดตามที่ต้องการ)
+                        el.style.fontSize = newSize + 'px';
+                    }
+                });
+            },
 
             updateSEO: function(viewName, param) {
                 let canonical = "https://iearchitecture65.github.io/MORANASATECT/";
@@ -696,12 +728,11 @@
                         if(data.isHomeMenuForStudentOpen === undefined) {
                             data.isHomeMenuForStudentOpen = true;
                         }
+                        if(data.studentLoginCloseMsg === undefined) data.studentLoginCloseMsg = '';
+                        if(data.publicGuestCloseMsg === undefined) data.publicGuestCloseMsg = '';
+                        if(data.sharingCloseMsg === undefined) data.sharingCloseMsg = '';
                         if(data.sessionDurationHours === undefined) data.sessionDurationHours = 2;
                         if(data.sessionApplyGuest === undefined) data.sessionApplyGuest = true;
-                        if(data.sessionApplyStudent === undefined) data.sessionApplyStudent = false;
-                        if(data.sessionApplyAdmin === undefined) data.sessionApplyAdmin = false;
-                        if(data.isAdminUsersPublic === undefined) data.isAdminUsersPublic = false;
-                        if(data.adminMarkers === undefined) data.adminMarkers = {};
                         
                         const oldBoxesStr = JSON.stringify(app.settings.customBoxes);
                         app.settings = { ...app.settings, ...data };
@@ -1030,17 +1061,6 @@
                 
                 if (!hamBtn) return;
 
-                const publicAdminUsersBtn = document.getElementById('publicAdminUsersBtn');
-                if (publicAdminUsersBtn) {
-                    if (app.settings.isAdminUsersPublic) {
-                        publicAdminUsersBtn.classList.remove('hidden');
-                        publicAdminUsersBtn.classList.add('flex');
-                    } else {
-                        publicAdminUsersBtn.classList.add('hidden');
-                        publicAdminUsersBtn.classList.remove('flex');
-                    }
-                }
-
                 if (['loading', 'login', 'otp', 'guest_register'].includes(app.view)) {
                     if (loginBtn) loginBtn.classList.add('hidden');
                     if (hamBtn) hamBtn.classList.add('hidden');
@@ -1179,9 +1199,10 @@
                 if (app.settings.isSharingOpen === false) {
                     return app.swal.fire({
                         title: 'ระบบปิดการแชร์',
-                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ',
+                        html: app.formatCloseMsg(app.settings.sharingCloseMsg, 'ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ'),
                         icon: 'warning',
-                        confirmButtonText: 'ตกลง'
+                        confirmButtonText: 'ตกลง',
+                        didOpen: () => { app.autoScaleText(); }
                     });
                 }
 
@@ -1252,9 +1273,10 @@
                 if (app.settings.isSharingOpen === false) {
                     return app.swal.fire({
                         title: 'ระบบปิดการแชร์',
-                        text: 'ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ',
+                        html: app.formatCloseMsg(app.settings.sharingCloseMsg, 'ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ'),
                         icon: 'warning',
-                        confirmButtonText: 'ตกลง'
+                        confirmButtonText: 'ตกลง',
+                        didOpen: () => { app.autoScaleText(); }
                     });
                 }
 
@@ -1556,7 +1578,7 @@
             showView: function(viewName, param = null, isBack = false) {
                 if (viewName === 'admin_users') {
                     const isAdmin = app.profile && app.profile.role === 'admin';
-                    if (!isAdmin && !app.settings.isAdminUsersPublic) {
+                    if (!isAdmin) {
                         app.swal.fire('ไม่มีสิทธิ์', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'error');
                         return app.goHome();
                     }
@@ -1624,6 +1646,8 @@
                 else if (viewName === 'admin_export') root.innerHTML = app.renderAdminExport();
                 else if (viewName === 'iframe_view') root.innerHTML = app.renderIframeView(param);
                 else if (viewName === 'advisor_profile') root.innerHTML = app.renderAdvisorProfile(param);
+                
+                setTimeout(app.autoScaleText, 50);
             },
 
             refreshCurrentView: function() {
@@ -1638,6 +1662,8 @@
                 else if(app.view === 'admin_boxes') document.getElementById('appRoot').innerHTML = app.renderAdminBoxes();
                 else if(app.view === 'admin_iframe') document.getElementById('appRoot').innerHTML = app.renderAdminIframe();
                 else if(app.view === 'admin_settings') document.getElementById('appRoot').innerHTML = app.renderAdminSettings();
+                
+                setTimeout(app.autoScaleText, 50);
             },
 
             // ================== RENDERERS ==================
@@ -1992,13 +2018,14 @@
 
             renderGuestRegister: function() {
                 if (app.settings.isPublicGuestOpen === false) {
+                    const msgHtml = app.formatCloseMsg(app.settings.publicGuestCloseMsg, 'ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้');
                     return `
                     <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
                         <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
                             <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
                             <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดให้บริการ</h2>
-                            <div class="text-blue-100 text-sm font-medium bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto leading-relaxed">
-                                <p>ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้</p>
+                            <div class="text-blue-100 bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto w-full overflow-hidden flex flex-col items-center justify-center min-h-[80px]">
+                                ${msgHtml}
                             </div>
                             <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
                                 กลับหน้าหลัก
@@ -2294,39 +2321,24 @@
                 const isOwner = app.profile && app.profile.role === 'student' && app.profile.uid === studentId;
 
                 if (!isPublicGuestOpen && !isAdmin && !isOwner) {
+                    let msgHtml = app.formatCloseMsg(app.settings.publicGuestCloseMsg, 'ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้');
                     if (app.profile && app.profile.role === 'student') {
-                        return `
-                        <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
-                            <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
-                                <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
-                                <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
-                                <div class="text-blue-100 text-sm font-medium bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto leading-relaxed">
-                                    <p>ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงาน</p>
-                                    <p>สำหรับบุคคลภายนอก</p>
-                                    <br>
-                                    <p>คุณสามารถดูได้เฉพาะผลงานของตนเอง</p>
-                                    <p>ผ่านปุ่ม "ดูผลงานของฉัน" เท่านั้นครับ</p>
-                                </div>
-                                <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
-                                    กลับหน้าหลัก
-                                </button>
-                            </div>
-                        </div>`;
-                    } else {
-                        return `
-                        <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
-                            <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
-                                <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
-                                <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
-                                <div class="text-blue-100 text-sm font-medium bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto leading-relaxed">
-                                    <p>ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้</p>
-                                </div>
-                                <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
-                                    กลับหน้าหลัก
-                                </button>
-                            </div>
-                        </div>`;
+                        msgHtml = app.formatCloseMsg(app.settings.publicGuestCloseMsg, 'ขณะนี้ผู้ดูแลระบบได้ปิดการเข้าชมผลงาน\nสำหรับบุคคลภายนอก\n\nคุณสามารถดูได้เฉพาะผลงานของตนเอง\nผ่านปุ่ม "ดูผลงานของฉัน" เท่านั้นครับ');
                     }
+                    
+                    return `
+                    <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto min-h-[60vh]">
+                        <div class="w-full glass-card rounded-[2rem] p-8 text-center animate-slide-up border-t-4 border-t-red-500 shadow-2xl">
+                            <i class="fa-solid fa-lock text-5xl text-red-500 mb-4 drop-shadow-lg"></i>
+                            <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 drop-shadow-sm">ระบบปิดการเข้าชม</h2>
+                            <div class="text-blue-100 bg-black/20 p-5 rounded-xl border border-white/10 shadow-inner max-w-md mx-auto w-full overflow-hidden flex flex-col items-center justify-center min-h-[100px]">
+                                ${msgHtml}
+                            </div>
+                            <button onclick="app.goHome()" class="mt-6 bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full text-xs font-bold transition-colors border border-white/10 shadow-sm uppercase tracking-widest">
+                                กลับหน้าหลัก
+                            </button>
+                        </div>
+                    </div>`;
                 }
 
                 const user = window.predefinedUsers.find(u => u.studentId === studentId);
@@ -2797,6 +2809,83 @@
                 } catch(e) { app.swal.fire('Error', 'Cannot save', 'error'); }
             },
 
+            showMyViewCount: function(studentId, vCount) {
+                const logs = app.accessLogs.filter(l => l.action === 'view_exhibit' && l.target === studentId);
+                let logsHtml = '';
+                
+                if (logs.length === 0) {
+                    logsHtml = `<div class="text-center py-6 text-gray-500 text-xs font-bold bg-black/20 rounded-2xl border border-white/5 shadow-inner">ยังไม่มีประวัติการเข้าชม</div>`;
+                } else {
+                    logsHtml = `<div class="max-h-[250px] overflow-y-auto pr-2 custom-scrollbar space-y-2 mt-2">`;
+                    logs.forEach(log => {
+                        const dateObj = new Date(log.timestamp);
+                        const dStr = dateObj.toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'2-digit'}) + ' ' + dateObj.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+                        
+                        let roleBadge = '';
+                        if(log.role === 'student') roleBadge = '<span class="text-[8px] text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded ml-2">Student</span>';
+                        else if(log.role === 'admin') roleBadge = '<span class="text-[8px] text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded ml-2">Admin</span>';
+                        else roleBadge = '<span class="text-[8px] text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded ml-2">Guest</span>';
+
+                        logsHtml += `
+                        <div class="bg-white/5 p-3 rounded-xl border border-white/10 flex justify-between items-center text-left hover:bg-white/10 transition-colors">
+                            <div class="min-w-0 flex-1 flex flex-wrap items-center">
+                                <span class="text-white text-xs font-bold truncate max-w-[150px] sm:max-w-[200px]" title="${log.name}">${app.formatName(log.name)}</span>
+                                ${roleBadge}
+                            </div>
+                            <div class="text-[9px] text-gray-400 shrink-0 whitespace-nowrap ml-2">
+                                <i class="fa-regular fa-clock mr-1"></i>${dStr}
+                            </div>
+                        </div>`;
+                    });
+                    logsHtml += `</div>`;
+                }
+
+                app.swal.fire({
+                    title: 'ยอดเข้าชมผลงานของคุณ',
+                    html: `
+                        <div class="pt-4 pb-2 flex flex-col items-center justify-center text-center">
+                            <i class="fa-solid fa-eye text-5xl text-secondary mb-3 drop-shadow-[0_0_15px_rgba(253,223,49,0.4)]"></i>
+                            <div class="bg-black/30 px-6 py-3 rounded-2xl border border-white/10 shadow-inner inline-flex items-end gap-2 mb-4">
+                                <span class="text-4xl font-black text-white drop-shadow-md leading-none dynamic-visit-count" data-sid="${studentId}">${vCount}</span>
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-widest pb-1">ครั้ง</span>
+                            </div>
+                            
+                            <div class="w-full text-left mt-2">
+                                <p class="text-[10px] text-secondary font-bold tracking-widest uppercase mb-2 ml-1"><i class="fa-solid fa-list-ul mr-1"></i> ประวัติผู้เข้าชมล่าสุด</p>
+                                ${logsHtml}
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'ปิดหน้าต่าง'
+                });
+            },
+
+            showMediaPopup: function(type) {
+                const sid = app.profile.uid;
+                const data = app.thesisData.find(d => d.studentId === sid) || {};
+                
+                if (type === 'video') {
+                    if (!data.videoUrl) return app.swal.fire('ไม่มีข้อมูล', 'ระบบไม่พบลิงก์วิดีโอของคุณ (อาจจะอยู่ระหว่างการดึงข้อมูลจากระบบ)', 'info');
+                    app.playVideoPopup(data.videoUrl);
+                } else if (type === 'image') {
+                    let imgs = data.coverImg ? data.coverImg : '';
+                    if (data.portfolioImgs) {
+                        imgs += (imgs ? '\n' : '') + data.portfolioImgs;
+                    }
+                    if (!imgs) return app.swal.fire('ไม่มีข้อมูล', 'ระบบไม่พบรูปภาพผลงานของคุณ', 'info');
+                    
+                    app.swal.fire({
+                        html: `<h3 class="text-white font-bold text-xl mb-4 text-left border-b border-white/10 pb-3 pl-2"><i class="fa-solid fa-images text-secondary mr-2"></i> พรีวิวรูปภาพ</h3><div class="max-h-[65vh] overflow-y-auto px-1 sm:px-3 custom-scrollbar text-left w-full">${app.renderMediaFrames(imgs, 'image')}</div>`,
+                        showCloseButton: true,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'border border-secondary/30 rounded-[2rem] backdrop-blur-xl shadow-2xl w-[95%] max-w-4xl bg-black/95 p-4 sm:p-6',
+                            closeButton: 'text-white hover:text-red-500 transition-colors focus:outline-none'
+                        }
+                    });
+                }
+            },
+
             renderAdminSettings: function() {
                 return `
                 <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
@@ -2810,7 +2899,6 @@
 
                     <div class="glass-card rounded-[2.5rem] p-6 md:p-8 space-y-6">
                         
-                        <!-- เพิ่มตั้งค่าเวลาเซสชัน -->
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner mb-6">
                             <div class="w-full">
                                 <p class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-clock text-secondary mr-2"></i>ตั้งค่าเวลาเซสชัน (Session Timeout)</p>
@@ -2840,26 +2928,38 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
-                            <div>
-                                <p class="font-bold text-white text-sm">เปิดระบบเข้าใช้งานสำหรับนักศึกษา</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด นักศึกษา (ผู้ส่งผลงาน) จะไม่สามารถเข้าสู่ระบบ Dashboard ได้</p>
+                        <div class="flex flex-col p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div class="flex items-start sm:items-center justify-between gap-4 w-full">
+                                <div>
+                                    <p class="font-bold text-white text-sm">เปิดระบบเข้าใช้งานสำหรับนักศึกษา</p>
+                                    <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด นักศึกษา (ผู้ส่งผลงาน) จะไม่สามารถเข้าสู่ระบบ Dashboard ได้</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" ${app.settings.isStudentLoginOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isStudentLoginOpen', this.checked); document.getElementById('msg_student_login').classList.toggle('hidden', this.checked);" class="sr-only peer">
+                                    <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                                </label>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${app.settings.isStudentLoginOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isStudentLoginOpen', this.checked)" class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
-                            </label>
+                            <div id="msg_student_login" class="w-full ${app.settings.isStudentLoginOpen !== false ? 'hidden' : ''} pt-2 border-t border-white/5 mt-2">
+                                <label class="block text-[10px] text-red-400 font-bold mb-2">ข้อความแจ้งเตือนเมื่อปิดระบบ</label>
+                                <textarea onchange="app.updateSetting('studentLoginCloseMsg', this.value)" class="glass-input w-full p-3 rounded-xl text-xs min-h-[60px]" placeholder="พิมพ์ข้อความที่นี่... ค่าเริ่มต้น: ผู้ดูแลระบบได้ทำการปิดระบบล็อกอินในขณะนี้">${app.settings.studentLoginCloseMsg || ''}</textarea>
+                            </div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
-                            <div>
-                                <p class="font-bold text-white text-sm">เปิดระบบเข้าชมสำหรับผู้เยี่ยมชมทั่วไป (Guest)</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด บุคคลภายนอก จะไม่สามารถเข้าดูผลงานได้ (นักศึกษาดูได้เฉพาะของตัวเองเท่านั้น)</p>
+                        <div class="flex flex-col p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div class="flex items-start sm:items-center justify-between gap-4 w-full">
+                                <div>
+                                    <p class="font-bold text-white text-sm">เปิดระบบเข้าชมสำหรับผู้เยี่ยมชมทั่วไป (Guest)</p>
+                                    <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด บุคคลภายนอก จะไม่สามารถเข้าดูผลงานได้ (นักศึกษาดูได้เฉพาะของตัวเองเท่านั้น)</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" ${app.settings.isPublicGuestOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isPublicGuestOpen', this.checked); document.getElementById('msg_guest_login').classList.toggle('hidden', this.checked);" class="sr-only peer">
+                                    <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                                </label>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${app.settings.isPublicGuestOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isPublicGuestOpen', this.checked)" class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
-                            </label>
+                            <div id="msg_guest_login" class="w-full ${app.settings.isPublicGuestOpen !== false ? 'hidden' : ''} pt-2 border-t border-white/5 mt-2">
+                                <label class="block text-[10px] text-red-400 font-bold mb-2">ข้อความแจ้งเตือนเมื่อปิดระบบ</label>
+                                <textarea onchange="app.updateSetting('publicGuestCloseMsg', this.value)" class="glass-input w-full p-3 rounded-xl text-xs min-h-[60px]" placeholder="พิมพ์ข้อความที่นี่... ค่าเริ่มต้น: ขณะนี้ไม่เปิดให้ผู้เยี่ยมชมเข้าดูผลงานได้">${app.settings.publicGuestCloseMsg || ''}</textarea>
+                            </div>
                         </div>
                         
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
@@ -2873,15 +2973,21 @@
                             </label>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
-                            <div>
-                                <p class="font-bold text-white text-sm">เปิดระบบการแชร์ผลงาน (Share)</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ปุ่มแชร์ผลงานและหน้าโปรไฟล์ทั้งหมดจะกลายเป็นสีเทา และไม่สามารถกดแชร์ได้ชั่วคราว</p>
+                        <div class="flex flex-col p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
+                            <div class="flex items-start sm:items-center justify-between gap-4 w-full">
+                                <div>
+                                    <p class="font-bold text-white text-sm">เปิดระบบการแชร์ผลงาน (Share)</p>
+                                    <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิด ปุ่มแชร์ผลงานและหน้าโปรไฟล์ทั้งหมดจะกลายเป็นสีเทา และไม่สามารถกดแชร์ได้ชั่วคราว</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" ${app.settings.isSharingOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isSharingOpen', this.checked); document.getElementById('msg_sharing').classList.toggle('hidden', this.checked);" class="sr-only peer">
+                                    <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                                </label>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${app.settings.isSharingOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isSharingOpen', this.checked)" class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
-                            </label>
+                            <div id="msg_sharing" class="w-full ${app.settings.isSharingOpen !== false ? 'hidden' : ''} pt-2 border-t border-white/5 mt-2">
+                                <label class="block text-[10px] text-red-400 font-bold mb-2">ข้อความแจ้งเตือนเมื่อปิดระบบ</label>
+                                <textarea onchange="app.updateSetting('sharingCloseMsg', this.value)" class="glass-input w-full p-3 rounded-xl text-xs min-h-[60px]" placeholder="พิมพ์ข้อความที่นี่... ค่าเริ่มต้น: ขณะนี้ผู้ดูแลระบบได้ปิดการแชร์ลิงก์ชั่วคราวครับ">${app.settings.sharingCloseMsg || ''}</textarea>
+                            </div>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
@@ -2891,17 +2997,6 @@
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                 <input type="checkbox" ${app.settings.allowEdit !== false ? 'checked' : ''} onchange="app.updateSetting('allowEdit', this.checked)" class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
-                            </label>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
-                            <div>
-                                <p class="font-bold text-white text-sm text-secondary">เปิดหน้าจัดการสมาชิกเป็นสาธารณะ</p>
-                                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากเปิด ผู้เยี่ยมชมทั่วไปจะสามารถเข้าถึงเมนู "จัดการข้อมูลสมาชิก" เพื่อแก้ไขข้อมูล/โหลด QR Code ได้โดยไม่ต้องล็อกอิน</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" ${app.settings.isAdminUsersPublic ? 'checked' : ''} onchange="app.updateSetting('isAdminUsersPublic', this.checked)" class="sr-only peer">
                                 <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
                             </label>
                         </div>
@@ -2968,6 +3063,78 @@
                         `
                     });
                 } catch(e) { app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลโควต้าได้', 'error'); }
+            },
+
+            renderAdminAdvisors: function() {
+                let listHtml = window.advisorsData.map((a, idx) => {
+                    const cleanName = app.formatName(a.name);
+                    const abbr = app.getAbbr(cleanName);
+                    return `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/50 rounded-2xl border border-white/10 mb-3 gap-4 group">
+                        <div class="flex items-center gap-4 min-w-0 flex-1">
+                            <div class="w-12 h-12 rounded-full border-[2px] border-white bg-secondary overflow-hidden shrink-0 relative flex items-center justify-center p-0 shadow-md">
+                                <span class="fallback-text absolute inset-0 flex items-center justify-center font-sans font-black text-primary text-sm z-0 hidden">${abbr}</span>
+                                <i class="fa-solid fa-circle-notch fa-spin text-white text-xs absolute z-10 spinner-icon"></i>
+                                <img src="./MORANASATECT01/${a.id}.png" 
+                                     onload="this.parentElement.querySelector('.spinner-icon').classList.add('hidden'); this.classList.remove('opacity-0');"
+                                     onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='./MORANASATECT01/${a.id}.jpg';}else{this.parentElement.querySelector('.spinner-icon').classList.add('hidden');this.parentElement.querySelector('.fallback-text').classList.remove('hidden');this.remove();}" 
+                                     class="absolute inset-0 w-full h-full object-cover scale-[1.1] z-20 opacity-0 transition-transform duration-500">
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-white text-sm truncate mb-1">${a.name}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase shrink-0">ลิงก์ย่อ:</span>
+                                    <input type="text" id="adv_shortlink_${a.id}" value="${a.shortLink || ''}" placeholder="เช่น https://bit.ly/xxxx" class="glass-input px-2 py-1 rounded text-[10px] w-full max-w-[200px]">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-2 shrink-0 mt-2 sm:mt-0 w-full sm:w-auto">
+                            <button onclick="window.open(window.location.href.split('?')[0] + '?advisor=${a.id}', '_blank')" class="text-secondary hover:text-black bg-secondary/10 hover:bg-secondary px-3 py-2 rounded-lg transition-colors flex items-center justify-center border border-secondary/20 text-xs font-bold gap-1 shadow-sm" title="พรีวิวหน้าโปรไฟล์">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> พรีวิว
+                            </button>
+                            <button onclick="app.saveAdvisorShortLink(${a.id})" class="text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-2 rounded-lg transition-colors flex items-center justify-center border border-blue-500/20 text-xs font-bold gap-1 shadow-sm">
+                                <i class="fa-solid fa-floppy-disk"></i> บันทึก
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                return `
+                <div class="animate-fade-in max-w-4xl mx-auto pb-10 mt-6 px-3 sm:px-0 w-full min-w-0">
+                    <div class="flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+                        <div class="w-14 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center text-2xl border border-red-500/30"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <div>
+                            <p class="text-white font-black text-xl md:text-2xl mb-0.5 drop-shadow-md">จัดการข้อมูลอาจารย์</p>
+                            <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Manage Advisors</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[2.5rem] p-6 md:p-8">
+                        <h3 class="text-white font-black text-sm uppercase tracking-widest mb-6 border-b border-white/10 pb-4"><i class="fa-solid fa-link text-secondary mr-2 text-lg"></i>ตั้งค่าลิงก์ย่ออาจารย์ (สำหรับปุ่มแชร์)</h3>
+                        <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                            ${listHtml}
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            saveAdvisorShortLink: async function(id) {
+                const el = document.getElementById('adv_shortlink_' + id);
+                if (!el) return;
+                const link = el.value.trim();
+                
+                if(!app.settings.advisorShortLinks) app.settings.advisorShortLinks = {};
+                app.settings.advisorShortLinks[id] = link;
+                
+                const a = window.advisorsData.find(adv => adv.id == id);
+                if (a) a.shortLink = link;
+
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config'), { advisorShortLinks: app.settings.advisorShortLinks }, { merge: true });
+                    app.swal.fire({ title: 'สำเร็จ', text: 'บันทึกลิงก์ย่ออาจารย์เรียบร้อย', icon: 'success', timer: 1500, showConfirmButton: false });
+                } catch(e) {
+                    app.swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกได้', 'error');
+                }
             },
 
             renderAdminBoxes: function() {
