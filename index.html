@@ -209,10 +209,10 @@
         }
         
         .glass-card {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            background: rgba(20, 20, 20, 0.7); /* เพิ่มความเข้มของสีพื้นหลังนิดหน่อย เพื่อชดเชยความเบลอที่ลดลง */
+            backdrop-filter: blur(8px); /* ลดจาก 20px เหลือ 8px */
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); /* ลดความฟุ้งของเงาลง */
             border: 1px solid rgba(253, 223, 49, 0.15);
         }
         
@@ -305,10 +305,10 @@
 <body class="antialiased flex flex-col min-h-[100dvh]">
 
     <!-- Background Blobs -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] animate-blob"></div>
-        <div class="absolute top-[30%] -right-[10%] w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px] animate-blob" style="animation-delay: 2s; animation-direction: alternate-reverse;"></div>
-        <div class="absolute -bottom-[10%] left-[20%] w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[150px] animate-blob" style="animation-delay: 4s;"></div>
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-50">
+        <div class="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[60px]"></div>
+        <div class="absolute top-[30%] -right-[10%] w-[400px] h-[400px] bg-white/5 rounded-full blur-[50px]"></div>
+        <div class="absolute -bottom-[10%] left-[20%] w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[80px]"></div>
     </div>
 
     <!-- Header & Menu -->
@@ -4408,20 +4408,27 @@
             }, 4000);
         });
         
-        // Scroll Listener for LOGO 01 Rotation
+        // Scroll Listener for LOGO 01 Rotation (Optimized)
+        let isScrolling = false;
         window.addEventListener('scroll', () => {
-            const logo01 = document.getElementById('logo-01');
-            if (logo01) {
-                const scrollY = window.scrollY;
-                const threshold = 100; // หมุนหลังจากเลื่อนลงมา 100px
-                if (scrollY > threshold) {
-                    const rotateVal = (scrollY - threshold) * 0.4; // ความเร็วในการหมุน 0.4 ปรับได้ตามต้องการ
-                    logo01.style.transform = `rotate(${rotateVal}deg)`;
-                } else {
-                    logo01.style.transform = `rotate(0deg)`;
-                }
+            if (!isScrolling) {
+                window.requestAnimationFrame(() => {
+                    const logo01 = document.getElementById('logo-01');
+                    if (logo01) {
+                        const scrollY = window.scrollY;
+                        const threshold = 100;
+                        if (scrollY > threshold) {
+                            const rotateVal = (scrollY - threshold) * 0.4;
+                            logo01.style.transform = `rotate(${rotateVal}deg) translateZ(0)`; // เพิ่ม translateZ(0) เพื่อบังคับใช้ Hardware Acceleration
+                        } else {
+                            logo01.style.transform = `rotate(0deg) translateZ(0)`;
+                        }
+                    }
+                    isScrolling = false;
+                });
+                isScrolling = true;
             }
-        });
+        }, { passive: true }); // เพิ่ม passive: true เพื่อไม่ให้บล็อกการเลื่อนหน้าจอ
 
         window.app = app; 
     </script>
