@@ -1787,7 +1787,7 @@
                         ${!filterParam ? `
                         <div class="relative z-10 w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-8 px-4">
                             <div class="flex flex-col items-center justify-center w-full md:w-[40%] gap-4 md:gap-5">
-                                <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[65vw] md:w-[30vw] max-w-[280px] h-auto object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-slide-up origin-center" onerror="this.src='./LOGO MORANASATECT.png'">
+                                <img id="logo-01" src="./LOGO 01.png" alt="LOGO 01" class="relative z-10 w-[65vw] md:w-[30vw] max-w-[280px] h-auto object-contain drop-shadow-lg animate-slide-up origin-center will-change-transform" onerror="this.src='./LOGO MORANASATECT.png'">
                                 <img src="./LOGO 02.png" alt="นิทรรศการแสดงผลงานวิทยานิพนธ์ 2568" class="relative z-10 w-[75%] sm:w-[60%] md:w-[45%] max-w-[170px] object-contain animate-slide-up" style="animation-delay: 0.1s" onerror="this.style.display='none'">
                             </div>
                             
@@ -1799,14 +1799,14 @@
                         <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-4 mt-4 mx-auto flex justify-center" style="animation-delay: 0.12s">
                             <img src="./adviser.png" alt="Advisors" 
                                  onclick="if(!app.isMenuOpen) app.toggleMenu(); const adv = document.getElementById('advisorAccordion'); if(adv && adv.classList.contains('hidden')) app.toggleMenuAccordion('advisorAccordion'); window.scrollTo({top: 0, behavior: 'smooth'});"
-                                 class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-2xl hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
+                                 class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-md hover:drop-shadow-lg" 
                                  onerror="this.style.display='none'">
                         </div>
 
                         <div class="relative z-10 w-full max-w-5xl px-4 animate-slide-up mb-6 mx-auto flex justify-center" style="animation-delay: 0.13s">
                             <img src="./student.png" alt="Students" 
                                  onclick="const target = document.getElementById('studentGridTarget'); if(target) { const headerOffset = 80; const elementPosition = target.getBoundingClientRect().top; const offsetPosition = elementPosition + window.pageYOffset - headerOffset; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }"
-                                 class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-2xl hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" 
+                                 class="w-full h-auto object-contain cursor-pointer hover:scale-[1.02] transition-all duration-300 drop-shadow-md hover:drop-shadow-lg" 
                                  onerror="this.style.display='none'">
                         </div>
                         ` : `
@@ -4398,14 +4398,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             app.init();
-            
-            // ให้คำนวณกราฟิกแค่ช่วงแรก แล้วสั่งแช่แข็ง (Pause) ก้อนสีพื้นหลังหลังจาก 4 วินาที
-            // เพื่อลดการทำงานของ GPU มือถือ แก้ปัญหาเครื่องร้อนและหน่วง โดยที่ภาพยังเบลอสวยงามไม่เป็นเหลี่ยม
-            setTimeout(() => {
-                document.querySelectorAll('.animate-blob').forEach(el => {
-                    el.style.animationPlayState = 'paused';
-                });
-            }, 4000);
         });
         
         // Scroll Listener for LOGO 01 Rotation (Optimized)
@@ -4419,7 +4411,7 @@
                         const threshold = 100;
                         if (scrollY > threshold) {
                             const rotateVal = (scrollY - threshold) * 0.4;
-                            logo01.style.transform = `rotate(${rotateVal}deg) translateZ(0)`; // เพิ่ม translateZ(0) เพื่อบังคับใช้ Hardware Acceleration
+                            logo01.style.transform = `rotate(${rotateVal}deg) translateZ(0)`;
                         } else {
                             logo01.style.transform = `rotate(0deg) translateZ(0)`;
                         }
@@ -4428,7 +4420,7 @@
                 });
                 isScrolling = true;
             }
-        }, { passive: true }); // เพิ่ม passive: true เพื่อไม่ให้บล็อกการเลื่อนหน้าจอ
+        }, { passive: true });
 
         window.app = app; 
     </script>
