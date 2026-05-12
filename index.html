@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -2144,11 +2145,24 @@
 
             playVideoPopup: function(url) {
                 let displayUrl = url;
+                
+                // 1. คัดกรองเอาเฉพาะ URL (แก้ปัญหา 404 เมื่อมีตัวอักษรพิมพ์ติดมากับลิงก์)
+                const linkMatch = displayUrl.match(/(https?:\/\/[^\s]+)/);
+                if (linkMatch) {
+                    displayUrl = linkMatch[1];
+                }
+
+                // 2. แปลงลิงก์ให้อยู่ในรูปแบบ Embed (รองรับทั้ง Google Drive และ YouTube)
                 if (displayUrl.includes('drive.google.com/file/d/')) {
                     const match = displayUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                     if (match) displayUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
                 } else if (displayUrl.includes('drive.google.com/uc?') || displayUrl.includes('drive.google.com/open?')) {
                     try { displayUrl = `https://drive.google.com/file/d/${new URL(displayUrl).searchParams.get('id')}/preview`; } catch(e) {}
+                } else if (displayUrl.includes('youtube.com/watch')) {
+                    try { displayUrl = `https://www.youtube.com/embed/${new URL(displayUrl).searchParams.get('v')}`; } catch(e) {}
+                } else if (displayUrl.includes('youtu.be/')) {
+                    const match = displayUrl.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+                    if (match) displayUrl = `https://www.youtube.com/embed/${match[1]}`;
                 }
 
                 let iframeId = 'video-iframe-' + Date.now();
