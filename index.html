@@ -483,6 +483,7 @@
                 sharingCloseMsg: '',
                 allowEdit: true,
                 isHomeMenuForStudentOpen: true, 
+                isGuestFormOpen: true, // <-- เพิ่มบรรทัดนี้
                 sessionDurationHours: 2, 
                 sessionApplyGuest: true, 
                 sessionApplyStudent: false, 
@@ -723,6 +724,7 @@
                         if(data.isSystemOpen !== undefined && data.isStudentLoginOpen === undefined) {
                             data.isStudentLoginOpen = data.isSystemOpen;
                             data.isPublicGuestOpen = data.isSystemOpen;
+                            if(data.isGuestFormOpen === undefined) data.isGuestFormOpen = true; // <-- เพิ่มบรรทัดนี้
                         }
                         if(data.isSharingOpen === undefined) {
                             data.isSharingOpen = data.isSystemOpen !== false;
@@ -2045,13 +2047,18 @@
                     </div>`;
                 }
 
-                app.tempGuestRole = ''; 
-                const roleBtns = guestRoles.map(r => `
-                    <button onclick="app.selectGuestRole('${r}')" id="role-btn-${r}"
-                        class="role-btn flex-1 py-3 px-1 rounded-xl text-[10px] sm:text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-all truncate">
-                        ${r}
-                    </button>
-                `).join('');
+                // แทรประบบ Auto-Login หากแอดมินปิดหน้าฟอร์มไว้
+                if (app.settings.isGuestFormOpen === false) {
+                    setTimeout(() => app.autoRegisterGuest(), 100);
+                    return `
+                    <div class="flex-1 flex flex-col items-center justify-center min-h-[60vh] text-secondary my-auto">
+                        <i class="fa-solid fa-circle-notch fa-spin text-5xl mb-4"></i>
+                        <p class="font-bold tracking-widest uppercase animate-pulse mt-4">กำลังเข้าสู่ระบบอัตโนมัติ...</p>
+                    </div>`;
+                }
+
+                // สร้างตัวเลือกสำหรับ Dropdown
+                const optionsHtml = guestRoles.map(r => `<option value="${r}">${r}</option>`).join('');
 
                 return `
                 <div class="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
@@ -2071,10 +2078,14 @@
                                     <input type="text" id="inputGuestName" placeholder="ชื่อเล่น หรือ นามปากกา..." 
                                         class="glass-input w-full px-4 py-4 rounded-xl transition-all outline-none text-center font-bold text-white shadow-inner text-sm">
                                 </div>
-                                <div>
+                                <div class="relative">
                                     <label class="block text-[10px] font-bold text-gray-400 mb-2 ml-2 uppercase tracking-widest">ประเภทผู้เยี่ยมชม</label>
-                                    <div class="grid grid-cols-3 gap-2">
-                                        ${roleBtns}
+                                    <div class="relative w-full">
+                                        <select id="selectGuestRole" class="glass-input w-full px-4 py-4 rounded-xl transition-all outline-none text-center font-bold text-white shadow-inner text-sm appearance-none cursor-pointer">
+                                            <option value="" disabled selected>-- กรุณาเลือกประเภท --</option>
+                                            ${optionsHtml}
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none"></i>
                                     </div>
                                 </div>
                             </div>
@@ -2106,12 +2117,49 @@
 
             registerGuest: function() {
                 const name = document.getElementById('inputGuestName').value.trim();
-                const role = app.tempGuestRole;
+                const roleElement = document.getElementById('selectGuestRole');
+                const role = roleElement ? roleElement.value : '';
+                
                 if(!name) return app.swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อของคุณ', 'warning');
                 if(!role) return app.swal.fire('แจ้งเตือน', 'กรุณาเลือกประเภทผู้เยี่ยมชม', 'warning');
                 
                 const finalName = `${name} (${role})`;
-                const gid = 'G_' + Math.random().toString(36).substr(2, 6);
+                const gid = 'G_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                const loginTime = Date.now();
+                
+                app.profile = { uid: gid, name: finalName, role: 'guest', id: 0, loginTime: loginTime };
+                localStorage.setItem('moranasatect_profile', JSON.stringify(app.profile));
+                
+                app.logSystemAccess('guest', finalName);
+                app.updateMenuVisibility();
+                app.setupSessionTimeout();
+                
+                if (app.pendingExhibitId) {
+                    const targetStudent = window.predefinedUsers.find(u => u.studentId === app.pendingExhibitId);
+                    if (targetStudent) {
+                        app.openExhibit(app.pendingExhibitId, false);
+                    } else {
+                        app.swal.fire({
+                            title: 'ไม่พบผลงาน',
+                            text: 'ไม่พบลิงก์ผลงานที่ท่านต้องการ กรุณาสแกนคิวอาร์โค้ดหรือเปิดลิงก์ใหม่อีกครั้ง',
+                            icon: 'warning',
+                            confirmButtonText: 'ตกลง'
+                        });
+                        app.routeBasedOnRole();
+                    }
+                    app.pendingExhibitId = null;
+                } else if (app.pendingAdvisorId) {
+                    app.showView('advisor_profile', app.pendingAdvisorId);
+                    app.pendingAdvisorId = null;
+                } else {
+                    app.routeBasedOnRole();
+                }
+            },
+
+            // เพิ่มฟังก์ชันสำหรับล็อกอินอัตโนมัติ
+            autoRegisterGuest: function() {
+                const gid = 'G_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                const finalName = `Guest_${gid}`;
                 const loginTime = Date.now();
                 
                 app.profile = { uid: gid, name: finalName, role: 'guest', id: 0, loginTime: loginTime };
@@ -3000,6 +3048,19 @@
                             </div>
                         </div>
                         
+                        <div class="flex flex-col p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner mt-6 mb-6">
+                            <div class="flex items-start sm:items-center justify-between gap-4 w-full">
+                                <div>
+                                    <p class="font-bold text-white text-sm">หน้าฟอร์มให้กรอกชื่อผู้เยี่ยมชม</p>
+                                    <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">หากปิดระบบนี้ ผู้เยี่ยมชมจะถูกล็อกอินอัตโนมัติด้วยไอดีชั่วคราว (ไม่ต้องเลือกประเภทและกรอกชื่อ)</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" ${app.settings.isGuestFormOpen !== false ? 'checked' : ''} onchange="app.updateSetting('isGuestFormOpen', this.checked)" class="sr-only peer">
+                                    <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 bg-black/40 rounded-2xl border border-white/10 gap-4 shadow-inner">
                             <div>
                                 <p class="font-bold text-white text-sm">แสดงเมนู "หน้าหลัก (รวมผลงาน)" ให้นักศึกษา</p>
