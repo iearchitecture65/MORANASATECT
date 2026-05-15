@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -882,7 +881,42 @@
                         cats.add(d.category.trim());
                     }
                 });
-                return Array.from(cats).sort();
+
+                // 1. กำหนดลำดับคีย์เวิร์ดหมวดหมู่ที่ต้องการให้เรียง (อ้างอิงจากภาษาอังกฤษ)
+                const customOrder = [
+                    "Urban architecture",
+                    "Social and community",
+                    "Infrastructure",
+                    "Educational",
+                    "Art and Culture",
+                    "Healthcare",
+                    "Sport and Activities",
+                    "Environment",
+                    "Museum"
+                ];
+
+                // 2. แปลง Set เป็น Array แล้วใช้ฟังก์ชันเรียงลำดับแบบกำหนดเอง
+                return Array.from(cats).sort((a, b) => {
+                    // ทำความสะอาดชื่อหมวดหมู่ชั่วคราวเพื่อเทียบ (ลบตัวเลขนำหน้าออกถ้ามี และแปลงเป็นตัวพิมพ์เล็ก)
+                    const cleanA = a.replace(/^\d+\.\s*/, '').toLowerCase();
+                    const cleanB = b.replace(/^\d+\.\s*/, '').toLowerCase();
+
+                    // หาตำแหน่ง (Index) ของหมวดหมู่นั้นๆ ในตารางลำดับ customOrder
+                    let indexA = customOrder.findIndex(item => cleanA.includes(item.toLowerCase()));
+                    let indexB = customOrder.findIndex(item => cleanB.includes(item.toLowerCase()));
+
+                    // หากหมวดหมู่ใดไม่มีรายชื่ออยู่ใน customOrder ให้ผลักไปอยู่ท้ายสุด
+                    if (indexA === -1) indexA = customOrder.length;
+                    if (indexB === -1) indexB = customOrder.length;
+
+                    // เรียงตำแหน่งตาม Index ที่พบ
+                    if (indexA !== indexB) {
+                        return indexA - indexB;
+                    }
+                    
+                    // หากตรวจสอบแล้วหมวดหมู่อยู่ในระดับเดียวกัน (เช่นไม่อยู่ใน List ทั้งคู่) ให้เรียงตามตัวอักษรปกติ
+                    return a.localeCompare(b);
+                });
             },
 
             formatCategoryMenu: function(rawCat) {
